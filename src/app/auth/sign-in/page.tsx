@@ -11,8 +11,6 @@ export const metadata: Metadata = {
 export default function SignIn() {
   return (
     <>
-      <Breadcrumb pageName="Sign In" />
-
       <div className="rounded-[10px] bg-white shadow-1 dark:bg-gray-dark dark:shadow-card">
         <div className="flex flex-wrap items-center">
           <div className="w-full xl:w-1/2">
@@ -44,12 +42,11 @@ export default function SignIn() {
               </p>
 
               <h1 className="mb-4 text-2xl font-bold text-dark dark:text-white sm:text-heading-3">
-                Welcome Back!
+                Bengkel Dashboard
               </h1>
 
               <p className="w-full max-w-[375px] font-medium text-dark-4 dark:text-dark-6">
-                Please sign in to your account by completing the necessary
-                fields below
+                Silakan masuk ke akun Anda untuk mengelola antrean, inventori, dan transaksi bengkel hari ini.
               </p>
 
               <div className="mt-31">

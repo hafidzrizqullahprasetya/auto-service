@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_DATA } from "./data";
-import { ArrowLeftIcon, ChevronUp } from "./icons";
+import { Icons } from "@/components/Icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
 
@@ -26,18 +26,17 @@ export function Sidebar() {
 
   useEffect(() => {
     // Keep collapsible open, when it's subpage is active
-    NAV_DATA.some((section) => {
-      return section.items.some((item) => {
-        return item.items.some((subItem) => {
-          if (subItem.url === pathname) {
-            if (!expandedItems.includes(item.title)) {
-              toggleExpanded(item.title);
+    NAV_DATA.forEach((section) => {
+      section.items.forEach((item) => {
+        if (item.items && item.items.length > 0) {
+          item.items.forEach((subItem: any) => {
+            if (subItem.url === pathname) {
+              if (!expandedItems.includes(item.title)) {
+                toggleExpanded(item.title);
+              }
             }
-
-            // Break the loop
-            return true;
-          }
-        });
+          });
+        }
       });
     });
   }, [pathname]);
@@ -80,7 +79,7 @@ export function Sidebar() {
               >
                 <span className="sr-only">Close Menu</span>
 
-                <ArrowLeftIcon className="ml-auto size-7" />
+                <Icons.Logout className="ml-auto size-7 rotate-180" />
               </button>
             )}
           </div>
@@ -112,7 +111,7 @@ export function Sidebar() {
 
                               <span>{item.title}</span>
 
-                              <ChevronUp
+                              <Icons.ChevronUp
                                 className={cn(
                                   "ml-auto rotate-180 transition-transform duration-200",
                                   expandedItems.includes(item.title) &&
@@ -127,7 +126,7 @@ export function Sidebar() {
                                 className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
                                 role="menu"
                               >
-                                {item.items.map((subItem) => (
+                                {item.items.map((subItem: any) => (
                                   <li key={subItem.title} role="none">
                                     <MenuItem
                                       as="link"
@@ -147,7 +146,7 @@ export function Sidebar() {
                               "url" in item
                                 ? item.url + ""
                                 : "/" +
-                                  item.title.toLowerCase().split(" ").join("-");
+                                  (item as any).title.toLowerCase().split(" ").join("-");
 
                             return (
                               <MenuItem

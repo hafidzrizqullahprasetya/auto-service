@@ -13,3 +13,7 @@ export function standardFormat(value: number) {
     maximumFractionDigits: 2,
   });
 }
+
+export function formatNumber(value: number) {
+  return value.toLocaleString("id-ID");
+}

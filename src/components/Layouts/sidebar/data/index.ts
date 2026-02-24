@@ -1,4 +1,4 @@
-import * as Icons from "../icons";
+import { Icons } from "@/components/Icons";
 
 export const NAV_DATA = [
   {
@@ -6,99 +6,79 @@ export const NAV_DATA = [
     items: [
       {
         title: "Dashboard",
-        icon: Icons.HomeIcon,
-        items: [
-          {
-            title: "eCommerce",
-            url: "/",
-          },
-        ],
-      },
-      {
-        title: "Calendar",
-        url: "/calendar",
-        icon: Icons.Calendar,
+        icon: Icons.Dashboard,
+        url: "/",
         items: [],
       },
       {
-        title: "Profile",
-        url: "/profile",
-        icon: Icons.User,
+        title: "Antrean Masuk",
+        icon: Icons.Antrean,
+        url: "/bengkel/antrean",
         items: [],
       },
       {
-        title: "Forms",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "Form Elements",
-            url: "/forms/form-elements",
-          },
-          {
-            title: "Form Layout",
-            url: "/forms/form-layout",
-          },
-        ],
-      },
-      {
-        title: "Tables",
-        url: "/tables",
-        icon: Icons.Table,
-        items: [
-          {
-            title: "Tables",
-            url: "/tables",
-          },
-        ],
-      },
-      {
-        title: "Pages",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "Settings",
-            url: "/pages/settings",
-          },
-        ],
+        title: "Kasir & POS",
+        icon: Icons.Kasir,
+        url: "/bengkel/kasir",
+        items: [],
       },
     ],
   },
   {
-    label: "OTHERS",
+    label: "DATA MASTER",
     items: [
       {
-        title: "Charts",
-        icon: Icons.PieChart,
-        items: [
-          {
-            title: "Basic Chart",
-            url: "/charts/basic-chart",
-          },
-        ],
+        title: "Pelanggan",
+        icon: Icons.Pelanggan,
+        url: "/bengkel/pelanggan",
+        items: [],
       },
       {
-        title: "UI Elements",
-        icon: Icons.FourCircle,
-        items: [
-          {
-            title: "Alerts",
-            url: "/ui-elements/alerts",
-          },
-          {
-            title: "Buttons",
-            url: "/ui-elements/buttons",
-          },
-        ],
+        title: "Kendaraan",
+        icon: Icons.KendaraanMobil,
+        url: "/bengkel/kendaraan",
+        items: [],
       },
       {
-        title: "Authentication",
-        icon: Icons.Authentication,
-        items: [
-          {
-            title: "Sign In",
-            url: "/auth/sign-in",
-          },
-        ],
+        title: "Inventori & Stok",
+        icon: Icons.Inventory,
+        url: "/bengkel/inventori",
+        items: [],
+      },
+      {
+        title: "Purchase Order",
+        icon: Icons.Database,
+        url: "/bengkel/purchase-order",
+        items: [],
+      },
+      {
+        title: "Karyawan",
+        icon: Icons.Karyawan,
+        url: "/bengkel/karyawan",
+        items: [],
+      },
+    ],
+  },
+  {
+    label: "REPORT & SETTINGS",
+    items: [
+      {
+        title: "Laporan Keuangan",
+        icon: Icons.Laporan,
+        url: "/bengkel/laporan",
+        items: [],
+      },
+      {
+        title: "Reminder & Follow-up",
+        icon: Icons.Notification,
+        url: "/bengkel/reminder",
+        items: [],
+      },
+      {
+        title: "Pengaturan",
+        icon: Icons.Settings,
+        url: "/bengkel/pengaturan",
+        items: [],
       },
     ],
   },

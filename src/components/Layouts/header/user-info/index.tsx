@@ -9,16 +9,24 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 
 export function UserInfo() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const USER = {
-    name: "John Smith",
-    email: "johnson@nextadmin.com",
+    name: "Admin Bengkel",
+    email: "admin@autoservice.com",
     img: "/images/user/user-03.png",
+  };
+
+  const handleLogout = () => {
+    setIsOpen(false);
+    // Simulate logout process
+    router.push("/auth/sign-in");
   };
 
   return (
@@ -85,7 +93,7 @@ export function UserInfo() {
           >
             <UserIcon />
 
-            <span className="mr-auto text-base font-medium">View profile</span>
+            <span className="mr-auto text-base font-medium">Lihat Profil</span>
           </Link>
 
           <Link
@@ -96,7 +104,7 @@ export function UserInfo() {
             <SettingsIcon />
 
             <span className="mr-auto text-base font-medium">
-              Account Settings
+              Pengaturan Akun
             </span>
           </Link>
         </div>
@@ -105,12 +113,12 @@ export function UserInfo() {
 
         <div className="p-2 text-base text-[#4B5563] dark:text-dark-6">
           <button
-            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] hover:bg-gray-2 hover:text-dark dark:hover:bg-dark-3 dark:hover:text-white"
-            onClick={() => setIsOpen(false)}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] text-red hover:bg-red-light-6 dark:hover:bg-red-light-6"
+            onClick={handleLogout}
           >
             <LogOutIcon />
 
-            <span className="text-base font-medium">Log out</span>
+            <span className="text-base font-medium">Keluar (Logout)</span>
           </button>
         </div>
       </DropdownContent>
