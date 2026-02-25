@@ -53,6 +53,7 @@ export function TransactionTable() {
               <TableHead className="min-w-[150px] font-bold text-left px-4">Pelanggan</TableHead>
               <TableHead className="font-bold text-center px-4">Tipe</TableHead>
               <TableHead className="font-bold text-left px-4">Total Bayar</TableHead>
+              <TableHead className="font-bold text-center px-4">Status</TableHead>
               <TableHead className="font-bold text-center px-4">Metode</TableHead>
               <TableHead className="text-right font-bold pr-4">Opsi</TableHead>
             </TableRow>
@@ -89,8 +90,20 @@ export function TransactionTable() {
 
                   <TableCell className="px-4">
                     <p className="font-black text-dark dark:text-white">Rp {formatNumber(tx.total)}</p>
+                    {tx.paymentStatus === "DP" && tx.dpAmount && (
+                      <p className="text-[10px] text-dark-5">DP: Rp {formatNumber(tx.dpAmount)} · Sisa: Rp {formatNumber(tx.total - tx.dpAmount)}</p>
+                    )}
                   </TableCell>
 
+                  <TableCell className="text-center px-4">
+                    <Badge variant={
+                      tx.paymentStatus === "Lunas" ? "success" 
+                      : tx.paymentStatus === "DP" ? "warning" 
+                      : "danger"
+                    } className="text-[10px]">
+                      {tx.paymentStatus}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-center px-4">
                      <div className="flex items-center justify-center gap-2 text-xs font-bold text-dark dark:text-white">
                        {tx.paymentMethod === "Cash" && <Icons.Cash size={14} className="text-green" />}

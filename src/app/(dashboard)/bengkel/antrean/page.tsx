@@ -20,6 +20,12 @@ export default function AntreanPage() {
     );
   };
 
+  const handleMechanicAssign = (id: string, mekanik: string) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, mekanik } : item))
+    );
+  };
+
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -52,7 +58,7 @@ export default function AntreanPage() {
       </div>
 
       {view === "kanban" ? (
-        <KanbanBoard items={items} onStatusChange={handleStatusChange} />
+        <KanbanBoard items={items} onStatusChange={handleStatusChange} onMechanicAssign={handleMechanicAssign} />
       ) : (
         <AntreanTable />
       )}

@@ -1,5 +1,6 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { LaporanKeuangan } from "@/components/Bengkel/LaporanKeuangan";
+import { LaporanAnalitik } from "@/components/Bengkel/LaporanAnalitik";
 import { TransactionTable } from "@/components/Bengkel/TransactionTable";
 import { Metadata } from "next";
 
@@ -13,6 +14,7 @@ export default function LaporanPage() {
       <Breadcrumb pageName="Laporan Keuangan" />
       <div className="flex flex-col gap-6 md:gap-8">
         <LaporanKeuangan />
+        <LaporanAnalitik />
         <div className="rounded-[10px] border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-gray-dark">
           <TransactionTable />
         </div>

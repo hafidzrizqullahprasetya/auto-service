@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
+import { KatalogJasa } from "./KatalogJasa";
 
-type Tab = "bengkel" | "operasional" | "invoice";
+type Tab = "bengkel" | "operasional" | "invoice" | "katalog";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "bengkel", label: "Profil Bengkel", icon: Icons.Dashboard },
   { id: "operasional", label: "Operasional", icon: Icons.Repair },
   { id: "invoice", label: "Pengaturan Invoice", icon: Icons.Print },
+  { id: "katalog", label: "Katalog Jasa", icon: Icons.Kasir },
 ];
 
 function InputField({
@@ -314,16 +316,19 @@ export function PengaturanBengkel() {
       {activeTab === "bengkel" && <ProfilTab />}
       {activeTab === "operasional" && <OperasionalTab />}
       {activeTab === "invoice" && <InvoiceTab />}
+      {activeTab === "katalog" && <KatalogJasa />}
 
-      {/* Save Button */}
-      <div className="flex justify-end gap-3">
-        <button className="rounded-xl border border-stroke px-6 py-2.5 text-sm font-semibold text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">
-          Reset
-        </button>
-        <button className="rounded-xl bg-primary px-8 py-2.5 text-sm font-bold text-white hover:bg-opacity-90 transition-all active:scale-95 shadow-sm">
-          Simpan Perubahan
-        </button>
-      </div>
+      {/* Save Button — only for form tabs */}
+      {activeTab !== "katalog" && (
+        <div className="flex justify-end gap-3">
+          <button className="rounded-xl border border-stroke px-6 py-2.5 text-sm font-semibold text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">
+            Reset
+          </button>
+          <button className="rounded-xl bg-primary px-8 py-2.5 text-sm font-bold text-white hover:bg-opacity-90 transition-all active:scale-95 shadow-sm">
+            Simpan Perubahan
+          </button>
+        </div>
+      )}
     </div>
   );
 }

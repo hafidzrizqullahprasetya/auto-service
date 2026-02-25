@@ -7,6 +7,8 @@ export interface Antrean {
   layanan: string;
   status: "Menunggu" | "Dikerjakan" | "Menunggu Sparepart" | "Selesai";
   waktuMasuk: string;
+  mekanik?: string;
+  estimasiSelesai?: string; // e.g. "2 jam"
 }
 
 export const MOCK_ANTREAN: Antrean[] = [
@@ -19,6 +21,8 @@ export const MOCK_ANTREAN: Antrean[] = [
     layanan: "Ganti Oli & Filter",
     status: "Dikerjakan",
     waktuMasuk: "2024-05-24T08:30:00Z",
+    mekanik: "Suryo Atmojo",
+    estimasiSelesai: "1 jam",
   },
   {
     id: "2",
@@ -29,6 +33,7 @@ export const MOCK_ANTREAN: Antrean[] = [
     layanan: "Service Rutin 10.000km",
     status: "Menunggu",
     waktuMasuk: "2024-05-24T09:15:00Z",
+    estimasiSelesai: "3 jam",
   },
   {
     id: "3",
@@ -39,6 +44,7 @@ export const MOCK_ANTREAN: Antrean[] = [
     layanan: "Cek Rem & Kaki-kaki",
     status: "Selesai",
     waktuMasuk: "2024-05-24T07:45:00Z",
+    mekanik: "Budi Setiadi",
   },
   {
     id: "4",
@@ -59,5 +65,6 @@ export const MOCK_ANTREAN: Antrean[] = [
     layanan: "Servis Injeksi",
     status: "Menunggu Sparepart",
     waktuMasuk: "2024-05-24T10:30:00Z",
+    mekanik: "Agus Prasetyo",
   },
 ];

@@ -10,6 +10,8 @@ export interface Transaction {
   total: number;
   paymentMethod: "Cash" | "Transfer" | "E-Wallet" | "Card";
   type: "Service" | "Sparepart Only";
+  paymentStatus: "Lunas" | "DP" | "Piutang";
+  dpAmount?: number;
 }
 
 export const MOCK_TRANSACTIONS: Transaction[] = [
@@ -28,7 +30,8 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     tax: 51150,
     total: 516150,
     paymentMethod: "Cash",
-    type: "Service"
+    type: "Service",
+    paymentStatus: "Lunas",
   },
   {
     id: "tx2",
@@ -44,7 +47,9 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     tax: 93500,
     total: 943500,
     paymentMethod: "Transfer",
-    type: "Service"
+    type: "Service",
+    paymentStatus: "DP",
+    dpAmount: 500000,
   },
   {
     id: "tx3",
@@ -59,6 +64,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     tax: 6050,
     total: 61050,
     paymentMethod: "E-Wallet",
-    type: "Sparepart Only"
+    type: "Sparepart Only",
+    paymentStatus: "Lunas",
   }
 ];

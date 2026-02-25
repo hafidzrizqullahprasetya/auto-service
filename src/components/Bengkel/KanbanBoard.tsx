@@ -9,6 +9,8 @@ import "dayjs/locale/id";
 
 dayjs.locale("id");
 
+const MECHANICS = ["Suryo Atmojo", "Budi Setiadi", "Agus Prasetyo"];
+
 const STATUS_COLUMNS: Antrean["status"][] = [
   "Menunggu",
   "Dikerjakan",
@@ -46,10 +48,12 @@ const STATUS_CONFIG = {
 interface KanbanCardProps {
   item: Antrean;
   onStatusChange: (id: string, status: Antrean["status"]) => void;
+  onMechanicAssign: (id: string, mekanik: string) => void;
 }
 
-function KanbanCard({ item, onStatusChange }: KanbanCardProps) {
+function KanbanCard({ item, onStatusChange, onMechanicAssign }: KanbanCardProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [showMechanicMenu, setShowMechanicMenu] = useState(false);
 
   const nextStatusMap: Partial<Record<Antrean["status"], Antrean["status"]>> = {
     Menunggu: "Dikerjakan",
@@ -131,6 +135,49 @@ function KanbanCard({ item, onStatusChange }: KanbanCardProps) {
             Masuk: {dayjs(item.waktuMasuk).format("HH:mm")}
           </span>
         </div>
+
+        {/* Mekanik assignment */}
+        <div className="relative mt-2">
+          <button
+            onClick={() => { setShowMechanicMenu(!showMechanicMenu); setShowMenu(false); }}
+            className={cn(
+              "flex w-full items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-all",
+              item.mekanik
+                ? "bg-primary/10 text-primary font-semibold"
+                : "border border-dashed border-stroke dark:border-dark-3 text-dark-5 hover:border-primary hover:text-primary"
+            )}
+          >
+            <Icons.Karyawan size={11} />
+            {item.mekanik ?? "Tugaskan Mekanik"}
+          </button>
+          {showMechanicMenu && (
+            <div className="absolute left-0 top-full z-20 mt-1 w-full rounded-xl border border-stroke bg-white shadow-lg dark:border-dark-3 dark:bg-dark-2 p-1">
+              {MECHANICS.map((m) => (
+                <button
+                  key={m}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors",
+                    item.mekanik === m && "font-bold text-primary"
+                  )}
+                  onClick={() => { onMechanicAssign(item.id, m); setShowMechanicMenu(false); }}
+                >
+                  <span className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-[10px]">
+                    {m.charAt(0)}
+                  </span>
+                  {m}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Estimasi */}
+        {item.estimasiSelesai && (
+          <div className="flex items-center gap-1.5 text-xs">
+            <Icons.Chart size={11} className="text-dark-5 shrink-0" />
+            <span className="text-dark-5">Est. selesai: <strong className="text-dark dark:text-white">{item.estimasiSelesai}</strong></span>
+          </div>
+        )}
       </div>
 
       {/* Action */}
@@ -149,9 +196,10 @@ function KanbanCard({ item, onStatusChange }: KanbanCardProps) {
 interface KanbanBoardProps {
   items: Antrean[];
   onStatusChange: (id: string, status: Antrean["status"]) => void;
+  onMechanicAssign: (id: string, mekanik: string) => void;
 }
 
-export function KanbanBoard({ items, onStatusChange }: KanbanBoardProps) {
+export function KanbanBoard({ items, onStatusChange, onMechanicAssign }: KanbanBoardProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {STATUS_COLUMNS.map((status) => {
@@ -185,6 +233,7 @@ export function KanbanBoard({ items, onStatusChange }: KanbanBoardProps) {
                     key={item.id}
                     item={item}
                     onStatusChange={onStatusChange}
+                    onMechanicAssign={onMechanicAssign}
                   />
                 ))
               ) : (
