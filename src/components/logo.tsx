@@ -3,9 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export function Logo() {
+interface LogoProps {
+  onClick?: () => void;
+}
+
+export function Logo({ onClick }: LogoProps) {
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -13,7 +17,7 @@ export function Logo() {
   if (!mounted) return <div className="h-10 w-32" />; // Avoid hydration mismatch
 
   return (
-    <Link href="/" className="flex items-center gap-3 group">
+    <Link href="/" onClick={onClick} className="flex items-center gap-3 group">
       <div className="relative flex items-center justify-center rounded-xl bg-dark p-2 shadow-lg transition-all duration-300 group-hover:scale-110 dark:bg-white/10 dark:backdrop-blur-md">
         <svg
           width="28"

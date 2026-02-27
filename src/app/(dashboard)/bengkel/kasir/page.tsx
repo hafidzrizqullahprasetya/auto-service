@@ -5,9 +5,9 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { ItemCard } from "@/components/Bengkel/POS/ItemCard";
 import { CartItemRow } from "@/components/Bengkel/POS/CartItem";
 import { OrderSummary } from "@/components/Bengkel/POS/OrderSummary";
+import { InvoiceModal } from "@/components/Bengkel/Kasir";
 import { MOCK_ITEMS, Item } from "@/mock/inventory";
 import { standardFormat } from "@/lib/format-number";
-import { InvoiceModal } from "@/components/Bengkel/InvoiceModal";
 import { Transaction } from "@/mock/transactions";
 import dayjs from "dayjs";
 
@@ -69,7 +69,8 @@ export default function KasirPage() {
       tax,
       total,
       paymentMethod: "Cash",
-      type: cart.some(c => c.item.category === "Service") ? "Service" : "Sparepart Only"
+      type: cart.some(c => c.item.category === "Service") ? "Service" : "Sparepart Only",
+      paymentStatus: "Lunas"
     };
 
     setLastTransaction(newTx);
@@ -79,7 +80,7 @@ export default function KasirPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <Breadcrumb pageName="Kasir & POS" />
+      <Breadcrumb pageName="Kasir" />
 
       <div className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5">
         {/* Left Side: Catalog */}

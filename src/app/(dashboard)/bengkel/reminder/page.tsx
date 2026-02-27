@@ -1,15 +1,16 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { ReminderTable } from "@/components/Bengkel/ReminderTable";
+import { ReminderTable } from "@/components/Bengkel/shared";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Reminder & Follow-up | Bengkel AutoService",
+  title: "Reminder",
 };
 
 export default function ReminderPage() {
   return (
     <div className="mx-auto max-w-7xl">
-      <Breadcrumb pageName="Reminder & Follow-up" />
+      <Breadcrumb pageName="Reminder" />
+
       <ReminderTable />
     </div>
   );

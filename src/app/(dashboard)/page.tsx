@@ -3,10 +3,15 @@ import { VehicleTypeRatio } from "@/components/Bengkel/Dashboard/VehicleTypeRati
 import { WeeklyPerformance } from "@/components/Bengkel/Dashboard/WeeklyPerformance";
 import { TopServices } from "@/components/Bengkel/Dashboard/TopServices";
 import { RecentActivity } from "@/components/Bengkel/Dashboard/RecentActivity";
-import { createTimeFrameExtractor } from "@/utils/timeframe-extractor";
+import { createTimeFrameExtractor } from "@/lib/timeframe-extractor";
 import { Suspense } from "react";
 import { OverviewCardsGroup } from "./_components/overview-cards";
 import { OverviewCardsSkeleton } from "./_components/overview-cards/skeleton";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
 type PropsType = {
   searchParams: Promise<{

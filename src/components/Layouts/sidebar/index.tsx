@@ -2,11 +2,10 @@
 
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_DATA } from "./data";
-import { Icons } from "@/components/Icons";
+import { Icons } from "@/components/icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
 
@@ -54,9 +53,9 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "max-w-[290px] overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear dark:border-gray-800 dark:bg-gray-dark",
+          "overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear dark:border-gray-800 dark:bg-gray-dark",
           isMobile ? "fixed bottom-0 top-0 z-50" : "sticky top-0 h-screen",
-          isOpen ? "w-full" : "w-0",
+          isOpen ? "w-[290px]" : "w-[90px]",
         )}
         aria-label="Main navigation"
         aria-hidden={!isOpen}
@@ -64,28 +63,51 @@ export function Sidebar() {
       >
         <div className="flex h-full flex-col py-10 pl-[25px] pr-[7px]">
           <div className="relative pr-4.5">
-            <Link
-              href={"/"}
-              onClick={() => isMobile && toggleSidebar()}
-              className="px-0 py-2.5 min-[850px]:py-0"
-            >
-              <Logo />
-            </Link>
+            <div className={cn("px-0 py-2.5", !isOpen && "hidden", "min-[850px]:py-0")}>
+              <Logo onClick={() => isMobile && toggleSidebar()} />
+            </div>
+
+            {/* Logo icon when collapsed */}
+            {!isOpen && !isMobile && (
+              <div className="flex items-center justify-center py-3">
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mx-auto"
+                >
+                  <path
+                    d="M3 9L12 3L21 9V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9Z"
+                    stroke="#5750F1"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M7 14H17"
+                    stroke="#F87117"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            )}
 
             {isMobile && (
               <button
                 onClick={toggleSidebar}
-                className="absolute left-3/4 right-4.5 top-1/2 -translate-y-1/2 text-right"
+                className="absolute right-4.5 top-1/2 -translate-y-1/2"
               >
                 <span className="sr-only">Close Menu</span>
-
                 <Icons.Logout className="ml-auto size-7 rotate-180" />
               </button>
             )}
           </div>
 
-          {/* Navigation */}
-          <div className="custom-scrollbar mt-6 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
+          {/* Navigation - only show when sidebar is open */}
+          {isOpen && (
+            <div className="custom-scrollbar mt-6 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
             {NAV_DATA.map((section) => (
               <div key={section.label} className="mb-6">
                 <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
@@ -172,6 +194,7 @@ export function Sidebar() {
               </div>
             ))}
           </div>
+          )}
         </div>
       </aside>
     </>

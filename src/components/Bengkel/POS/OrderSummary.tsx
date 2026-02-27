@@ -1,5 +1,5 @@
 import { formatNumber } from "@/lib/format-number";
-import { ActionButton } from "../ActionButton";
+import { ActionButton } from "@/components/Bengkel/shared";
 
 interface OrderSummaryProps {
   subtotal: number;

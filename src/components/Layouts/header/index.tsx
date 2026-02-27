@@ -3,27 +3,50 @@
 import { SearchIcon } from "@/assets/icons";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSidebarContext } from "../sidebar/sidebar-context";
 import { MenuIcon } from "./icons";
 import { Notification } from "./notification";
 import { ThemeToggleSwitch } from "./theme-toggle";
 import { UserInfo } from "./user-info";
 
+const getPageTitle = (pathname: string) => {
+  const paths: Record<string, { title: string; subtitle: string }> = {
+    "/": { title: "Dashboard", subtitle: "AutoService - Premium Garage" },
+    "/bengkel/antrean": { title: "Antrean", subtitle: "Manajemen Antrean Bengkel" },
+    "/bengkel/inventori": { title: "Inventori", subtitle: "Manajemen Stok Sparepart" },
+    "/bengkel/karyawan": { title: "Karyawan", subtitle: "Data Mekanik & Staff" },
+    "/bengkel/kasir": { title: "Kasir", subtitle: "Point of Sale" },
+    "/bengkel/kendaraan": { title: "Kendaraan", subtitle: "Data Kendaraan Pelanggan" },
+    "/bengkel/laporan": { title: "Laporan", subtitle: "Analitik & Laporan" },
+    "/bengkel/pelanggan": { title: "Pelanggan", subtitle: "Data Pelanggan" },
+    "/bengkel/pengaturan": { title: "Pengaturan", subtitle: "Konfigurasi Bengkel" },
+    "/bengkel/purchase-order": { title: "Purchase Order", subtitle: "Manajemen PO" },
+    "/bengkel/reminder": { title: "Reminder", subtitle: "Pengingat Servis" },
+    "/calendar": { title: "Calendar", subtitle: "Jadwal & Agenda" },
+    "/charts/basic-chart": { title: "Charts", subtitle: "Visualisasi Data" },
+    "/forms/form-elements": { title: "Form Elements", subtitle: "Komponen Form" },
+    "/forms/form-layout": { title: "Form Layout", subtitle: "Tata Letak Form" },
+    "/pages/settings": { title: "Settings", subtitle: "Pengaturan Akun" },
+    "/profile": { title: "Profile", subtitle: "Profil Pengguna" },
+    "/tables": { title: "Tables", subtitle: "Tabel Data" },
+    "/ui-elements/alerts": { title: "Alerts", subtitle: "Komponen Peringatan" },
+    "/ui-elements/buttons": { title: "Buttons", subtitle: "Komponen Tombol" },
+  };
+
+  const path = pathname.split("/").slice(0, 4).join("/");
+  return paths[path] || { title: "Dashboard", subtitle: "AutoService" };
+};
+
 export function Header() {
-  const { toggleSidebar, isMobile } = useSidebarContext();
+  const pathname = usePathname();
+  const { isMobile } = useSidebarContext();
+  const { title, subtitle } = getPageTitle(pathname);
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
-      <button
-        onClick={toggleSidebar}
-        className="rounded-lg border px-1.5 py-1 dark:border-stroke-dark dark:bg-[#020D1A] hover:dark:bg-[#FFFFFF1A] lg:hidden"
-      >
-        <MenuIcon />
-        <span className="sr-only">Toggle Sidebar</span>
-      </button>
-
       {isMobile && (
-        <Link href={"/"} className="ml-2 max-[430px]:hidden min-[375px]:ml-4">
+        <Link href={"/"} className="max-[430px]:hidden min-[375px]:ml-4">
           <Image
             src={"/images/logo/logo-icon.svg"}
             width={32}
@@ -36,9 +59,9 @@ export function Header() {
 
       <div className="max-xl:hidden">
         <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
-          Dashboard
+          {title}
         </h1>
-        <p className="font-medium">Next.js Admin Dashboard Solution</p>
+        <p className="font-medium">{subtitle}</p>
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">

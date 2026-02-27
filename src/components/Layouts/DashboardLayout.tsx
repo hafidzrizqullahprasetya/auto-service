@@ -1,7 +1,7 @@
 "use client";
 
-import { Sidebar } from "@/components/Layouts/sidebar";
-import { Header } from "@/components/Layouts/header";
+import { Sidebar } from "@/components/layouts/sidebar";
+import { Header } from "@/components/layouts/header";
 import type { PropsWithChildren } from "react";
 
 export default function DashboardLayout({ children }: PropsWithChildren) {

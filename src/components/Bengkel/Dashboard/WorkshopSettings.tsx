@@ -1,6 +1,6 @@
 "use client";
 
-import { Icons } from "@/components/Icons";
+import { Icons } from "@/components/icons";
 
 export function WorkshopSettings() {
   return (

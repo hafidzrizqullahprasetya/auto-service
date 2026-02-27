@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { getTopServicesData } from "@/mock/dashboard-charts";
-import { Icons } from "@/components/Icons";
+import { Icons } from "@/components/icons";
 
 export async function TopServices({ className }: { className?: string }) {
   const data = getTopServicesData();

@@ -1,12 +1,12 @@
 import "@/css/satoshi.css";
 import "@/css/style.css";
 
-import { Sidebar } from "@/components/Layouts/sidebar";
+import { Sidebar } from "@/components/layouts/sidebar";
 
 import "flatpickr/dist/flatpickr.min.css";
 import "jsvectormap/dist/jsvectormap.css";
 
-import { Header } from "@/components/Layouts/header";
+import { Header } from "@/components/layouts/header";
 import type { Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
 import type { PropsWithChildren } from "react";
@@ -14,11 +14,11 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | NextAdmin - Next.js Dashboard Kit",
-    default: "NextAdmin - Next.js Dashboard Kit",
+    template: "%s | AutoService",
+    default: "AutoService - Premium Garage",
   },
   description:
-    "Next.js admin dashboard toolkit with 200+ templates, UI components, and integrations for fast dashboard development.",
+    "Sistem manajemen bengkel mobil dan motor profesional.",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {

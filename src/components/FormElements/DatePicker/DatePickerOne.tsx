@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar } from "@/components/Layouts/sidebar/icons";
+import { Icons } from "@/components/icons";
 import flatpickr from "flatpickr";
 import { useEffect } from "react";
 
@@ -28,7 +28,7 @@ const DatePickerOne = () => {
         />
 
         <div className="pointer-events-none absolute inset-0 left-auto right-5 flex items-center">
-          <Calendar className="size-5 text-[#9CA3AF]" />
+          <Icons.Calendar className="size-5 text-[#9CA3AF]" />
         </div>
       </div>
     </div>

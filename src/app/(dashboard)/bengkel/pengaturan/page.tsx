@@ -1,15 +1,16 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { PengaturanBengkel } from "@/components/Bengkel/PengaturanBengkel";
+import { PengaturanBengkel } from "@/components/Bengkel/Pengaturan";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Pengaturan | Bengkel AutoService",
+  title: "Pengaturan",
 };
 
 export default function PengaturanPage() {
   return (
     <div className="mx-auto max-w-7xl">
-      <Breadcrumb pageName="Pengaturan Bengkel" />
+      <Breadcrumb pageName="Pengaturan" />
+
       <PengaturanBengkel />
     </div>
   );

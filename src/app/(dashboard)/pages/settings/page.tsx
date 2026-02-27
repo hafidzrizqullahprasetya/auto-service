@@ -4,7 +4,7 @@ import { WorkshopSettings } from "@/components/Bengkel/Dashboard/WorkshopSetting
 import { UploadPhotoForm } from "./_components/upload-photo";
 
 export const metadata: Metadata = {
-  title: "Settings | AutoService",
+  title: "Settings",
 };
 
 export default function SettingsPage() {

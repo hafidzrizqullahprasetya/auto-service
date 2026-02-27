@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { AntreanTable } from "@/components/Bengkel/AntreanTable";
-import { KanbanBoard } from "@/components/Bengkel/KanbanBoard";
+import { AntreanTable, KanbanBoard } from "@/components/Bengkel/Antrean";
 import { MOCK_ANTREAN, Antrean } from "@/mock/antrean";
 import { LayoutGrid, LayoutList } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,10 +27,11 @@ export default function AntreanPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <Breadcrumb pageName="Antrean Masuk" />
+      <div className="mb-6 flex items-center justify-between">
+        <Breadcrumb pageName="Antrean" />
+
         {/* View Toggle */}
-        <div className="flex items-center gap-1 rounded-xl border border-stroke bg-white p-1 shadow-sm dark:border-dark-3 dark:bg-gray-dark self-start sm:self-auto">
+        <div className="flex items-center gap-1 rounded-xl border border-stroke bg-white p-1 shadow-sm dark:border-dark-3 dark:bg-gray-dark">
           <button
             onClick={() => setView("kanban")}
             className={cn(

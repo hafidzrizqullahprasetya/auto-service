@@ -1,13 +1,13 @@
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  ShoppingCart, 
-  Users, 
-  Car, 
-  Bike, 
-  Package, 
-  UserSquare2, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  ClipboardList,
+  ShoppingCart,
+  Users,
+  Car,
+  Bike,
+  Package,
+  UserSquare2,
+  BarChart3,
   Settings,
   Plus,
   Trash2,
@@ -31,6 +31,11 @@ import {
   ArrowUp,
   ArrowDown,
   TrendingUp,
+  Calendar,
+  Phone,
+  Eye,
+  Pencil,
+  User,
 } from "lucide-react";
 
 export const Icons = {
@@ -66,4 +71,9 @@ export const Icons = {
   ArrowDown: ArrowDown,
   Chart: TrendingUp,
   Alert: AlertTriangle,
+  Calendar: Calendar,
+  Whatsapp: Phone,
+  Eye: Eye,
+  Edit: Pencil,
+  User: User,
 };
