@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -100,7 +101,7 @@ export function InventoryTable() {
             <div>
               <p className="font-medium text-dark dark:text-white">{item.name}</p>
               {isLowStock(item) && (
-                <span className="text-[10px] font-bold uppercase tracking-wide text-red-500">
+                <span className="text-[10px] font-bold text-red-500">
                   ⚠ Stok Menipis
                 </span>
               )}
@@ -110,9 +111,9 @@ export function InventoryTable() {
       },
       {
         accessorKey: "category",
-        header: () => <div className="text-center">Kategori</div>,
+        header: () => <div className="w-full text-center">Kategori</div>,
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex w-full justify-center">
             <Badge
               variant={
                 row.original.category === "Service"
@@ -129,9 +130,9 @@ export function InventoryTable() {
       },
       {
         accessorKey: "type",
-        header: () => <div className="text-center">Tipe</div>,
+        header: () => <div className="w-full text-center">Tipe</div>,
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex w-full justify-center">
             <Badge variant="secondary" outline className="text-[10px] py-0.5">
               {row.original.type}
             </Badge>
@@ -157,50 +158,50 @@ export function InventoryTable() {
       },
       {
         accessorKey: "stock",
-        header: () => <div className="text-center">Stok</div>,
+        header: () => <div className="w-full text-center">Stok</div>,
         cell: ({ row }) => {
           const item = row.original;
           if (item.category === "Service")
-            return <div className="text-center text-sm text-dark-5">—</div>;
+            return <div className="flex w-full justify-center text-sm text-dark-5">—</div>;
           return (
             <div
               className={cn(
-                "text-center font-black text-sm",
+                "flex w-full justify-center font-bold text-sm",
                 isLowStock(item) ? "text-red-500" : "text-dark dark:text-white"
               )}
             >
               {item.stock ?? 0}{" "}
-              <span className="text-[10px] font-normal text-dark-5">{item.unit}</span>
+              <span className="ml-1 text-[10px] font-medium text-dark-5">{item.unit}</span>
             </div>
           );
         },
       },
       {
         accessorKey: "minimumStock",
-        header: () => <div className="text-center">Min. Stok</div>,
+        header: () => <div className="w-full text-center">Min. Stok</div>,
         cell: ({ row }) => {
           const item = row.original;
           return item.minimumStock !== undefined ? (
-            <div className="text-center text-sm font-medium text-dark-5">
+            <div className="flex w-full justify-center text-sm font-medium text-dark-5">
               {item.minimumStock} {item.unit}
             </div>
           ) : (
-            <div className="text-center text-sm text-dark-5">—</div>
+            <div className="flex w-full justify-center text-sm text-dark-5">—</div>
           );
         },
       },
       {
         id: "actions",
-        header: () => <div className="text-right pr-2">Aksi</div>,
+        header: () => <div className="w-full text-center">Aksi</div>,
         cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-2 group-hover:opacity-100">
+          <div className="flex w-full items-center justify-center gap-2 group-hover:opacity-100">
             <ActionButton
-              variant="primary"
-              label="Edit"
-              icon={<Icons.Edit size={14} />}
+              variant="edit"
+              title="Edit Item"
+              icon={<Icons.Edit size={16} />}
               onClick={() => { setEditItem(row.original); setShowAddModal(true); }}
             />
-            <ActionButton variant="danger" label="Hapus" icon={<Icons.Delete size={14} />} />
+            <ActionButton variant="delete" title="Hapus" icon={<Icons.Delete size={16} />} />
           </div>
         ),
       },
@@ -218,14 +219,14 @@ export function InventoryTable() {
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     globalFilterFn: multiColFilter,
-    initialState: { pagination: { pageSize: 15 } },
+    initialState: { pagination: { pageSize: 5 } },
   });
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
       <InventorySummary />
 
-      <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5">
+      <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5 flex flex-col">
         {/* Toolbar custom — ada filter tipe + kategori */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -277,13 +278,13 @@ export function InventoryTable() {
         </div>
 
         {/* Table */}
-        <div className="max-w-full overflow-x-auto">
+        <div className="max-w-full flex-1 overflow-x-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((hg) => (
                 <TableRow
                   key={hg.id}
-                  className="border-b border-stroke bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-[11px] [&>th]:font-black [&>th]:uppercase [&>th]:tracking-widest [&>th]:text-dark-5"
+                  className="border-b border-stroke bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-xs [&>th]:font-bold [&>th]:text-dark-5"
                 >
                   {hg.headers.map((header) => (
                     <TableHead key={header.id}>
@@ -299,21 +300,33 @@ export function InventoryTable() {
                   <tr
                     key={row.id}
                     className={cn(
-                      "group border-b border-stroke dark:border-dark-3 hover:bg-gray-2/50",
+                      "group border-b border-stroke dark:border-dark-3 h-[84px] hover:bg-gray-2/50",
                       isLowStock(row.original) && "bg-red-50/20 dark:bg-red-900/10"
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-4">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      <td key={cell.id} className="px-4 py-0">
+                        <div className="flex h-full items-center">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
                       </td>
                     ))}
                   </tr>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center text-dark-5">
-                    Data tidak ditemukan
+                  <TableCell colSpan={columns.length} className="h-[300px] text-center">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-1">
+                        <Icons.Search size={32} className="text-dark-5 opacity-20" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-bold text-dark">Data Tidak Ditemukan</p>
+                        <p className="text-xs text-dark-5">
+                          Stok atau jasa yang Anda cari tidak tersedia dalam daftar ini
+                        </p>
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -321,22 +334,54 @@ export function InventoryTable() {
           </Table>
         </div>
 
-        {/* Pagination */}
+        {/* Pagination - Muncul hanya jika lebih dari 1 halaman */}
         {table.getPageCount() > 1 && (
-          <div className="mt-6 flex items-center justify-between">
-            <span className="text-sm text-dark-5">
-              {table.getFilteredRowModel().rows.length} dari {MOCK_ITEMS.length} item
-            </span>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-                Previous
-              </Button>
-              <span className="text-sm font-medium text-dark dark:text-white">
-                {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-              </span>
-              <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                Next
-              </Button>
+          <div className="flex items-center justify-between border-t border-stroke pt-5 mt-5">
+            <p className="text-xs font-medium text-dark-5">
+              Menampilkan{" "}
+              <span className="font-bold text-dark">{table.getFilteredRowModel().rows.length}</span>{" "}
+              dari <span className="font-bold text-dark">{MOCK_ITEMS.length}</span> data
+            </p>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="flex items-center gap-1 mx-2">
+                {Array.from({ length: table.getPageCount() }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === table.getPageCount() || Math.abs(p - (table.getState().pagination.pageIndex + 1)) <= 1)
+                  .map((page, idx, arr) => (
+                    <React.Fragment key={page}>
+                      {idx > 0 && arr[idx - 1] !== page - 1 && (
+                        <span className="px-2 text-xs font-bold text-dark-5/40">•••</span>
+                      )}
+                      <button
+                        onClick={() => table.setPageIndex(page - 1)}
+                        className={cn(
+                          "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all active:scale-90",
+                          table.getState().pagination.pageIndex + 1 === page
+                            ? "bg-dark text-white"
+                            : "text-dark-5 hover:bg-gray-1 hover:text-dark"
+                        )}
+                      >
+                        {page}
+                      </button>
+                    </React.Fragment>
+                  ))}
+              </div>
+
+              <button
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
           </div>
         )}

@@ -50,8 +50,8 @@ export default function AntreanPage() {
               <s.icon size={22} />
             </div>
             <div>
-              <p className="text-2xl font-black text-dark dark:text-white leading-none">{s.count}</p>
-              <p className="mt-1 text-xs font-medium text-dark-5 uppercase tracking-wider">{s.label}</p>
+              <p className="text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">{s.count}</p>
+              <p className="mt-1 text-sm font-medium text-dark-5">{s.label}</p>
             </div>
           </div>
         ))}

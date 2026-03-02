@@ -38,8 +38,8 @@ const ACCOUNTS = [
 export function SocialAccounts() {
   return (
     <div className="mt-8 border-t border-stroke pt-6 dark:border-dark-3">
-      <h4 className="mb-4 text-xs font-black uppercase tracking-widest text-dark dark:text-white text-center">
-        NETWORKING & SOCIAL CHANNELS
+      <h4 className="mb-4 text-sm font-bold text-dark dark:text-white text-center">
+        Networking & Social Channels
       </h4>
       <div className="flex items-center justify-center gap-5">
         {ACCOUNTS.map(({ Icon, ...item }) => (

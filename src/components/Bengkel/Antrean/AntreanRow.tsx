@@ -70,18 +70,18 @@ export function AntreanRow({ item }: AntreanRowProps) {
       <TableCell className="text-right pr-4">
         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <ActionButton 
-            icon={<Icons.Print size={18} />} 
-            variant="primary" 
+            icon={<Icons.Print size={16} />} 
+            variant="view" 
             title="Cetak SPK" 
           />
           <ActionButton 
-            icon={<Icons.Repair size={18} />} 
-            variant="secondary" 
+            icon={<Icons.Repair size={16} />} 
+            variant="edit" 
             title="Update Status" 
           />
           <ActionButton 
-            icon={<Icons.Delete size={18} />} 
-            variant="danger" 
+            icon={<Icons.Delete size={16} />} 
+            variant="delete" 
             title="Batalkan" 
           />
         </div>

@@ -23,7 +23,7 @@ export function OrderSummary({ subtotal, tax, total, onCheckout, disabled }: Ord
         </div>
         <div className="mt-4 flex justify-between border-t border-stroke pt-4 dark:border-dark-3">
           <span className="text-lg font-bold text-dark dark:text-white">Total</span>
-          <span className="text-xl font-black text-secondary">
+          <span className="text-2xl font-bold tracking-tight text-secondary">
             Rp {total.toLocaleString("id-ID")}
           </span>
         </div>

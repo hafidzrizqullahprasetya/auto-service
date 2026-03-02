@@ -21,7 +21,7 @@ export function StatCard({ title, value, icon, growth }: StatCardProps) {
 
       <div className="mt-4 flex items-end justify-between">
         <div>
-          <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
+          <h4 className="text-2xl font-bold tracking-tight text-dark dark:text-white">
             {value}
           </h4>
           <span className="text-sm font-medium text-dark-5 dark:text-dark-6">

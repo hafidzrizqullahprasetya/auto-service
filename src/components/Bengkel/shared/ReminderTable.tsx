@@ -43,8 +43,8 @@ function ReminderSummary() {
             <Icon size={20} />
           </div>
           <div>
-            <p className={cn("font-black text-xl leading-none tracking-tighter", isAlert ? "text-red" : "text-dark dark:text-white")}>{value}</p>
-            <p className="text-[11px] font-bold text-dark-5 uppercase tracking-widest mt-1">{label}</p>
+            <p className={cn("font-bold text-2xl leading-none tracking-tight", isAlert ? "text-red" : "text-dark dark:text-white")}>{value}</p>
+            <p className="text-sm font-medium text-dark-5 mt-1">{label}</p>
           </div>
         </div>
       ))}
@@ -62,12 +62,12 @@ export function ReminderTable() {
           const r = row.original;
           return (
             <div className="flex flex-col gap-0.5">
-              <p className="font-black text-dark dark:text-white uppercase leading-tight tracking-tight">{r.pelanggan}</p>
+              <p className="font-bold text-dark dark:text-white leading-tight">{r.pelanggan}</p>
               <div className="flex items-center gap-2">
-                <span className="font-black text-secondary text-xs tracking-widest uppercase">{r.noPolisi}</span>
-                <span className="text-[10px] font-bold text-dark-5 uppercase tracking-wider">{r.kendaraan}</span>
+                <span className="font-bold text-secondary text-xs uppercase">{r.noPolisi}</span>
+                <span className="text-[11px] font-medium text-dark-5">{r.kendaraan}</span>
               </div>
-              <p className="text-[11px] font-black text-dark-5 leading-none mt-0.5">{r.phone}</p>
+              <p className="text-xs font-medium text-dark-5 leading-none mt-1">{r.phone}</p>
             </div>
           );
         },
@@ -84,8 +84,8 @@ export function ReminderTable() {
                 <JenisIcon size={16} />
               </div>
               <div>
-                <p className="font-black text-dark dark:text-white text-xs uppercase tracking-wider leading-none mb-1">{r.jenisReminder}</p>
-                {r.catatan && <p className="text-[10px] font-bold text-dark-5 leading-tight">{r.catatan}</p>}
+                <p className="font-bold text-dark dark:text-white text-sm leading-none mb-1">{r.jenisReminder}</p>
+                {r.catatan && <p className="text-[11px] font-medium text-dark-5 leading-tight">{r.catatan}</p>}
               </div>
             </div>
           );
@@ -93,17 +93,17 @@ export function ReminderTable() {
       },
       {
         accessorKey: "jadwalTanggal",
-        header: () => <div className="text-center">Jadwal Tempo</div>,
+        header: () => <div className="w-full text-center">Jadwal Tempo</div>,
         cell: ({ row }) => {
           const r = row.original;
           const isOverdue = r.status === "Lewat Jatuh Tempo";
           return (
-            <div className="text-center">
-              <p className={cn("font-black text-sm tracking-tighter", isOverdue ? "text-red" : "text-dark dark:text-white")}>
+            <div className="flex w-full flex-col items-center justify-center">
+              <p className={cn("font-bold text-sm tracking-tight", isOverdue ? "text-red" : "text-dark dark:text-white")}>
                 {dayjs(r.jadwalTanggal).format("DD MMM YYYY")}
               </p>
               {isOverdue && (
-                <p className="text-[10px] font-black text-red uppercase tracking-tight mt-0.5">
+                <p className="text-xs font-medium text-red mt-0.5">
                   Lewat {dayjs().diff(r.jadwalTanggal, "day")} hari
                 </p>
               )}
@@ -113,19 +113,19 @@ export function ReminderTable() {
       },
       {
         accessorKey: "odometerTarget",
-        header: () => <div className="text-center">Estimasi KM</div>,
+        header: () => <div className="w-full text-center">Estimasi KM</div>,
         cell: ({ row }) => {
           const r = row.original;
           return (
-            <div className="text-center tabular-nums">
+            <div className="flex w-full flex-col items-center justify-center tabular-nums">
               {r.odometerTarget ? (
-                <p className="font-black text-sm text-dark dark:text-white leading-none">
-                  {r.odometerTarget.toLocaleString("id-ID")} <span className="text-[10px] font-bold text-dark-5 uppercase">KM</span>
+                <p className="font-bold text-sm text-dark dark:text-white leading-none">
+                  {r.odometerTarget.toLocaleString("id-ID")} <span className="text-[11px] font-medium text-dark-5">KM</span>
                 </p>
               ) : (
-                <p className="text-dark-5 text-[11px] font-black">—</p>
+                <p className="text-dark-5 text-[11px] font-medium">—</p>
               )}
-              <p className="text-[10px] font-bold text-dark-5 uppercase tracking-tighter mt-1">
+              <p className="text-[11px] font-medium text-dark-5 mt-1">
                 Last: {r.odometerSaat.toLocaleString("id-ID")} km
               </p>
             </div>
@@ -134,9 +134,9 @@ export function ReminderTable() {
       },
       {
         accessorKey: "status",
-        header: () => <div className="text-center">Status</div>,
+        header: () => <div className="w-full text-center">Status</div>,
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex w-full justify-center">
             <Badge variant={STATUS_VARIANT[row.original.status]}>
               {row.original.status}
             </Badge>
@@ -145,18 +145,18 @@ export function ReminderTable() {
       },
       {
         id: "actions",
-        header: () => <div className="text-right pr-2">Aksi</div>,
+        header: () => <div className="w-full text-center">Aksi</div>,
         cell: () => (
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex w-full items-center justify-center gap-2">
             <ActionButton 
-              icon={<Icons.Whatsapp size={14} />} 
-              variant="outline" 
-              label="Follow Up" 
+              icon={<Icons.Whatsapp size={16} />} 
+              variant="success" 
+              title="Follow Up (Kirim WA)" 
             />
             <ActionButton 
-              icon={<Icons.Delete size={14} />} 
-              variant="outline"
-              title="Batalkan"
+              icon={<Icons.Delete size={16} />} 
+              variant="delete"
+              title="Batalkan Reminder"
             />
           </div>
         )
@@ -175,6 +175,7 @@ export function ReminderTable() {
         searchPlaceholder="Cari pelanggan atau plat nomor..."
         title="Reminder & Follow-up Servis"
         description="Jadwal pengingat otomatis untuk pelanggan setia"
+        pageSize={5}
         primaryAction={{
           label: "Tambah Reminder",
           onClick: () => {},

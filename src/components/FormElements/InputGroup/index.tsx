@@ -37,7 +37,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
     <div className={className}>
       <label
         htmlFor={id}
-        className="text-[11px] font-black uppercase tracking-widest text-dark-5 dark:text-dark-6"
+        className="text-sm font-semibold text-dark-5 dark:text-dark-6"
       >
         {label}
         {required && <span className="ml-1 select-none text-red">*</span>}

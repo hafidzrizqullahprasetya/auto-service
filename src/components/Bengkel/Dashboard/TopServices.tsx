@@ -21,7 +21,7 @@ export async function TopServices({ className }: { className?: string }) {
       )}
     >
       <div className="mb-4">
-        <h2 className="text-body-2xlg font-bold text-dark dark:text-white">
+        <h2 className="text-lg font-bold text-dark dark:text-white">
           Jasa & Sparepart Terlaris
         </h2>
         <p className="text-xs font-medium text-dark-5">Item yang paling sering dipesan bulan ini</p>
@@ -29,7 +29,7 @@ export async function TopServices({ className }: { className?: string }) {
 
       <Table>
         <TableHeader>
-          <TableRow className="border-none uppercase [&>th]:text-center [&>th]:text-[11px] [&>th]:font-black [&>th]:tracking-wider">
+          <TableRow className="border-none [&>th]:text-center [&>th]:text-xs [&>th]:font-bold [&>th]:text-dark-5">
             <TableHead className="!text-left">Nama Layanan / Part</TableHead>
             <TableHead>Total Order</TableHead>
             <TableHead className="!text-right">Trend</TableHead>

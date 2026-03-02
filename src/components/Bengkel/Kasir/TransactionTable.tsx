@@ -42,7 +42,7 @@ export function TransactionTable() {
           return (
             <div className="flex flex-col">
               <p className="font-bold text-dark dark:text-white">{tx.customerName}</p>
-              <span className="text-[10px] font-bold text-dark-5 uppercase">
+              <span className="text-[10px] font-medium text-dark-5">
                 {tx.vehiclePlate}
               </span>
             </div>
@@ -51,9 +51,9 @@ export function TransactionTable() {
       },
       {
         accessorKey: "type",
-        header: () => <div className="text-center">Tipe</div>,
+        header: () => <div className="w-full text-center">Tipe</div>,
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex w-full justify-center">
             <Badge
               variant={row.original.type === "Service" ? "primary" : "info"}
               className="text-[10px]"
@@ -70,7 +70,7 @@ export function TransactionTable() {
           const tx = row.original;
           return (
             <div>
-              <p className="font-black text-dark dark:text-white">
+              <p className="font-bold text-dark dark:text-white">
                 Rp {formatNumber(tx.total)}
               </p>
               {tx.paymentStatus === "DP" && tx.dpAmount && (
@@ -85,9 +85,9 @@ export function TransactionTable() {
       },
       {
         accessorKey: "paymentStatus",
-        header: () => <div className="text-center">Status</div>,
+        header: () => <div className="w-full text-center">Status</div>,
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex w-full justify-center">
             <Badge
               variant={
                 row.original.paymentStatus === "Lunas"
@@ -105,11 +105,11 @@ export function TransactionTable() {
       },
       {
         accessorKey: "paymentMethod",
-        header: () => <div className="text-center">Metode</div>,
+        header: () => <div className="w-full text-center">Metode</div>,
         cell: ({ row }) => {
           const m = row.original.paymentMethod;
           return (
-            <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-dark dark:text-white">
+            <div className="flex w-full items-center justify-center gap-1.5 text-xs font-bold text-dark dark:text-white">
               {m === "Cash" && <Icons.Cash size={14} />}
               {m === "Transfer" && <Icons.Database size={14} />}
               {m === "E-Wallet" && <Icons.EWallet size={14} />}
@@ -121,12 +121,12 @@ export function TransactionTable() {
       },
       {
         id: "actions",
-        header: () => <div className="text-right pr-2">Opsi</div>,
+        header: () => <div className="w-full text-center">Opsi</div>,
         cell: ({ row }) => (
-          <div className="flex items-center justify-end">
+          <div className="flex w-full items-center justify-center">
             <ActionButton
               onClick={() => setSelectedTx(row.original)}
-              variant="secondary"
+              variant="view"
               icon={<Icons.Print size={16} />}
               title="Lihat Invoice"
             />
@@ -146,7 +146,7 @@ export function TransactionTable() {
         searchPlaceholder="Cari invoice atau pelanggan..."
         title="Riwayat Transaksi Keuangan"
         description="Log pembayaran servis dan sparepart secara real-time"
-        pageSize={10}
+        pageSize={5}
       />
 
       {selectedTx && (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -193,8 +194,8 @@ export function PurchaseOrderTable() {
         header: () => <div className="text-right pr-2">Aksi</div>,
         cell: () => (
           <div className="flex items-center justify-end gap-2">
-            <ActionButton variant="primary" label="Detail" />
-            <ActionButton variant="danger" icon={<Icons.Delete size={14} />} />
+            <ActionButton variant="view" title="Lihat Detail" icon={<Icons.Eye size={16} />} />
+            <ActionButton variant="delete" title="Hapus" icon={<Icons.Delete size={16} />} />
           </div>
         ),
       },
@@ -286,20 +287,52 @@ export function PurchaseOrderTable() {
 
         {/* Pagination */}
         {table.getPageCount() > 1 && (
-          <div className="mt-6 flex items-center justify-between">
-            <span className="text-sm text-dark-5">
-              {table.getFilteredRowModel().rows.length} data ditemukan
-            </span>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-                Previous
-              </Button>
-              <span className="text-sm font-medium text-dark dark:text-white">
-                {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-              </span>
-              <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                Next
-              </Button>
+          <div className="flex items-center justify-between border-t border-stroke pt-5 mt-5">
+            <p className="text-xs font-medium text-dark-5">
+              Menampilkan{" "}
+              <span className="font-bold text-dark">{table.getFilteredRowModel().rows.length}</span>{" "}
+              dari <span className="font-bold text-dark">{MOCK_PURCHASE_ORDERS.length}</span> data
+            </p>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="flex items-center gap-1 mx-2">
+                {Array.from({ length: table.getPageCount() }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === table.getPageCount() || Math.abs(p - (table.getState().pagination.pageIndex + 1)) <= 1)
+                  .map((page, idx, arr) => (
+                    <React.Fragment key={page}>
+                      {idx > 0 && arr[idx - 1] !== page - 1 && (
+                        <span className="px-2 text-xs font-bold text-dark-5/40">•••</span>
+                      )}
+                      <button
+                        onClick={() => table.setPageIndex(page - 1)}
+                        className={cn(
+                          "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all active:scale-90",
+                          table.getState().pagination.pageIndex + 1 === page
+                            ? "bg-dark text-white shadow-lg shadow-dark/20"
+                            : "text-dark-5 hover:bg-gray-1 hover:text-dark"
+                        )}
+                      >
+                        {page}
+                      </button>
+                    </React.Fragment>
+                  ))}
+              </div>
+
+              <button
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
           </div>
         )}

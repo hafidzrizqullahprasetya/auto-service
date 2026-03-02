@@ -39,7 +39,7 @@ export default function Page() {
 
   return (
     <div className="mx-auto w-full max-w-[970px] pb-10">
-      <Breadcrumb pageName="SISTEM PROFIL" />
+      <Breadcrumb pageName="Profil Sistem" />
 
       <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-none dark:border-dark-3 dark:bg-gray-dark">
         <div className="relative z-20 h-35 md:h-65">
@@ -57,7 +57,7 @@ export default function Page() {
           <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
             <label
               htmlFor="cover"
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark px-[20px] py-[8px] text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark border-2 border-dark transition-all dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark px-[20px] py-[8px] text-xs font-bold text-white hover:bg-white hover:text-dark border-2 border-dark transition-all dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white"
             >
               <input
                 type="file"
@@ -70,7 +70,7 @@ export default function Page() {
 
               <Icons.Edit size={14} />
 
-              <span>GANTI COVER</span>
+              <span>Ganti Cover</span>
             </label>
           </div>
         </div>
@@ -107,36 +107,36 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="mb-1 text-heading-6 font-black uppercase tracking-tighter text-dark dark:text-white">
+            <h3 className="mb-1 text-2xl font-bold text-dark dark:text-white">
               {data?.name}
             </h3>
-            <p className="text-xs font-black uppercase tracking-widest text-dark-5">SENIOR MECHANIC & OPERATION MANAGER</p>
-            <div className="mx-auto mb-6 mt-6 grid max-w-[450px] grid-cols-3 rounded-lg border-2 border-dark py-3 shadow-none dark:border-white dark:bg-dark-2">
-              <div className="flex flex-col items-center justify-center gap-1 border-r-2 border-dark px-4 dark:border-white">
-                <span className="text-xs font-black uppercase tracking-widest text-dark-5">
-                  ROLE
+            <p className="text-sm font-medium text-dark-5">Senior Mechanic & Operation Manager</p>
+            <div className="mx-auto mb-6 mt-6 grid max-w-[450px] grid-cols-3 rounded-lg border border-stroke py-3 shadow-none dark:border-dark-3 dark:bg-gray-dark bg-white">
+              <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-dark-3">
+                <span className="text-[11px] font-medium text-dark-5">
+                  Role
                 </span>
-                <span className="text-sm font-black text-dark dark:text-white uppercase">ADMIN</span>
+                <span className="text-sm font-bold text-dark dark:text-white">Admin</span>
               </div>
-              <div className="flex flex-col items-center justify-center gap-1 border-r-2 border-dark px-4 dark:border-white">
-                <span className="text-xs font-black uppercase tracking-widest text-dark-5">
-                  LAYANAN
+              <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-dark-3">
+                <span className="text-[11px] font-medium text-dark-5">
+                  Layanan
                 </span>
-                <span className="text-sm font-black text-dark dark:text-white uppercase">1.2K+</span>
+                <span className="text-sm font-bold text-dark dark:text-white">1.2K+</span>
               </div>
               <div className="flex flex-col items-center justify-center gap-1 px-4">
-                <span className="text-xs font-black uppercase tracking-widest text-dark-5">
-                  RATING
+                <span className="text-[11px] font-medium text-dark-5">
+                  Rating
                 </span>
-                <span className="text-sm font-black text-dark dark:text-white uppercase">4.9/5.0</span>
+                <span className="text-sm font-bold text-dark dark:text-white">4.9/5.0</span>
               </div>
             </div>
 
             <div className="mx-auto max-w-[720px] border-t border-stroke pt-6 dark:border-dark-3">
-              <h4 className="text-sm font-black uppercase tracking-widest text-dark dark:text-white">
-                BIOGRAFI SINGKAT
+              <h4 className="text-sm font-bold text-dark dark:text-white">
+                Biografi Singkat
               </h4>
-              <p className="mt-4 text-sm font-bold text-dark-5 leading-relaxed uppercase tracking-tight">
+              <p className="mt-4 text-sm font-medium text-dark-5 leading-relaxed">
                 Berpengalaman lebih dari 8 tahun dalam menangani berbagai macam kendala mesin mobil dan motor.
                 Fokus pada efisiensi kerja dan kepuasan pelanggan di AutoService Premium Garage.
                 Bertanggung jawab penuh atas manajemen antrean dan inventori stok harian.

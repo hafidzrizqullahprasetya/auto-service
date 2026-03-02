@@ -45,7 +45,7 @@ export function AntreanTable({ data }: AntreanTableProps) {
     () => [
       {
         accessorKey: "noPolisi",
-        header: () => <div className="text-left font-black tracking-widest uppercase">Kendaraan</div>,
+        header: "Kendaraan",
         cell: ({ row }) => {
           const item = row.original;
           return (
@@ -71,13 +71,13 @@ export function AntreanTable({ data }: AntreanTableProps) {
       },
       {
         accessorKey: "pelanggan",
-        header: () => <div className="text-left font-black tracking-widest uppercase">Pelanggan</div>,
+        header: "Pelanggan",
         cell: ({ row }) => (
           <div className="flex flex-col py-2">
             <span className="font-bold text-dark dark:text-white text-sm">
               {row.original.pelanggan}
             </span>
-            <span className="text-[10px] font-medium text-dark-5 uppercase tracking-wider">
+            <span className="text-[10px] font-medium text-dark-5">
               Customer
             </span>
           </div>
@@ -85,7 +85,7 @@ export function AntreanTable({ data }: AntreanTableProps) {
       },
       {
         accessorKey: "layanan",
-        header: () => <div className="text-left font-black tracking-widest uppercase">Layanan</div>,
+        header: "Layanan",
         cell: ({ row }) => (
           <p className="max-w-[180px] truncate text-xs font-bold text-dark-5" title={row.original.layanan}>
             {row.original.layanan}
@@ -94,7 +94,7 @@ export function AntreanTable({ data }: AntreanTableProps) {
       },
       {
         accessorKey: "waktuMasuk",
-        header: () => <div className="text-left font-black tracking-widest uppercase text-xs">Masuk</div>,
+        header: "Masuk",
         cell: ({ row }) => (
           <div className="flex items-center gap-2 tabular-nums text-sm font-bold text-dark-5">
             <Icons.Pending size={14} />
@@ -104,12 +104,12 @@ export function AntreanTable({ data }: AntreanTableProps) {
       },
       {
         accessorKey: "status",
-        header: () => <div className="w-full text-center font-black tracking-widest uppercase">Status</div>,
+        header: () => <div className="w-full text-center">Status</div>,
         cell: ({ row }) => (
           <div className="flex w-full justify-center">
             <Badge 
               variant={getStatusVariant(row.original.status)} 
-              className="min-w-[90px] justify-center px-3 py-1 text-[10px] font-black uppercase"
+              className="min-w-[90px] justify-center px-3 py-1 text-[10px] font-bold"
             >
               {row.original.status}
             </Badge>
@@ -118,24 +118,24 @@ export function AntreanTable({ data }: AntreanTableProps) {
       },
       {
         id: "actions",
-        header: () => <div className="w-full text-right font-black tracking-widest uppercase text-dark dark:text-white">Opsi</div>,
+        header: () => <div className="w-full text-center">Opsi</div>,
         cell: ({ row }) => (
-          <div className="flex w-full items-center justify-end gap-1.5">
+          <div className="flex w-full items-center justify-center gap-1.5">
             <ActionButton 
-              icon={<Icons.Print size={14} />} 
-              variant="secondary" 
+              icon={<Icons.Print size={16} />} 
+              variant="view" 
               onClick={() => handleAction(row.original, "print")}
               title="Cetak SPK"
             />
             <ActionButton 
-              icon={<Icons.Repair size={14} />} 
-              variant="secondary" 
+              icon={<Icons.Repair size={16} />} 
+              variant="edit" 
               onClick={() => handleAction(row.original, "edit")}
               title="Edit Antrean"
             />
             <ActionButton 
-              icon={<Icons.Delete size={14} />} 
-              variant="danger" 
+              icon={<Icons.Delete size={16} />} 
+              variant="delete" 
               onClick={() => handleAction(row.original, "delete")}
               title="Hapus"
             />
@@ -155,7 +155,7 @@ export function AntreanTable({ data }: AntreanTableProps) {
         searchPlaceholder="Cari no polisi atau pelanggan..."
         title="Daftar Antrean Servis"
         description="Monitoring antrean kendaraan perbaikan hari ini"
-        pageSize={10}
+        pageSize={5}
       />
 
       {showModal && (

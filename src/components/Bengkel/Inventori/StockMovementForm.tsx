@@ -178,7 +178,7 @@ export function StockMovementForm({
               min={1}
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-              className="h-10 w-20 rounded-lg border border-stroke bg-transparent text-center text-sm font-black text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+              className="h-10 w-20 rounded-lg border border-stroke bg-transparent text-center text-sm font-bold text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
             />
             <button
               onClick={() => setQuantity((q) => q + 1)}

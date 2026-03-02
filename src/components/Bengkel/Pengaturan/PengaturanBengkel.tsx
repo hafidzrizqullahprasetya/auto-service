@@ -32,7 +32,7 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">
+      <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
         {label}
       </label>
       <input
@@ -54,10 +54,10 @@ function SelectField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">
+      <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
         {label}
       </label>
-      <select className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white">
+      <select className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-medium text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white">
         {children}
       </select>
     </div>
@@ -77,9 +77,9 @@ function ToggleField({
   return (
     <div className="flex items-center justify-between py-4 border-b border-stroke dark:border-dark-3 last:border-0">
       <div>
-        <p className="text-xs font-black uppercase tracking-wider text-dark dark:text-white">{label}</p>
+        <p className="text-sm font-bold text-dark dark:text-white">{label}</p>
         {description && (
-          <p className="mt-1 text-[10px] font-bold text-dark-5 uppercase tracking-tight">{description}</p>
+          <p className="mt-1 text-xs font-medium text-dark-5">{description}</p>
         )}
       </div>
       <button
@@ -110,7 +110,7 @@ function SectionCard({
   return (
     <div className="rounded-lg border border-stroke bg-white shadow-none dark:border-dark-3 dark:bg-gray-dark">
       <div className="border-b border-stroke px-6 py-4 dark:border-dark-3">
-        <h3 className="text-sm font-black uppercase tracking-widest text-dark dark:text-white">{title}</h3>
+        <h3 className="text-base font-bold text-dark dark:text-white">{title}</h3>
       </div>
       <div className="p-6">{children}</div>
     </div>
@@ -127,9 +127,9 @@ function ProfilTab() {
             <Icons.Dashboard size={30} className="text-dark-5" />
           </div>
           <div>
-            <p className="font-black text-dark dark:text-white text-xs uppercase tracking-wider">Logo Bengkel</p>
-            <p className="text-[10px] font-bold text-dark-5 mt-1 uppercase">PNG, JPG MAKS 2MB · 500×500PX</p>
-            <button className="mt-3 rounded-lg border-2 border-dark px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-white bg-dark hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">
+            <p className="font-bold text-dark dark:text-white text-sm">Logo Bengkel</p>
+            <p className="text-xs font-medium text-dark-5 mt-1">PNG, JPG MAKS 2MB · 500×500PX</p>
+            <button className="mt-3 rounded-lg border-2 border-dark px-4 py-1.5 text-xs font-bold text-white bg-dark hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">
               GANTI LOGO
             </button>
           </div>
@@ -142,7 +142,7 @@ function ProfilTab() {
           <InputField label="Website Office" defaultValue="www.autoservice.id" />
         </div>
         <div className="mt-4">
-          <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">
+          <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
             Alamat Operasional
           </label>
           <textarea
@@ -182,7 +182,7 @@ function WAGatewayTab() {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">Provider Gateway</label>
+            <label className="mb-2 block text-sm font-bold text-dark dark:text-white">Provider Gateway</label>
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
@@ -195,7 +195,7 @@ function WAGatewayTab() {
             </select>
           </div>
           <div>
-            <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">Nomor WA Penerima</label>
+            <label className="mb-2 block text-sm font-bold text-dark dark:text-white">Nomor WA Penerima</label>
             <input
               type="text"
               value={waNumber}
@@ -206,7 +206,7 @@ function WAGatewayTab() {
           </div>
         </div>
         <div className="mt-4">
-          <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">API Secret Key</label>
+          <label className="mb-2 block text-sm font-bold text-dark dark:text-white">API Secret Key</label>
           <input
             type="password"
             value={waToken}
@@ -216,8 +216,8 @@ function WAGatewayTab() {
           />
         </div>
         <div className="mt-6 flex gap-3">
-          <button className="rounded-lg bg-dark px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark border-2 border-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">SIMPAN & TEST GATEWAY</button>
-          <button className="rounded-lg border-2 border-stroke px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">RESET OPTION</button>
+          <button className="rounded-lg bg-dark px-6 py-2.5 text-sm font-bold text-white hover:bg-white hover:text-dark border-2 border-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">Simpan & Test Gateway</button>
+          <button className="rounded-lg border-2 border-stroke px-6 py-2.5 text-sm font-bold text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">Reset Option</button>
         </div>
       </SectionCard>
 
@@ -270,7 +270,7 @@ function OperasionalTab() {
           <InputField label="Jam Tutup" type="time" defaultValue="17:00" />
         </div>
         <div className="mt-5">
-          <p className="mb-3 text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">Hari Operasional</p>
+          <p className="mb-3 text-sm font-bold text-dark dark:text-white">Hari Operasional</p>
           <div className="flex flex-wrap gap-2">
             {["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"].map((d, i) => {
               const active = i < 6; // default Mon–Sat
@@ -278,7 +278,7 @@ function OperasionalTab() {
                 <button
                   key={d}
                   className={cn(
-                    "rounded-lg px-5 py-2 text-xs font-black uppercase tracking-widest border-2 transition-all",
+                    "rounded-lg px-5 py-2 text-sm font-bold border-2 transition-all",
                     active
                       ? "bg-dark text-white border-dark dark:bg-white dark:text-dark dark:border-white"
                       : "border-stroke text-dark-5 dark:border-dark-3 hover:bg-gray-1 dark:hover:bg-dark-2"
@@ -375,9 +375,9 @@ function InvoiceTab() {
       <SectionCard title="Preview Invoice Visual">
         <div className="rounded-lg border-2 border-dashed border-stroke dark:border-dark-3 p-10 text-center text-dark-5 bg-gray-1 dark:bg-dark-2">
           <Icons.Print size={40} className="mx-auto mb-4 opacity-10" />
-          <p className="text-[11px] font-black uppercase tracking-widest">Live billing preview unavailable</p>
-          <button className="mt-6 rounded-lg bg-dark border-2 border-dark px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">
-            GENERATE PREVIEW PDF
+          <p className="text-sm font-medium text-dark-5 mt-2">Live billing preview unavailable</p>
+          <button className="mt-6 rounded-lg bg-dark border-2 border-dark px-6 py-2.5 text-sm font-bold text-white hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">
+            Generate Preview PDF
           </button>
         </div>
       </SectionCard>
@@ -397,7 +397,7 @@ export function PengaturanBengkel() {
             key={id}
             onClick={() => setActiveTab(id)}
             className={cn(
-              "flex items-center gap-2 rounded-md px-4 py-2 text-[11px] font-black uppercase tracking-wider transition-none",
+              "flex items-center gap-2 rounded-md px-4 py-2 text-xs font-bold transition-none",
               activeTab === id
                 ? "bg-dark text-white dark:bg-white dark:text-dark shadow-none"
                 : "text-dark-5 hover:text-dark dark:hover:text-white"
@@ -419,11 +419,11 @@ export function PengaturanBengkel() {
       {/* Save Button — only for form tabs */}
       {activeTab !== "katalog" && activeTab !== "wa" && (
         <div className="flex justify-end gap-3 mt-4">
-          <button className="rounded-lg border-2 border-stroke px-6 py-3 text-[11px] font-black uppercase tracking-widest text-dark hover:bg-gray-2 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">
-            RESET DEFAULT
+          <button className="rounded-lg border-2 border-stroke px-6 py-3 text-sm font-bold text-dark hover:bg-gray-2 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">
+            Reset Default
           </button>
-          <button className="rounded-lg bg-dark border-2 border-dark px-10 py-3 text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all active:scale-100 shadow-none">
-            COMMIT CHANGES
+          <button className="rounded-lg bg-dark border-2 border-dark px-10 py-3 text-sm font-bold text-white hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all active:scale-100 shadow-none">
+            Commit Changes
           </button>
         </div>
       )}

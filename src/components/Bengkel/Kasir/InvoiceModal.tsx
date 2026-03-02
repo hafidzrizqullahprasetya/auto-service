@@ -48,7 +48,7 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
             <h1 className="text-2xl font-black tracking-tight flex items-center text-dark">
               AUTO<span className="text-secondary italic ml-0.5">SERVICE</span>
             </h1>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">
+            <p className="text-[10px] font-bold text-dark-5">
               Premium Garage & Spareparts
             </p>
             <div className="mt-4 text-xs font-medium text-gray-600 max-w-[200px]">
@@ -59,7 +59,7 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
           </div>
           <div className="text-right sm:items-end flex flex-col">
             <div className="bg-dark text-white px-4 py-2 rounded-lg mb-2 inline-block">
-              <h2 className="text-xl font-black uppercase tracking-widest">INVOICE</h2>
+              <h2 className="text-xl font-bold tracking-wider">INVOICE</h2>
             </div>
             <p className="text-sm font-bold text-dark">{transaction.invoiceNo}</p>
             <p className="text-xs font-medium text-gray-500">{dayjs(transaction.date).format("DD MMMM YYYY | HH:mm")}</p>
@@ -69,13 +69,13 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
         {/* Customer & Vehicle Info */}
         <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
           <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Diberikan Kepada:</p>
-            <h4 className="text-base font-black uppercase text-dark">{transaction.customerName}</h4>
+            <p className="text-[10px] font-bold text-gray-400">Diberikan Kepada:</p>
+            <h4 className="text-base font-bold text-dark">{transaction.customerName}</h4>
             <p className="text-xs font-medium text-gray-600">Pelanggan Setia AutoService</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Detail Kendaraan:</p>
-            <h4 className="text-base font-black text-secondary tracking-wider uppercase">{transaction.vehiclePlate}</h4>
+            <p className="text-[10px] font-bold text-gray-400 mb-1">Detail Kendaraan:</p>
+            <h4 className="text-base font-bold text-secondary">{transaction.vehiclePlate}</h4>
             <p className="text-xs font-medium text-gray-600">{transaction.type}</p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
         {/* Items Table */}
         <table className="w-full">
           <thead className="border-b border-dark">
-            <tr className="[&>th]:py-3 [&>th]:text-left [&>th]:text-xs [&>th]:font-black [&>th]:uppercase [&>th]:tracking-wider text-dark">
+            <tr className="[&>th]:py-3 [&>th]:text-left [&>th]:text-xs [&>th]:font-bold text-dark border-b border-dark">
               <th>Deskripsi Pekerjaan / Part</th>
               <th className="text-center w-20">Qty</th>
               <th className="text-right w-32">Harga Satuan</th>
@@ -96,7 +96,7 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
                 <td className="font-bold">{item.name}</td>
                 <td className="text-center font-medium">{item.qty}</td>
                 <td className="text-right tabular-nums">Rp {formatNumber(item.price)}</td>
-                <td className="text-right font-black tabular-nums">Rp {formatNumber(item.price * item.qty)}</td>
+                <td className="text-right font-bold tabular-nums">Rp {formatNumber(item.price * item.qty)}</td>
               </tr>
             ))}
           </tbody>
@@ -105,16 +105,16 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
         {/* Summary */}
         <div className="flex justify-end pt-6">
           <div className="w-full sm:w-64 space-y-2 border-t border-dark pt-4">
-            <div className="flex justify-between text-xs font-bold text-gray-500 uppercase">
+            <div className="flex justify-between text-xs font-bold text-gray-500">
               <span>Subtotal</span>
               <span className="text-dark">Rp {formatNumber(transaction.subtotal)}</span>
             </div>
-            <div className="flex justify-between text-xs font-bold text-gray-500 uppercase">
+            <div className="flex justify-between text-xs font-bold text-gray-500">
               <span>PPN (11%)</span>
               <span className="text-dark">Rp {formatNumber(transaction.tax)}</span>
             </div>
-            <div className="flex justify-between text-lg font-black border-t-2 border-dotted border-gray-200 pt-2 text-dark">
-              <span>TOTAL</span>
+            <div className="flex justify-between text-lg font-bold border-t-2 border-dotted border-gray-200 pt-2 text-dark">
+              <span>Total Pelunasan</span>
               <span className="text-secondary tracking-tighter">Rp {formatNumber(transaction.total)}</span>
             </div>
           </div>
@@ -123,10 +123,10 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
         {/* Footer Receipt */}
         <div className="mt-12 text-center space-y-4">
           <div className="inline-block border-2 border-dotted border-gray-300 px-6 py-2 rounded-lg">
-            <p className="text-xs font-bold text-gray-500 uppercase">Metode Pembayaran</p>
-            <p className="text-base font-black flex items-center justify-center gap-2 text-dark">
+            <p className="text-xs font-bold text-gray-500">Metode Pembayaran</p>
+            <p className="text-base font-bold flex items-center justify-center gap-2 text-dark">
               <Icons.Success className="text-green size-4" />
-              {transaction.paymentMethod.toUpperCase()} - LUNAS
+              {transaction.paymentMethod} — Lunas
             </p>
           </div>
           <p className="text-[10px] italic text-gray-400 font-medium">

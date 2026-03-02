@@ -58,7 +58,7 @@ function ActiveOpnameModal({
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-dark-5">
             Total Selisih:{" "}
-            <span className={cn("font-black", totalDiff < 0 ? "text-red-500" : totalDiff > 0 ? "text-green-600" : "text-secondary")}>
+            <span className={cn("font-bold", totalDiff < 0 ? "text-red-500" : totalDiff > 0 ? "text-green-600" : "text-secondary")}>
               {totalDiff > 0 ? "+" : ""}{totalDiff} unit
             </span>
           </p>
@@ -77,7 +77,7 @@ function ActiveOpnameModal({
       <div className="max-h-[60vh] overflow-y-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-[11px] [&>th]:text-dark-5 [&>th]:font-black [&>th]:uppercase [&>th]:tracking-widest">
+            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-xs [&>th]:text-dark-5 [&>th]:font-bold">
               <TableHead className="px-4">Item</TableHead>
               <TableHead className="text-center px-4">Sistem</TableHead>
               <TableHead className="text-center px-4">Aktual</TableHead>
@@ -101,13 +101,13 @@ function ActiveOpnameModal({
                     min={0}
                     value={item.physicalCount}
                     onChange={(e) => updateCount(item.id, Number(e.target.value))}
-                    className="w-20 rounded-lg border border-stroke bg-transparent text-center text-sm font-black text-secondary outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 py-1.5"
+                    className="w-20 rounded-lg border border-stroke bg-transparent text-center text-sm font-bold text-secondary outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 py-1.5"
                   />
                 </td>
                 <td className="text-center px-4">
                   <span
                     className={cn(
-                      "text-sm font-black",
+                      "text-sm font-bold",
                       item.difference < 0
                         ? "text-red-500"
                         : item.difference > 0
@@ -148,7 +148,7 @@ function DetailOpnameModal({ opname, onClose }: { opname: StockOpname; onClose: 
       <div className="max-h-[60vh] overflow-y-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-[11px] [&>th]:text-dark-5 [&>th]:font-black [&>th]:uppercase [&>th]:tracking-widest">
+            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-xs [&>th]:text-dark-5 [&>th]:font-bold">
               <TableHead className="px-4">Item</TableHead>
               <TableHead className="text-center px-4">Sistem</TableHead>
               <TableHead className="text-center px-4">Aktual</TableHead>
@@ -166,13 +166,13 @@ function DetailOpnameModal({ opname, onClose }: { opname: StockOpname; onClose: 
                 <td className="text-center px-4 font-bold text-dark dark:text-white">
                   {item.systemStock}
                 </td>
-                <td className="text-center px-4 font-black text-secondary">
+                <td className="text-center px-4 font-bold text-secondary">
                   {item.physicalCount}
                 </td>
                 <td className="text-center px-4">
                   <span
                     className={cn(
-                      "text-sm font-black",
+                      "text-sm font-bold",
                       item.difference < 0
                         ? "text-red-500"
                         : item.difference > 0
@@ -215,9 +215,9 @@ export function StockOpnamePage() {
       },
       {
         accessorKey: "status",
-        header: () => <div className="text-center">Status</div>,
+        header: () => <div className="w-full text-center">Status</div>,
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex w-full justify-center">
             <Badge
               variant={row.original.status === "closed" ? "success" : "warning"}
               className="text-[10px]"
@@ -247,21 +247,21 @@ export function StockOpnamePage() {
       },
       {
         accessorKey: "totalItems",
-        header: () => <div className="text-center">Total Item</div>,
+        header: () => <div className="w-full text-center">Total Item</div>,
         cell: ({ row }) => (
-          <div className="text-center font-bold text-dark dark:text-white">
+          <div className="flex w-full justify-center font-bold text-dark dark:text-white">
             {row.original.totalItems}
           </div>
         ),
       },
       {
         accessorKey: "totalDifference",
-        header: () => <div className="text-center">Total Selisih</div>,
+        header: () => <div className="w-full text-center">Total Selisih</div>,
         cell: ({ row }) => {
           const diff = row.original.totalDifference;
           return (
             <div className={cn(
-              "text-center font-black text-sm",
+              "flex w-full justify-center font-bold text-sm",
               diff < 0 ? "text-red-500" : diff > 0 ? "text-green-600" : "text-dark-5"
             )}>
               {diff > 0 ? "+" : ""}{diff}
@@ -278,12 +278,13 @@ export function StockOpnamePage() {
       },
       {
         id: "actions",
-        header: () => <div className="text-right pr-2">Aksi</div>,
+        header: () => <div className="w-full text-center">Aksi</div>,
         cell: ({ row }) => (
-          <div className="flex justify-end">
+          <div className="flex w-full justify-center">
             <ActionButton 
-              variant="secondary" 
-              label="Detail" 
+              variant="view" 
+              icon={<Icons.Eye size={16} />}
+              title="Lihat Detail" 
               onClick={() => setSelectedOpname(row.original)}
             />
           </div>
@@ -305,8 +306,8 @@ export function StockOpnamePage() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-base font-black text-dark dark:text-white uppercase tracking-tight">{MOCK_OPEN_OPNAME.sessionName}</h4>
-                  <Badge variant="warning" className="text-[9px] py-0">AKTIF</Badge>
+                  <h4 className="text-base font-bold text-dark dark:text-white tracking-tight">{MOCK_OPEN_OPNAME.sessionName}</h4>
+                  <Badge variant="warning" className="text-[9px] py-0">Aktif</Badge>
                 </div>
                 <p className="mt-0.5 text-xs font-medium text-dark-5">
                   Oleh: <span className="text-dark dark:text-gray-400">{MOCK_OPEN_OPNAME.openedBy}</span> ·{" "}
@@ -333,6 +334,7 @@ export function StockOpnamePage() {
         searchPlaceholder="Cari nama sesi..."
         title="Riwayat Stok Opname"
         description="Rekap sesi rekonsiliasi stok fisik vs sistem"
+        pageSize={5}
         primaryAction={
           !hasOpenSession
             ? {

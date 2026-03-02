@@ -115,7 +115,7 @@ export function CustomerDetailModal({
 
         {/* 📊 STATISTIK */}
         <section>
-          <h4 className="mb-4 flex items-center gap-2 font-black text-[11px] uppercase tracking-widest text-dark-5">
+          <h4 className="mb-4 flex items-center gap-2 font-bold text-sm text-dark-5">
             <Icons.Laporan size={14} />
             Statistik Loyalitas
           </h4>
@@ -126,8 +126,8 @@ export function CustomerDetailModal({
                   <Icons.History size={18} />
                 </div>
                 <div>
-                  <h5 className="text-lg font-black text-dark dark:text-white leading-none">{customer.totalVisits}</h5>
-                  <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-dark-5">Kunjungan</p>
+                  <h5 className="text-xl font-bold tracking-tight text-dark dark:text-white leading-none">{customer.totalVisits}</h5>
+                  <p className="mt-1 text-[11px] font-medium text-dark-5">Kunjungan</p>
                 </div>
               </div>
             </div>
@@ -138,8 +138,8 @@ export function CustomerDetailModal({
                   <Icons.Cash size={18} />
                 </div>
                 <div>
-                  <h5 className="text-lg font-black text-dark dark:text-white leading-none">Rp {formatNumber(customer.totalSpent).split(',')[0]}K</h5>
-                  <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-dark-5">Transaksi</p>
+                  <h5 className="text-xl font-bold tracking-tight text-dark dark:text-white leading-none">Rp {formatNumber(customer.totalSpent).split(',')[0]}K</h5>
+                  <p className="mt-1 text-[11px] font-medium text-dark-5">Transaksi</p>
                 </div>
               </div>
             </div>
@@ -150,10 +150,10 @@ export function CustomerDetailModal({
                   <Icons.Calendar size={18} />
                 </div>
                 <div>
-                  <h5 className="text-[11px] font-black text-dark dark:text-white leading-none uppercase">
+                  <h5 className="text-sm font-bold tracking-tight text-dark dark:text-white leading-none">
                     {customer.lastVisit ? dayjs(customer.lastVisit).format("DD MMM YY") : "-"}
                   </h5>
-                  <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-dark-5">Terakhir</p>
+                  <p className="mt-1 text-[11px] font-medium text-dark-5">Terakhir</p>
                 </div>
               </div>
             </div>

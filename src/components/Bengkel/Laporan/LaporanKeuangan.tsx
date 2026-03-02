@@ -34,15 +34,15 @@ function StatCard({ label, value, sub, icon: Icon, trend }: Omit<StatCardProps, 
           <Icon size={22} />
         </div>
         {trend && (
-          <div className={cn("flex items-center gap-1 text-[11px] font-black uppercase tracking-wider", trend.up ? "text-green" : "text-red")}>
+          <div className={cn("flex items-center gap-1 text-[11px] font-bold", trend.up ? "text-green" : "text-red")}>
             {trend.up ? <Icons.ArrowUp size={12} /> : <Icons.ArrowDown size={12} />}
             {trend.v}%
           </div>
         )}
       </div>
-      <h4 className="text-xl font-black text-dark dark:text-white leading-tight tracking-tighter">{value}</h4>
-      <p className="mt-1 text-[10px] font-bold text-dark-5 uppercase tracking-widest">{label}</p>
-      {sub && <p className="mt-1 text-[10px] font-black text-secondary uppercase tracking-tighter">{sub}</p>}
+      <h4 className="text-xl font-bold text-dark dark:text-white leading-tight tracking-tight">{value}</h4>
+      <p className="mt-1 text-xs font-medium text-dark-5">{label}</p>
+      {sub && <p className="mt-1 text-[11px] font-medium text-secondary">{sub}</p>}
     </div>
   );
 }
@@ -88,7 +88,7 @@ export function LaporanKeuangan() {
               key={p}
               onClick={() => { setPeriod(p); setDateFrom(""); setDateTo(""); }}
               className={cn(
-                "rounded-md px-3 py-1.5 text-[11px] font-black uppercase tracking-wider",
+                "rounded-md px-3 py-1.5 text-[11px] font-bold",
                 period === p && !dateFrom
                   ? "bg-dark text-white dark:bg-white dark:text-dark"
                   : "text-dark-5 hover:text-dark dark:hover:text-white"
@@ -106,7 +106,7 @@ export function LaporanKeuangan() {
             onChange={e => { setDateFrom(e.target.value); setPeriod("semua"); }}
             className="rounded-lg border border-stroke bg-gray-1 px-3 py-2 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
           />
-          <span className="text-dark-5 text-sm font-black">–</span>
+          <span className="text-dark-5 text-sm font-bold">–</span>
           <input
             type="date"
             value={dateTo}
@@ -128,7 +128,7 @@ export function LaporanKeuangan() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Payment Method Breakdown */}
         <div className="rounded-lg border border-stroke bg-white p-5 dark:border-dark-3 dark:bg-gray-dark shadow-none">
-          <h3 className="mb-4 text-sm font-black text-dark dark:text-white uppercase tracking-wider">Metode Pembayaran</h3>
+          <h3 className="mb-4 text-sm font-bold text-dark dark:text-white">Metode Pembayaran</h3>
           <div className="space-y-3">
             {[
               { label: "Cash", count: cashTx, icon: Icons.Cash },
@@ -143,7 +143,7 @@ export function LaporanKeuangan() {
                   </div>
                   <span className="text-sm font-bold text-dark dark:text-white">{label}</span>
                 </div>
-                <span className="text-sm font-black text-dark dark:text-white tracking-widest">{count} <span className="text-[10px] font-bold text-dark-5 uppercase">TX</span></span>
+                <span className="text-sm font-bold text-dark dark:text-white">{count} <span className="text-[11px] font-medium text-dark-5">TX</span></span>
               </div>
             ))}
           </div>
@@ -151,7 +151,7 @@ export function LaporanKeuangan() {
 
         {/* Service vs Part Donut-like */}
         <div className="rounded-lg border border-stroke bg-white p-5 dark:border-dark-3 dark:bg-gray-dark shadow-none">
-          <h3 className="mb-4 text-sm font-black text-dark dark:text-white uppercase tracking-wider">Komposisi Pendapatan</h3>
+          <h3 className="mb-4 text-sm font-bold text-dark dark:text-white">Komposisi Pendapatan</h3>
           {totalPendapatan > 0 ? (
             <div className="space-y-3">
               {[
@@ -163,12 +163,12 @@ export function LaporanKeuangan() {
                   <div key={label}>
                     <div className="mb-1 flex justify-between text-sm">
                       <span className="font-bold text-dark dark:text-white">{label}</span>
-                      <span className="font-black text-dark dark:text-white">{pct}%</span>
+                      <span className="font-bold text-dark dark:text-white">{pct}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-gray-2 dark:bg-dark-3">
                       <div className={cn("h-full rounded-full", color)} style={{ width: `${pct}%` }} />
                     </div>
-                    <p className="mt-1 text-[11px] font-black text-dark-5 uppercase tracking-tighter">Rp {formatNumber(value)}</p>
+                    <p className="mt-1 text-xs font-medium text-dark-5">Rp {formatNumber(value)}</p>
                   </div>
                 );
               })}
@@ -180,25 +180,25 @@ export function LaporanKeuangan() {
 
         {/* Transaction count */}
         <div className="rounded-lg border border-stroke bg-white p-5 dark:border-dark-3 dark:bg-gray-dark shadow-none">
-          <h3 className="mb-4 text-sm font-black text-dark dark:text-white uppercase tracking-wider">Ringkasan Periode</h3>
+          <h3 className="mb-4 text-sm font-bold text-dark dark:text-white">Ringkasan Periode</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-2 border-b border-stroke dark:border-dark-3">
-              <span className="text-[11px] font-bold text-dark-5 uppercase tracking-wider">Total Transaksi</span>
-              <span className="font-black text-lg text-dark dark:text-white tracking-widest">{filtered.length}</span>
+              <span className="text-xs font-medium text-dark-5">Total Transaksi</span>
+              <span className="font-bold text-lg text-dark dark:text-white">{filtered.length}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-stroke dark:border-dark-3">
-              <span className="text-[11px] font-bold text-dark-5 uppercase tracking-wider">Rata-rata / TX</span>
-              <span className="font-black text-dark dark:text-white tracking-tighter">
+              <span className="text-xs font-medium text-dark-5">Rata-rata / TX</span>
+              <span className="font-bold text-dark dark:text-white">
                 Rp {filtered.length > 0 ? formatNumber(Math.round(totalPendapatan / filtered.length)) : "0"}
               </span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-stroke dark:border-dark-3">
-              <span className="text-[11px] font-bold text-dark-5 uppercase tracking-wider">Transaksi Jasa</span>
-              <span className="font-black text-dark dark:text-white">{filtered.filter(t => t.type === "Service").length}</span>
+              <span className="text-xs font-medium text-dark-5">Transaksi Jasa</span>
+              <span className="font-bold text-dark dark:text-white">{filtered.filter(t => t.type === "Service").length}</span>
             </div>
             <div className="flex justify-between items-center py-2">
-              <span className="text-[11px] font-bold text-dark-5 uppercase tracking-wider">Transaksi Part</span>
-              <span className="font-black text-dark dark:text-white">{filtered.filter(t => t.type === "Sparepart Only").length}</span>
+              <span className="text-xs font-medium text-dark-5">Transaksi Part</span>
+              <span className="font-bold text-dark dark:text-white">{filtered.filter(t => t.type === "Sparepart Only").length}</span>
             </div>
           </div>
         </div>

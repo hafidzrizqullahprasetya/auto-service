@@ -278,7 +278,7 @@ export function CreateTransactionForm({ onClose, onSave }: CreateTransactionForm
             {cart.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center rounded-xl border-2 border-dashed border-stroke py-12 text-center dark:border-dark-3">
                 <Icons.Kasir size={40} className="mb-2 text-dark-5 opacity-30" />
-                <p className="text-sm text-dark-5">Belum ada item</p>
+                  <p className="text-sm text-dark-5 italic">Belum ada item dipilih.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
@@ -296,10 +296,10 @@ export function CreateTransactionForm({ onClose, onSave }: CreateTransactionForm
                       </div>
                       <div className="flex items-center gap-2">
                         <button onClick={() => updateQty(idx, ci.quantity - 1)} className="flex h-7 w-7 items-center justify-center rounded border border-stroke font-bold text-sm hover:bg-gray-1 dark:border-dark-3">−</button>
-                        <span className="w-6 text-center text-sm font-black">{ci.quantity}</span>
+                        <span className="w-6 text-center text-sm font-bold">{ci.quantity}</span>
                         <button onClick={() => updateQty(idx, ci.quantity + 1)} className="flex h-7 w-7 items-center justify-center rounded border border-stroke font-bold text-sm hover:bg-gray-1 dark:border-dark-3">+</button>
                       </div>
-                      <p className="w-24 text-right text-sm font-black text-secondary">
+                      <p className="w-24 text-right text-sm font-bold text-secondary">
                         Rp {formatNumber(price * ci.quantity)}
                       </p>
                       <button onClick={() => removeFromCart(idx)} className="text-red-400 hover:text-red-600">
@@ -318,8 +318,8 @@ export function CreateTransactionForm({ onClose, onSave }: CreateTransactionForm
                   <span>Subtotal</span>
                   <span className="font-bold text-dark dark:text-white">Rp {formatNumber(subtotal)}</span>
                 </div>
-                <div className="mt-3 flex justify-between font-black">
-                  <span className="text-dark dark:text-white">TOTAL</span>
+                <div className="mt-3 flex justify-between font-bold">
+                  <span className="text-dark dark:text-white">Total</span>
                   <span className="text-lg text-secondary">Rp {formatNumber(subtotal)}</span>
                 </div>
               </div>
@@ -331,7 +331,7 @@ export function CreateTransactionForm({ onClose, onSave }: CreateTransactionForm
         <div className="mx-auto max-w-md space-y-5">
           {/* Ringkasan */}
           <div className="rounded-xl border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
-            <p className="text-xs font-bold uppercase text-dark-5">Ringkasan Transaksi</p>
+            <p className="text-xs font-bold text-dark-5">Ringkasan Transaksi</p>
             {selectedCustomer && (
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-sm text-dark-5">Pelanggan:</span>
@@ -346,7 +346,7 @@ export function CreateTransactionForm({ onClose, onSave }: CreateTransactionForm
             )}
             <div className="mt-2 border-t border-stroke pt-2 dark:border-dark-3 flex items-center justify-between">
               <span className="text-sm font-bold text-dark dark:text-white">Total Tagihan:</span>
-              <span className="text-lg font-black text-secondary">Rp {formatNumber(subtotal)}</span>
+              <span className="text-lg font-bold text-secondary">Rp {formatNumber(subtotal)}</span>
             </div>
           </div>
 
@@ -400,7 +400,7 @@ export function CreateTransactionForm({ onClose, onSave }: CreateTransactionForm
                   type="number"
                   value={paidAmount || ""}
                   onChange={(e) => setPaidAmount(Number(e.target.value))}
-                  className="w-full rounded-lg border border-stroke bg-transparent pl-12 pr-4 py-2.5 text-sm font-black text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+                  className="w-full rounded-lg border border-stroke bg-transparent pl-12 pr-4 py-2.5 text-sm font-bold text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
                 />
               </div>
               {paidAmount > 0 && (

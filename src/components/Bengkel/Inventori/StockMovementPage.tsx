@@ -28,9 +28,9 @@ function StockSummary({ movements }: { movements: StockMovement[] }) {
               {icon}
             </div>
             <div>
-              <h4 className="text-xl font-black text-dark dark:text-white leading-none">{value}</h4>
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">{label}</p>
-              <p className="text-[9px] uppercase font-medium text-dark-6 tracking-wider">{sub}</p>
+              <h4 className="text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">{value}</h4>
+              <p className="mt-1 text-sm font-medium text-dark-5">{label}</p>
+              <p className="text-[10px] font-medium text-dark-6">{sub}</p>
             </div>
           </div>
         </div>
@@ -69,11 +69,11 @@ export function StockMovementPage() {
       },
       {
         accessorKey: "type",
-        header: () => <div className="text-center">Tipe</div>,
+        header: () => <div className="w-full text-center">Tipe</div>,
         cell: ({ row }) => {
           const t = row.original.type;
           return (
-            <div className="flex justify-center">
+            <div className="flex w-full justify-center">
               <Badge
                 variant={t === "masuk" ? "success" : t === "keluar" ? "danger" : "warning"}
                 className="text-[10px]"
@@ -86,11 +86,11 @@ export function StockMovementPage() {
       },
       {
         accessorKey: "quantityChange",
-        header: () => <div className="text-center">Jumlah</div>,
+        header: () => <div className="w-full text-center">Jumlah</div>,
         cell: ({ row }) => {
           const qty = row.original.quantityChange;
           return (
-            <div className={`text-center font-black text-sm ${qty > 0 ? "text-green-600" : "text-red-500"}`}>
+            <div className={`flex w-full justify-center font-bold text-sm ${qty > 0 ? "text-green-600" : "text-red-500"}`}>
               {qty > 0 ? "+" : ""}{qty}
             </div>
           );
@@ -98,16 +98,16 @@ export function StockMovementPage() {
       },
       {
         accessorKey: "stockBefore",
-        header: () => <div className="text-center">Stok Sebelum</div>,
+        header: () => <div className="w-full text-center">Stok Sebelum</div>,
         cell: ({ row }) => (
-          <div className="text-center text-sm font-medium text-dark-5">{row.original.stockBefore}</div>
+          <div className="flex w-full justify-center text-sm font-medium text-dark-5">{row.original.stockBefore}</div>
         ),
       },
       {
         accessorKey: "stockAfter",
-        header: () => <div className="text-center">Stok Sesudah</div>,
+        header: () => <div className="w-full text-center">Stok Sesudah</div>,
         cell: ({ row }) => (
-          <div className="text-center text-sm font-bold text-dark dark:text-white">{row.original.stockAfter}</div>
+          <div className="flex w-full justify-center text-sm font-bold text-dark dark:text-white">{row.original.stockAfter}</div>
         ),
       },
       {
@@ -141,6 +141,7 @@ export function StockMovementPage() {
         searchPlaceholder="Cari nama atau SKU..."
         title="Riwayat Pergerakan Stok"
         description="Log semua keluar-masuk stok sparepart"
+        pageSize={5}
         primaryAction={{
           label: "Stok Masuk",
           onClick: () => setShowMasukForm(true),

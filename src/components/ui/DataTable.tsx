@@ -83,7 +83,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={cn(
-      "overflow-hidden",
+      "overflow-hidden flex flex-col width-full",
       !borderless ? "rounded-2xl border border-stroke bg-white shadow-sm" : "bg-transparent"
     )}>
 
@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
         <div className="flex flex-col gap-4 border-b border-stroke px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             {title && (
-              <h3 className="text-[17px] font-black tracking-tight text-dark">{title}</h3>
+              <h3 className="text-lg font-bold tracking-tight text-dark">{title}</h3>
             )}
             {description && (
               <p className="text-xs font-medium text-dark-5">{description}</p>
@@ -148,7 +148,7 @@ export function DataTable<TData, TValue>({
       )}
 
       {/* ── Table ───────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto">
+      <div className="flex-1 overflow-x-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-dark border-t-transparent" />
@@ -164,7 +164,11 @@ export function DataTable<TData, TValue>({
                   {headerGroup.headers.map((header) => (
                     <TableHead 
                       key={header.id}
-                      className="text-[11px] font-black uppercase tracking-widest text-dark-5"
+                      className={cn(
+                        "text-xs font-bold text-dark-5 transition-colors group/th",
+                        header.column.getCanSort() && "cursor-pointer select-none hover:text-dark"
+                      )}
+                      onClick={header.column.getToggleSortingHandler?.()}
                     >
                       <div className="relative flex items-center min-h-[14px]">
                         <div className="w-full">
@@ -172,11 +176,15 @@ export function DataTable<TData, TValue>({
                             ? null
                             : flexRender(header.column.columnDef.header, header.getContext())}
                         </div>
-                        {!header.column.id.includes("actions") && !header.column.id.includes("no") && (
-                          <Icons.ChevronDown 
-                            size={10} 
-                            className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-30" 
-                          /> 
+                        {header.column.getCanSort() && !header.column.id.includes("actions") && !header.column.id.includes("no") && (
+                          <div className="absolute -right-4 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                            {{
+                              asc: <Icons.ArrowUp size={12} className="text-dark" />,
+                              desc: <Icons.ArrowDown size={12} className="text-dark" />,
+                            }[header.column.getIsSorted() as string] ?? (
+                              <Icons.ChevronDown size={12} className="opacity-30 group-hover/th:opacity-100" />
+                            )}
+                          </div>
                         )}
                       </div>
                     </TableHead>
@@ -208,13 +216,18 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-48 text-center text-sm text-dark-5"
+                    className="h-[300px] text-center"
                   >
-                    <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-col items-center justify-center gap-3">
                       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-1">
-                        <Icons.Search size={32} className="opacity-20" />
+                        <Icons.Search size={32} className="text-dark-5 opacity-20" />
                       </div>
-                      <p className="font-medium">Data tidak ditemukan</p>
+                      <div className="space-y-1">
+                        <p className="font-bold text-dark">Data Tidak Ditemukan</p>
+                        <p className="text-xs text-dark-5">
+                          Coba sesuaikan kata kunci atau filter pencarian Anda
+                        </p>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -255,7 +268,7 @@ export function DataTable<TData, TValue>({
                       className={cn(
                         "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all active:scale-90",
                         currentPage === page
-                          ? "bg-dark text-white shadow-lg shadow-dark/20"
+                          ? "bg-dark text-white"
                           : "text-dark-5 hover:bg-gray-1 hover:text-dark"
                       )}
                     >

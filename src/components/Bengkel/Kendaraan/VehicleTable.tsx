@@ -16,16 +16,7 @@ export function VehicleTable() {
 
   const columns = useMemo<ColumnDef<Vehicle>[]>(
     () => [
-      {
-        id: "no",
-        header: () => <div className="text-center">No.</div>,
-        cell: ({ row }) => (
-          <div className="text-center font-bold text-dark-5">
-            {row.index + 1}
-          </div>
-        ),
-        size: 50,
-      },
+
       {
         accessorKey: "plateNumber",
         header: "No. Polisi",
@@ -40,7 +31,7 @@ export function VehicleTable() {
                   <Icons.KendaraanMotor size={22} />
                 )}
               </div>
-              <span className="font-black text-dark dark:text-white text-lg tracking-widest uppercase leading-none">
+              <span className="font-bold text-dark dark:text-white text-lg uppercase leading-none">
                 {v.plateNumber}
               </span>
             </div>
@@ -54,20 +45,20 @@ export function VehicleTable() {
           const v = row.original;
           return (
             <div className="flex flex-col">
-              <p className="font-bold text-sm text-dark dark:text-white uppercase tracking-tight">
+              <p className="font-bold text-sm text-dark dark:text-white leading-tight">
                 {v.brand} {v.model}
               </p>
-              <span className="text-[10px] font-bold text-dark-5 uppercase tracking-wider">{v.color}</span>
+              <span className="text-[11px] font-medium text-dark-5">{v.color}</span>
             </div>
           );
         },
       },
       {
         accessorKey: "ownerId",
-        header: () => <div className="text-center">Pemilik</div>,
+        header: () => <div className="w-full text-center">Pemilik</div>,
         cell: ({ row }) => (
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-[11px] font-black py-0.5 px-2 bg-gray-2 dark:bg-dark-3 rounded text-dark-5 border border-stroke uppercase tracking-tighter">
+          <div className="flex w-full items-center justify-center gap-2">
+            <span className="text-[11px] font-medium py-0.5 px-2 bg-gray-2 dark:bg-dark-3 rounded text-dark-5 border border-stroke">
               ID: {row.original.ownerId}
             </span>
           </div>
@@ -75,37 +66,37 @@ export function VehicleTable() {
       },
       {
         accessorKey: "year",
-        header: () => <div className="text-center">Tahun</div>,
+        header: () => <div className="w-full text-center">Tahun</div>,
         cell: ({ row }) => (
-          <div className="text-center font-black text-dark dark:text-white">
+          <div className="flex w-full justify-center font-bold text-dark dark:text-white">
             {row.original.year}
           </div>
         ),
       },
       {
         accessorKey: "lastServiceKm",
-        header: "Odo Terakhir",
+        header: () => <div className="w-full text-center">Odo Terakhir</div>,
         cell: ({ row }) => (
-          <div className="flex items-center gap-1.5 text-sm font-black text-secondary">
+          <div className="flex w-full items-center justify-center gap-1.5 text-sm font-bold text-secondary">
             <Icons.Repair size={14} />
-            {row.original.lastServiceKm.toLocaleString()} <span className="text-[9px] uppercase font-bold text-dark-5">KM</span>
+            {row.original.lastServiceKm.toLocaleString()} <span className="text-[10px] font-medium text-dark-5">KM</span>
           </div>
         ),
       },
       {
         id: "actions",
-        header: () => <div className="text-right">Opsi</div>,
+        header: () => <div className="w-full text-center">Opsi</div>,
         cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex w-full items-center justify-center gap-2">
             <ActionButton
               onClick={() => setHistoryVehicle(row.original)}
-              variant="secondary"
-              icon={<Icons.History size={14} />}
-              label="Riwayat"
+              variant="view"
+              icon={<Icons.History size={16} />}
+              title="Riwayat Servis"
             />
             <ActionButton
-              icon={<Icons.Settings size={16} />}
-              variant="outline"
+              icon={<Icons.Edit size={16} />}
+              variant="edit"
               onClick={() => setEditVehicle(row.original)}
               title="Edit Kendaraan"
             />
@@ -125,6 +116,7 @@ export function VehicleTable() {
         searchPlaceholder="Cari plat nomor atau merk..."
         title="Data Kendaraan & Service Book"
         description="Daftar seluruh kendaraan pelanggan beserta riwayat servis"
+        pageSize={5}
         primaryAction={{
           label: "Registrasi Baru",
           onClick: () => setShowRegModal(true),

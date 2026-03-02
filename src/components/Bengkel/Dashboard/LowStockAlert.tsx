@@ -15,10 +15,10 @@ export function LowStockAlert() {
             <Icons.Notification size={16} className="text-red-500" />
           </div>
           <div>
-            <h4 className="text-base font-bold text-dark dark:text-white">
+            <h4 className="text-lg font-bold text-dark dark:text-white">
               Alert Stok Menipis
             </h4>
-            <p className="text-xs text-dark-5">
+            <p className="text-sm font-medium text-dark-5">
               {LOW_STOCK_ITEMS.length} item di bawah batas minimum
             </p>
           </div>

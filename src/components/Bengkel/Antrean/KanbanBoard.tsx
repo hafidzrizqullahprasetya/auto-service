@@ -93,7 +93,7 @@ function KanbanCard({ item, onStatusChange, onMechanicAssign, onEdit, onDelete, 
               </button>
             </div>
             
-            <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-dark-5 mt-1">Pindah Status</p>
+            <p className="px-3 py-1 text-[11px] font-bold text-dark-5 mt-1">Pindah Status</p>
             {STATUS_COLUMNS.filter((s) => s !== item.status).map((s) => (
               <button
                 key={s}
@@ -197,9 +197,9 @@ export function KanbanBoard({ items, onStatusChange, onMechanicAssign }: KanbanB
               <div className="flex items-center justify-between border-b-2 border-stroke pb-3 dark:border-dark-3">
                 <div className="flex items-center gap-2">
                   <span className={cn("h-2.5 w-2.5 rounded-full", STATUS_COLORS[status])} />
-                  <h3 className="text-sm font-black text-dark dark:text-white uppercase tracking-wider">{status}</h3>
+                  <h3 className="text-sm font-bold text-dark dark:text-white">{status}</h3>
                 </div>
-                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-gray-2 text-[10px] font-black text-dark dark:bg-dark-2 dark:text-white">
+                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-gray-2 text-[10px] font-bold text-dark dark:bg-dark-2 dark:text-white">
                   {colItems.length}
                 </span>
               </div>

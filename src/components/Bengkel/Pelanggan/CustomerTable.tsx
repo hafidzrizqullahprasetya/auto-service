@@ -96,16 +96,7 @@ export function CustomerTable({
 
   const columns = useMemo<ColumnDef<Customer>[]>(
     () => [
-      {
-        id: "no",
-        header: () => <div className="text-center">No.</div>,
-        cell: ({ row }) => (
-          <div className="text-center font-bold text-dark-5">
-            {row.index + 1}
-          </div>
-        ),
-        size: 50,
-      },
+
       {
         accessorKey: "name",
         header: "Nama Pelanggan",
@@ -114,7 +105,7 @@ export function CustomerTable({
             <p className="font-bold text-sm text-dark dark:text-white leading-tight">
               {row.original.name}
             </p>
-            <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-dark-5 uppercase tracking-wider">
+            <div className="flex items-center gap-1 mt-1 text-[11px] font-medium text-dark-5">
               <Icons.Whatsapp size={10} className="text-primary" />
               {row.original.phone}
             </div>
@@ -123,13 +114,13 @@ export function CustomerTable({
       },
       {
         accessorKey: "vehicles",
-        header: () => <div className="text-center">Kendaraan</div>,
+        header: () => <div className="w-full text-center">Kendaraan</div>,
         cell: ({ row }) => (
-          <div className="flex flex-wrap gap-1 justify-center max-w-[150px] mx-auto">
+          <div className="flex w-full flex-wrap gap-1 justify-center max-w-[150px] mx-auto">
             {row.original.vehicles.map((v) => (
               <span
                 key={v}
-                className="bg-gray-2 dark:bg-dark-3 text-dark dark:text-white text-[9px] px-1.5 py-0.5 rounded font-black border border-stroke dark:border-dark-4 uppercase tracking-tighter"
+                className="bg-gray-2 dark:bg-dark-3 text-dark dark:text-white text-[10px] px-1.5 py-0.5 rounded font-medium border border-stroke dark:border-dark-4"
               >
                 {v}
               </span>
@@ -139,40 +130,44 @@ export function CustomerTable({
       },
       {
         accessorKey: "totalVisits",
-        header: () => <div className="text-center">Kunjungan</div>,
+        header: () => <div className="w-full text-center">Kunjungan</div>,
         cell: ({ row }) => (
-          <div className="text-center">
-            <span className="font-black text-sm text-dark dark:text-white">{row.original.totalVisits}</span>
-            <span className="ml-1 text-[9px] font-bold text-dark-5 uppercase">Kali</span>
+          <div className="flex w-full justify-center items-center">
+            <span className="font-bold text-sm text-dark dark:text-white">{row.original.totalVisits}</span>
+            <span className="ml-1 text-[10px] font-medium text-dark-5">Kali</span>
           </div>
         ),
       },
       {
         accessorKey: "totalSpent",
-        header: () => <div className="text-center">Total Transaksi</div>,
+        header: () => <div className="w-full text-center">Total Transaksi</div>,
         cell: ({ row }) => (
-          <p className="text-center font-black text-sm text-secondary">
-            Rp {formatNumber(row.original.totalSpent)}
-          </p>
+          <div className="flex w-full justify-center">
+            <p className="font-bold text-sm text-secondary">
+              Rp {formatNumber(row.original.totalSpent)}
+            </p>
+          </div>
         ),
       },
       {
         accessorKey: "lastVisit",
-        header: () => <div className="text-center">Terakhir</div>,
+        header: () => <div className="w-full text-center">Terakhir</div>,
         cell: ({ row }) => (
-          <div className="text-center text-[11px] font-bold text-dark-5 uppercase tracking-wide">
-            {dayjs(row.original.lastVisit).format("DD MMM YYYY")}
+          <div className="flex w-full justify-center">
+            <span className="text-xs font-medium text-dark-5">
+              {dayjs(row.original.lastVisit).format("DD MMM YYYY")}
+            </span>
           </div>
         ),
       },
       {
         id: "actions",
-        header: () => <div className="text-center">Aksi</div>,
+        header: () => <div className="w-full text-center">Aksi</div>,
         cell: ({ row }) => (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex w-full items-center justify-center gap-2">
             {/* Quick View */}
             <ActionButton
-              variant="outline"
+              variant="view"
               icon={<Icons.Eye size={16} />}
               onClick={() => handleViewCustomer(row.original)}
               title="Lihat Detail"
@@ -180,7 +175,7 @@ export function CustomerTable({
 
             {/* Quick Edit */}
             <ActionButton
-              variant="outline"
+              variant="edit"
               icon={<Icons.Edit size={16} />}
               onClick={() => handleEditCustomer(row.original)}
               title="Edit Cepat"
@@ -188,11 +183,10 @@ export function CustomerTable({
 
             {/* Quick Delete */}
             <ActionButton
-              variant="outline"
-              icon={<Icons.Delete size={16} className="text-red-600" />}
+              variant="delete"
+              icon={<Icons.Delete size={16} />}
               onClick={() => handleDeleteCustomer(row.original)}
               title="Hapus"
-              className="hover:bg-red-50 dark:hover:bg-red-900/20"
             />
           </div>
         ),
@@ -208,7 +202,7 @@ export function CustomerTable({
         data={data}
         searchable={["name", "phone", "vehicles"]}
         searchPlaceholder="Cari nama, HP, atau plat nomor..."
-        pageSize={10}
+        pageSize={5}
         title="Database Pelanggan"
         description="Daftar pelanggan tetap dan riwayat loyalitas mereka"
         primaryAction={

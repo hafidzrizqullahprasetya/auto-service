@@ -18,8 +18,8 @@ export function InventorySummary() {
             <Icons.Inventory size={22} />
           </div>
           <div>
-            <h4 className="text-xl font-black text-dark dark:text-white leading-none">{totalItems}</h4>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Total SKU Produk</p>
+            <h4 className="text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">{totalItems}</h4>
+            <p className="mt-1 text-sm font-medium text-dark-5">Total SKU Produk</p>
           </div>
         </div>
       </div>
@@ -30,8 +30,8 @@ export function InventorySummary() {
             <Icons.Alert size={22} />
           </div>
           <div>
-            <h4 className="text-xl font-black text-dark dark:text-white leading-none">{lowStockItems}</h4>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Stok Menipis (&lt;10)</p>
+            <h4 className="text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">{lowStockItems}</h4>
+            <p className="mt-1 text-sm font-medium text-dark-5">Stok Menipis (&lt;10)</p>
           </div>
         </div>
       </div>
@@ -42,8 +42,8 @@ export function InventorySummary() {
             <Icons.Chart size={22} />
           </div>
           <div>
-            <h4 className="text-xl font-black text-dark dark:text-white leading-none">Rp {formatNumber(totalValue)}</h4>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Total Nilai Aset</p>
+            <h4 className="text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">Rp {formatNumber(totalValue)}</h4>
+            <p className="mt-1 text-sm font-medium text-dark-5">Total Nilai Aset</p>
           </div>
         </div>
       </div>
@@ -54,8 +54,8 @@ export function InventorySummary() {
             <Icons.Antrean size={22} />
           </div>
           <div>
-            <h4 className="text-xl font-black text-dark dark:text-white leading-none">{outOfStock}</h4>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Habis Stok</p>
+            <h4 className="text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">{outOfStock}</h4>
+            <p className="mt-1 text-sm font-medium text-dark-5">Habis Stok</p>
           </div>
         </div>
       </div>

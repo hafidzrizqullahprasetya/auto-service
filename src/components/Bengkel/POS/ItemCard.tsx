@@ -26,7 +26,7 @@ export function ItemCard({ item, onAdd }: ItemCardProps) {
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center bg-gray-2 text-dark-5 dark:bg-dark-3">
             <Icons.Inventory size={32} className="opacity-20 mb-1" />
-            <span className="text-[10px] font-medium opacity-50 uppercase tracking-wider">No Image</span>
+            <span className="text-[10px] font-medium opacity-50">No Image</span>
           </div>
         )}
         <div className="absolute top-2 left-2">
@@ -47,7 +47,7 @@ export function ItemCard({ item, onAdd }: ItemCardProps) {
         </div>
         
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-base font-black text-secondary">
+          <span className="text-base font-bold text-secondary">
             Rp {formatNumber(item.price)}
           </span>
           {item.stock !== undefined && (

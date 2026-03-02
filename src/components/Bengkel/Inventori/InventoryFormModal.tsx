@@ -139,7 +139,7 @@ export function InventoryFormModal({ onClose, onSave, initialData }: InventoryFo
                 value={form.price}
                 onChange={handleChange}
                 placeholder="0"
-                className="w-full rounded-lg border border-stroke bg-transparent pl-12 pr-4 py-2.5 text-sm font-black text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+                className="w-full rounded-lg border border-stroke bg-transparent pl-12 pr-4 py-2.5 text-sm font-bold text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
               />
             </div>
           </div>

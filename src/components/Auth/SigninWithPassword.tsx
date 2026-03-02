@@ -60,12 +60,12 @@ export default function SigninWithPassword() {
 
       <div className="mb-6 flex items-center justify-between gap-2 py-2">
         <Checkbox
-          label="INGAT SESI SAYA"
+          label="Ingat Sesi Saya"
           name="remember"
           withIcon="check"
           minimal
           radius="md"
-          className="text-xs font-black uppercase tracking-widest text-dark-5"
+          className="text-xs font-medium text-dark-5"
           onChange={(e) =>
             setData({
               ...data,
@@ -76,9 +76,9 @@ export default function SigninWithPassword() {
 
         <Link
           href="/auth/forgot-password"
-          className="text-dark-5 hover:text-dark dark:hover:text-white text-xs font-bold uppercase tracking-widest transition-none"
+          className="text-dark-5 hover:text-dark dark:hover:text-white text-xs font-semibold transition-none"
         >
-          LUPA KATA SANDI?
+          Lupa Kata Sandi?
         </Link>
       </div>
 
@@ -86,9 +86,9 @@ export default function SigninWithPassword() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark p-4 text-xs font-black uppercase tracking-[0.2em] text-white transition-none hover:bg-opacity-90 disabled:bg-opacity-50 dark:bg-white dark:text-dark dark:hover:bg-opacity-90"
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark p-4 text-sm font-bold text-white transition-none hover:bg-opacity-90 disabled:bg-opacity-50 dark:bg-white dark:text-dark dark:hover:bg-opacity-90"
         >
-          {loading ? "PROSES OTENTIKASI..." : "MASUK KE DASHBOARD"}
+          {loading ? "Proses Otentikasi..." : "Masuk ke Dashboard"}
           {loading && (
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent dark:border-dark dark:border-t-transparent" />
           )}

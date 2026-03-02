@@ -23,7 +23,7 @@ function SummaryCard({ title, value, icon, trend }: Omit<SummaryCardProps, "colo
           {icon}
         </div>
         {trend && (
-          <div className={cn("flex items-center gap-1 text-[11px] font-black uppercase tracking-wider", trend.isUp ? "text-green" : "text-red")}>
+          <div className={cn("flex items-center gap-1 text-xs font-bold", trend.isUp ? "text-green" : "text-red")}>
             {trend.isUp ? <Icons.ArrowUp size={12} /> : <Icons.ArrowDown size={12} />}
             {trend.value}%
           </div>
@@ -32,10 +32,10 @@ function SummaryCard({ title, value, icon, trend }: Omit<SummaryCardProps, "colo
 
       <div className="mt-4 flex items-end justify-between">
         <div>
-          <h4 className="mb-0.5 text-xl font-black text-dark dark:text-white leading-none">
+          <h4 className="mb-0.5 text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">
             {typeof value === "number" ? `Rp ${formatNumber(value)}` : value}
           </h4>
-          <span className="text-[10px] font-bold text-dark-5 dark:text-dark-6 uppercase tracking-widest">{title}</span>
+          <span className="text-sm font-medium text-dark-5 dark:text-dark-6">{title}</span>
         </div>
       </div>
     </div>

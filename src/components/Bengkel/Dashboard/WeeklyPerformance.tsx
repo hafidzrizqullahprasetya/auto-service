@@ -20,7 +20,7 @@ export async function WeeklyPerformance({ className, timeFrame }: PropsType) {
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-body-2xlg font-bold text-dark dark:text-white">
+          <h2 className="text-lg font-bold text-dark dark:text-white">
             Performa Mingguan
           </h2>
           <p className="text-xs font-medium text-dark-5">Efisiensi pengerjaan unit per hari</p>

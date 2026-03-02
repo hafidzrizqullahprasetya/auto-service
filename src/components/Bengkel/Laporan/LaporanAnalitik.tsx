@@ -62,7 +62,7 @@ function RankBar({ rank, name, primaryStat, secondaryStat, pct, color }: RankBar
     <div className="flex items-center gap-3">
       <span
         className={cn(
-          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-black border border-stroke",
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold border border-stroke",
           rank === 1
             ? "bg-dark text-white dark:bg-white dark:text-dark border-dark dark:border-white"
             : rank === 2
@@ -76,8 +76,8 @@ function RankBar({ rank, name, primaryStat, secondaryStat, pct, color }: RankBar
       </span>
       <div className="flex-1 min-w-0">
         <div className="mb-1 flex items-center justify-between gap-2">
-          <p className="text-sm font-bold text-dark dark:text-white truncate uppercase tracking-tight">{name}</p>
-          <p className="text-xs font-black text-secondary tracking-widest uppercase">{primaryStat}</p>
+          <p className="text-sm font-bold text-dark dark:text-white truncate leading-tight">{name}</p>
+          <p className="text-xs font-bold text-secondary">{primaryStat}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-2 dark:bg-dark-3">
@@ -86,7 +86,7 @@ function RankBar({ rank, name, primaryStat, secondaryStat, pct, color }: RankBar
               style={{ width: `${pct}%` }}
             />
           </div>
-          <p className="text-[10px] font-black text-dark-5 shrink-0 tabular-nums">{secondaryStat}</p>
+          <p className="text-[10px] font-medium text-dark-5 shrink-0 tabular-nums">{secondaryStat}</p>
         </div>
       </div>
     </div>
@@ -106,8 +106,8 @@ export function LaporanAnalitik() {
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark shadow-none">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-black text-dark dark:text-white uppercase tracking-wider">Layanan Terpopuler</h3>
-            <p className="mt-1 text-[11px] font-bold text-dark-5 uppercase tracking-tight">Frekuensi permintaan servis</p>
+            <h3 className="text-sm font-bold text-dark dark:text-white">Layanan Terpopuler</h3>
+            <p className="mt-1 text-[11px] font-medium text-dark-5">Frekuensi permintaan servis</p>
           </div>
           <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-3 text-dark dark:text-white border border-stroke dark:border-dark-4">
             <Icons.Repair size={20} />
@@ -136,8 +136,8 @@ export function LaporanAnalitik() {
       <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark shadow-none">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-black text-dark dark:text-white uppercase tracking-wider">Sparepart Terlaris</h3>
-            <p className="mt-1 text-[11px] font-bold text-dark-5 uppercase tracking-tight">Jumlah unit terjual</p>
+            <h3 className="text-sm font-bold text-dark dark:text-white">Sparepart Terlaris</h3>
+            <p className="mt-1 text-[11px] font-medium text-dark-5">Jumlah unit terjual</p>
           </div>
           <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-3 text-dark dark:text-white border border-stroke dark:border-dark-4">
             <Icons.Inventory size={20} />
@@ -157,7 +157,7 @@ export function LaporanAnalitik() {
               />
             ))
           ) : (
-            <p className="text-center text-sm font-bold text-dark-5 py-8 uppercase tracking-widest italic">BELUM ADA DATA</p>
+            <p className="text-center text-sm font-medium text-dark-5 py-8 italic">Belum ada data</p>
           )}
         </div>
       </div>
