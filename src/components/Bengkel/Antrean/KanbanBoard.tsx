@@ -18,96 +18,89 @@ const STATUS_COLUMNS: Antrean["status"][] = [
   "Selesai",
 ];
 
-const STATUS_CONFIG = {
-  Menunggu: {
-    color: "bg-red-light-1 border-red/20",
-    headerColor: "bg-red text-white",
-    dotColor: "bg-red",
-    icon: Icons.Pending,
-  },
-  Dikerjakan: {
-    color: "bg-primary/5 border-primary/20",
-    headerColor: "bg-primary text-white",
-    dotColor: "bg-primary",
-    icon: Icons.Repair,
-  },
-  "Menunggu Sparepart": {
-    color: "bg-yellow-light-1 border-yellow/20",
-    headerColor: "bg-yellow text-dark",
-    dotColor: "bg-yellow",
-    icon: Icons.Inventory,
-  },
-  Selesai: {
-    color: "bg-green-light-1 border-green/20",
-    headerColor: "bg-green text-white",
-    dotColor: "bg-green",
-    icon: Icons.Success,
-  },
+const STATUS_COLORS: Record<Antrean["status"], string> = {
+  Menunggu: "text-red bg-red/10",
+  Dikerjakan: "text-blue bg-blue/10",
+  "Menunggu Sparepart": "text-yellow bg-yellow/10",
+  Selesai: "text-green bg-green/10",
 };
+
+import { AntreanFormModal } from "./AntreanFormModal";
+import { SPKModal } from "./SPKModal";
+import { ConfirmDeleteModal } from "@/components/Bengkel/shared";
 
 interface KanbanCardProps {
   item: Antrean;
   onStatusChange: (id: string, status: Antrean["status"]) => void;
   onMechanicAssign: (id: string, mekanik: string) => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onPrint: () => void;
 }
 
-function KanbanCard({ item, onStatusChange, onMechanicAssign }: KanbanCardProps) {
+function KanbanCard({ item, onStatusChange, onMechanicAssign, onEdit, onDelete, onPrint }: KanbanCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showMechanicMenu, setShowMechanicMenu] = useState(false);
 
-  const nextStatusMap: Partial<Record<Antrean["status"], Antrean["status"]>> = {
-    Menunggu: "Dikerjakan",
-    Dikerjakan: "Selesai",
-    "Menunggu Sparepart": "Dikerjakan",
-  };
-  const nextStatus = nextStatusMap[item.status];
-
   return (
-    <div className="relative rounded-xl border border-stroke bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-dark-3 dark:bg-dark-2">
-      {/* Header */}
+    <div className="relative rounded-xl border border-stroke bg-white p-4 shadow-sm dark:border-dark-3 dark:bg-gray-dark hover:shadow-md transition-shadow">
+      {/* Header card */}
       <div className="mb-3 flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-2 text-dark dark:bg-dark-3 dark:text-white">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-2 text-dark dark:bg-dark-2 dark:text-white">
             {item.tipe === "Mobil" ? (
               <Icons.KendaraanMobil size={18} />
             ) : (
               <Icons.KendaraanMotor size={18} />
             )}
           </div>
-          <div>
-            <p className="font-black text-sm text-dark dark:text-white">
-              {item.noPolisi}
-            </p>
-            <p className="text-[10px] text-dark-5 dark:text-dark-6">
-              {item.kendaraan}
-            </p>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-dark dark:text-white">{item.noPolisi}</span>
+            <span className="text-[10px] font-medium text-dark-5">{item.kendaraan}</span>
           </div>
         </div>
 
         <button
-          className="rounded-lg p-1.5 hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors"
-          onClick={() => setShowMenu(!showMenu)}
+          className="rounded-lg p-1 text-dark-5 hover:bg-gray-2"
+          onClick={() => { setShowMenu(!showMenu); setShowMechanicMenu(false); }}
         >
-          <Icons.Settings size={14} className="text-dark-5" />
+          <Icons.Settings size={14} />
         </button>
 
         {showMenu && (
-          <div className="absolute right-3 top-12 z-20 rounded-xl border border-stroke bg-white shadow-lg dark:border-dark-3 dark:bg-dark-2 p-1 min-w-[160px]">
+          <div className="absolute right-4 top-12 z-20 min-w-[170px] rounded-xl border border-stroke bg-white p-1.5 shadow-2xl dark:border-dark-3 dark:bg-dark-2">
+            <div className="mb-1 border-b border-stroke pb-1 dark:border-dark-3">
+              <button
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
+                onClick={() => { onEdit(); setShowMenu(false); }}
+              >
+                <Icons.Edit size={12} className="text-dark-5" />
+                Ubah Detail
+              </button>
+              <button
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
+                onClick={() => { onPrint(); setShowMenu(false); }}
+              >
+                <Icons.Print size={12} className="text-dark-5" />
+                Cetak SPK
+              </button>
+              <button
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-red transition-colors hover:bg-red/10"
+                onClick={() => { onDelete(); setShowMenu(false); }}
+              >
+                <Icons.Delete size={12} />
+                Hapus Antrean
+              </button>
+            </div>
+            
+            <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-dark-5 mt-1">Pindah Status</p>
             {STATUS_COLUMNS.filter((s) => s !== item.status).map((s) => (
               <button
                 key={s}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors"
-                onClick={() => {
-                  onStatusChange(item.id, s);
-                  setShowMenu(false);
-                }}
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold text-dark transition-colors hover:bg-gray-2 dark:text-white"
+                onClick={() => { onStatusChange(item.id, s); setShowMenu(false); }}
               >
-                <span
-                  className={cn(
-                    "h-2 w-2 rounded-full",
-                    STATUS_CONFIG[s].dotColor
-                  )}
-                />
+                <span className={cn("h-2 w-2 rounded-full", STATUS_COLORS[s])} />
                 {s}
               </button>
             ))}
@@ -115,80 +108,54 @@ function KanbanCard({ item, onStatusChange, onMechanicAssign }: KanbanCardProps)
         )}
       </div>
 
-      {/* Info */}
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-1.5 text-xs">
-          <Icons.Pelanggan size={12} className="text-dark-5 shrink-0" />
-          <span className="font-medium text-dark dark:text-white">
-            {item.pelanggan}
-          </span>
+      {/* Info Content */}
+      <div className="space-y-2 border-y border-stroke py-3 dark:border-dark-3">
+        <div className="flex items-center gap-2 text-[11px] font-bold text-dark dark:text-white">
+          <Icons.Pelanggan size={12} className="text-dark-5" />
+          <span>{item.pelanggan}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-xs">
-          <Icons.Repair size={12} className="text-dark-5 shrink-0" />
-          <span className="text-dark-5 dark:text-dark-6 line-clamp-1">
-            {item.layanan}
-          </span>
+        <div className="flex items-center gap-2 text-[11px] font-medium text-dark-5">
+          <Icons.Repair size={12} className="shrink-0" />
+          <span className="truncate">{item.layanan}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-xs">
-          <Icons.Pending size={12} className="text-dark-5 shrink-0" />
-          <span className="text-dark-5 dark:text-dark-6">
-            Masuk: {dayjs(item.waktuMasuk).format("HH:mm")}
-          </span>
+        <div className="flex items-center gap-2 text-[11px] font-medium text-dark-5">
+          <Icons.Pending size={12} />
+          <span>{dayjs(item.waktuMasuk).format("HH:mm")}</span>
         </div>
+      </div>
 
-        {/* Mekanik assignment */}
-        <div className="relative mt-2">
-          <button
-            onClick={() => { setShowMechanicMenu(!showMechanicMenu); setShowMenu(false); }}
-            className={cn(
-              "flex w-full items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-all",
-              item.mekanik
-                ? "bg-primary/10 text-primary font-semibold"
-                : "border border-dashed border-stroke dark:border-dark-3 text-dark-5 hover:border-primary hover:text-primary"
-            )}
-          >
-            <Icons.Karyawan size={11} />
-            {item.mekanik ?? "Tugaskan Mekanik"}
-          </button>
-          {showMechanicMenu && (
-            <div className="absolute left-0 top-full z-20 mt-1 w-full rounded-xl border border-stroke bg-white shadow-lg dark:border-dark-3 dark:bg-dark-2 p-1">
-              {MECHANICS.map((m) => (
-                <button
-                  key={m}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors",
-                    item.mekanik === m && "font-bold text-primary"
-                  )}
-                  onClick={() => { onMechanicAssign(item.id, m); setShowMechanicMenu(false); }}
-                >
-                  <span className="h-5 w-5 flex items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-[10px]">
-                    {m.charAt(0)}
-                  </span>
-                  {m}
-                </button>
-              ))}
-            </div>
+      {/* Mechanic Assign */}
+      <div className="relative mt-3">
+        <button
+          onClick={() => { setShowMechanicMenu(!showMechanicMenu); setShowMenu(false); }}
+          className={cn(
+            "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-all",
+            item.mekanik
+              ? "bg-secondary text-white shadow-lg shadow-secondary/10"
+              : "border border-dashed border-stroke text-dark-5 hover:border-dark hover:text-dark dark:border-dark-3"
           )}
-        </div>
+        >
+          <Icons.Karyawan size={12} />
+          {item.mekanik ?? "Tugaskan Mekanik"}
+        </button>
 
-        {/* Estimasi */}
-        {item.estimasiSelesai && (
-          <div className="flex items-center gap-1.5 text-xs">
-            <Icons.Chart size={11} className="text-dark-5 shrink-0" />
-            <span className="text-dark-5">Est. selesai: <strong className="text-dark dark:text-white">{item.estimasiSelesai}</strong></span>
+        {showMechanicMenu && (
+          <div className="absolute left-0 bottom-full z-20 mb-1.5 w-full rounded-xl border border-stroke bg-white p-1.5 shadow-2xl dark:border-dark-3 dark:bg-dark-2">
+            {MECHANICS.map((m) => (
+              <button
+                key={m}
+                className={cn(
+                  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-gray-2 dark:text-white",
+                  item.mekanik === m ? "font-bold text-secondary" : "font-medium"
+                )}
+                onClick={() => { onMechanicAssign(item.id, m); setShowMechanicMenu(false); }}
+              >
+                {m}
+              </button>
+            ))}
           </div>
         )}
       </div>
-
-      {/* Action */}
-      {nextStatus && (
-        <button
-          onClick={() => onStatusChange(item.id, nextStatus)}
-          className="mt-3 w-full rounded-lg bg-primary/10 py-2 text-xs font-bold text-primary transition-all hover:bg-primary hover:text-white"
-        >
-          → {nextStatus}
-        </button>
-      )}
     </div>
   );
 }
@@ -200,51 +167,107 @@ interface KanbanBoardProps {
 }
 
 export function KanbanBoard({ items, onStatusChange, onMechanicAssign }: KanbanBoardProps) {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Antrean | null>(null);
+
+  const handleEdit = (item: Antrean) => {
+    setSelectedItem(item);
+    setShowEditModal(true);
+  };
+
+  const handleDelete = (item: Antrean) => {
+    setSelectedItem(item);
+    setShowDeleteModal(true);
+  };
+
+  const handlePrint = (item: Antrean) => {
+    setSelectedItem(item);
+    setShowPrintModal(true);
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {STATUS_COLUMNS.map((status) => {
-        const config = STATUS_CONFIG[status];
-        const colItems = items.filter((i) => i.status === status);
-        const StatusIcon = config.icon;
-
-        return (
-          <div key={status} className="flex flex-col gap-3">
-            {/* Column Header */}
-            <div
-              className={cn(
-                "flex items-center justify-between rounded-xl px-4 py-2.5",
-                config.headerColor
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <StatusIcon size={16} />
-                <span className="text-sm font-bold">{status}</span>
+    <>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 px-2">
+        {STATUS_COLUMNS.map((status) => {
+          const colItems = items.filter((i) => i.status === status);
+          return (
+            <div key={status} className="flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b-2 border-stroke pb-3 dark:border-dark-3">
+                <div className="flex items-center gap-2">
+                  <span className={cn("h-2.5 w-2.5 rounded-full", STATUS_COLORS[status])} />
+                  <h3 className="text-sm font-black text-dark dark:text-white uppercase tracking-wider">{status}</h3>
+                </div>
+                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-gray-2 text-[10px] font-black text-dark dark:bg-dark-2 dark:text-white">
+                  {colItems.length}
+                </span>
               </div>
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/25 text-xs font-black">
-                {colItems.length}
-              </span>
-            </div>
 
-            {/* Cards */}
-            <div className="flex flex-col gap-3 min-h-[200px]">
-              {colItems.length > 0 ? (
-                colItems.map((item) => (
+              <div className="flex min-h-[500px] flex-col gap-4 py-2">
+                {colItems.map((item) => (
                   <KanbanCard
                     key={item.id}
                     item={item}
                     onStatusChange={onStatusChange}
                     onMechanicAssign={onMechanicAssign}
+                    onEdit={() => handleEdit(item)}
+                    onDelete={() => handleDelete(item)}
+                    onPrint={() => handlePrint(item)}
                   />
-                ))
-              ) : (
-                <div className="flex h-24 items-center justify-center rounded-xl border-2 border-dashed border-stroke dark:border-dark-3">
-                  <p className="text-xs text-dark-5">Kosong</p>
-                </div>
-              )}
+                ))}
+                {colItems.length === 0 && (
+                  <div className="flex h-32 items-center justify-center rounded-xl border-2 border-dashed border-stroke dark:border-dark-3">
+                    <p className="text-[10px] font-bold text-dark-5/40 italic">Kosong</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+
+      {showEditModal && (
+        <AntreanFormModal
+          item={selectedItem}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedItem(null);
+          }}
+          onSave={(data) => {
+            console.log("Saving edited item from kanban:", data);
+            setShowEditModal(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+
+      {showDeleteModal && (
+        <ConfirmDeleteModal
+          title="Hapus Antrean"
+          description="Anda akan menghapus data kendaraan ini dari papan antrean."
+          itemDisplay={selectedItem?.noPolisi}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setSelectedItem(null);
+          }}
+          onConfirm={() => {
+            console.log("Deleting item from kanban:", selectedItem?.id);
+            setShowDeleteModal(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+
+      {showPrintModal && selectedItem && (
+        <SPKModal
+          item={selectedItem}
+          onClose={() => {
+            setShowPrintModal(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+    </>
   );
 }

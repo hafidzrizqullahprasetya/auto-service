@@ -37,20 +37,20 @@ const ACCOUNTS = [
 
 export function SocialAccounts() {
   return (
-    <div className="mt-4.5">
-      <h4 className="mb-3.5 font-medium text-dark dark:text-white">
-        Follow me on
+    <div className="mt-8 border-t border-stroke pt-6 dark:border-dark-3">
+      <h4 className="mb-4 text-xs font-black uppercase tracking-widest text-dark dark:text-white text-center">
+        NETWORKING & SOCIAL CHANNELS
       </h4>
-      <div className="flex items-center justify-center gap-3.5">
+      <div className="flex items-center justify-center gap-5">
         {ACCOUNTS.map(({ Icon, ...item }) => (
           <Link
             key={item.platform}
             href={item.url}
-            className="hover:text-primary"
+            className="text-dark-5 hover:text-dark dark:hover:text-white transition-colors"
           >
             <span className="sr-only">View {item.platform} Account</span>
 
-            <Icon />
+            <Icon className="size-5" />
           </Link>
         ))}
       </div>

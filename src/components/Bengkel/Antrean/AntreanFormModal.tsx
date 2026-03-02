@@ -5,20 +5,23 @@ import { ActionButton } from "@/components/Bengkel/shared";
 interface AntreanFormModalProps {
   onClose: () => void;
   onSave: (data: any) => void;
+  item?: any;
 }
 
-export function AntreanFormModal({ onClose, onSave }: AntreanFormModalProps) {
+export function AntreanFormModal({ onClose, onSave, item }: AntreanFormModalProps) {
+  const isEdit = !!item;
+
   return (
     <BaseModal
-      title="Entry Antrean Baru"
-      description="Tambahkan kendaraan ke antrean servis hari ini"
+      title={isEdit ? "Edit Antrean Kendaraan" : "Entry Antrean Baru"}
+      description={isEdit ? `Perbarui detail layanan untuk unit ${item.noPolisi}` : "Tambahkan kendaraan ke antrean servis hari ini"}
       icon={<Icons.Kasir size={20} />}
       onClose={onClose}
       maxWidth="lg"
       footer={
         <div className="flex justify-end gap-3">
           <ActionButton variant="ghost" label="Batal" onClick={onClose} />
-          <ActionButton variant="primary" label="Simpan Antrean" onClick={() => onSave({})} />
+          <ActionButton variant="primary" label={isEdit ? "Simpan Perubahan" : "Simpan Antrean"} onClick={() => onSave({})} />
         </div>
       }
     >

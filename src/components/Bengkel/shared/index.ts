@@ -8,3 +8,4 @@ export { TableToolbar } from "./TableToolbar";
 export { ReminderTable } from "./ReminderTable";
 export { PurchaseOrderTable } from "./PurchaseOrderTable";
 export { default as PlaceholderPage } from "./PlaceholderPage";
+export { ConfirmDeleteModal } from "./ConfirmDeleteModal";

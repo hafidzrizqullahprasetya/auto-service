@@ -1,56 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  getExpandedRowModel,
+  flexRender,
+  type ColumnDef,
+  type Row,
+} from "@tanstack/react-table";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { MOCK_PURCHASE_ORDERS, PurchaseOrder } from "@/mock/service-history";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
 import { Icons } from "@/components/icons";
-import { TableToolbar } from "@/components/Bengkel/shared";
 import { ActionButton } from "@/components/Bengkel/shared";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
 
 type POStatus = PurchaseOrder["status"];
 
-function POStatusBadge({ status }: { status: POStatus }) {
-  const map: Record<POStatus, "warning" | "primary" | "success" | "danger"> = {
-    Draft: "warning",
-    Dikirim: "primary",
-    Diterima: "success",
-    Dibatalkan: "danger",
-  };
-  return <Badge variant={map[status]}>{status}</Badge>;
-}
+const STATUS_VARIANT: Record<POStatus, "warning" | "primary" | "success" | "danger"> = {
+  Draft: "warning",
+  Dikirim: "primary",
+  Diterima: "success",
+  Dibatalkan: "danger",
+};
 
 const STATUS_STEPS: POStatus[] = ["Draft", "Dikirim", "Diterima"];
 
 function POProgressBar({ status }: { status: POStatus }) {
   if (status === "Dibatalkan") {
-    return (
-      <span className="text-xs text-red font-medium">Dibatalkan</span>
-    );
+    return <span className="text-xs text-red-500 font-medium">Dibatalkan</span>;
   }
   const currentIdx = STATUS_STEPS.indexOf(status);
   return (
     <div className="flex items-center gap-1">
       {STATUS_STEPS.map((s, i) => (
         <div key={s} className="flex items-center gap-1">
-          <div
-            className={cn(
-              "h-2 w-2 rounded-full",
-              i <= currentIdx ? "bg-primary" : "bg-gray-3 dark:bg-dark-3"
-            )}
-          />
+          <div className={cn("h-2 w-2 rounded-full", i <= currentIdx ? "bg-dark" : "bg-gray-3 dark:bg-dark-3")} />
           {i < STATUS_STEPS.length - 1 && (
-            <div
-              className={cn(
-                "h-0.5 w-6",
-                i < currentIdx ? "bg-primary" : "bg-gray-3 dark:bg-dark-3"
-              )}
-            />
+            <div className={cn("h-0.5 w-6", i < currentIdx ? "bg-dark" : "bg-gray-3 dark:bg-dark-3")} />
           )}
         </div>
       ))}
@@ -58,165 +55,254 @@ function POProgressBar({ status }: { status: POStatus }) {
   );
 }
 
-export function PurchaseOrderTable() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  const filtered = MOCK_PURCHASE_ORDERS.filter(
-    (po) =>
-      po.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      po.noPO.toLowerCase().includes(searchTerm.toLowerCase())
+// ─── Expanded detail row ─────────────────────────────────────────────────────
+function ExpandedDetail({ row }: { row: Row<PurchaseOrder> }) {
+  const po = row.original;
+  return (
+    <TableRow className="bg-gray-1 dark:bg-dark-2">
+      <TableCell colSpan={8} className="px-6 py-3">
+        <div className="grid gap-2">
+          {po.items.map((item, i) => (
+            <div key={i} className="flex items-center justify-between text-sm">
+              <div>
+                <span className="font-mono text-xs bg-gray-2 dark:bg-dark-3 px-1.5 py-0.5 rounded mr-2">
+                  {item.sku}
+                </span>
+                <span className="text-dark dark:text-white">{item.nama}</span>
+                <span className="text-dark-5 ml-2">× {item.qty}</span>
+              </div>
+              <span className="font-semibold text-dark dark:text-white">
+                Rp {formatNumber(item.hargaSatuan * item.qty)}
+              </span>
+            </div>
+          ))}
+          {po.catatan && (
+            <p className="text-xs text-dark-5 mt-1 italic">📝 {po.catatan}</p>
+          )}
+        </div>
+      </TableCell>
+    </TableRow>
   );
+}
 
-  const totalNilai = MOCK_PURCHASE_ORDERS.filter(
-    (po) => po.status !== "Dibatalkan"
-  ).reduce((acc, po) => acc + po.totalNilai, 0);
-
+// ─── Summary cards ─────────────────────────────────────────────────────────────
+function POSummary() {
+  const totalNilai = MOCK_PURCHASE_ORDERS.filter((po) => po.status !== "Dibatalkan").reduce((acc, po) => acc + po.totalNilai, 0);
   const draft = MOCK_PURCHASE_ORDERS.filter((po) => po.status === "Draft").length;
   const dikirim = MOCK_PURCHASE_ORDERS.filter((po) => po.status === "Dikirim").length;
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
+      {[
+        { label: "Total PO Aktif", value: MOCK_PURCHASE_ORDERS.length, icon: Icons.Database },
+        { label: "Draft", value: draft, icon: Icons.Pending },
+        { label: "Dikirim", value: dikirim, icon: Icons.Antrean },
+        { label: "Total Nilai PO", value: `Rp ${formatNumber(totalNilai)}`, icon: Icons.Cash },
+      ].map(({ label, value, icon: Icon }) => (
+        <div key={label} className="rounded-xl border border-stroke bg-white p-4 shadow-sm dark:border-dark-3 dark:bg-gray-dark flex items-center gap-3">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-gray-2 dark:bg-dark-2 flex items-center justify-center text-dark dark:text-white">
+            <Icon size={20} />
+          </div>
+          <div>
+            <p className="font-black text-base text-dark dark:text-white">{value}</p>
+            <p className="text-xs text-dark-5">{label}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function PurchaseOrderTable() {
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  const columns = useMemo<ColumnDef<PurchaseOrder>[]>(
+    () => [
+      {
+        id: "expander",
+        header: () => null,
+        cell: ({ row }) => (
+          <button
+            onClick={row.getToggleExpandedHandler()}
+            className="text-dark-5 p-1 hover:text-dark transition-colors"
+          >
+            {row.getIsExpanded() ? <Icons.ArrowUp size={14} /> : <Icons.ArrowDown size={14} />}
+          </button>
+        ),
+        size: 40,
+      },
+      {
+        accessorKey: "noPO",
+        header: "No. PO / Tanggal",
+        cell: ({ row }) => {
+          const po = row.original;
+          return (
+            <div>
+              <p className="font-mono text-xs font-bold text-dark dark:text-white bg-gray-2 dark:bg-dark-2 px-2 py-1 rounded w-fit">
+                {po.noPO}
+              </p>
+              <p className="text-xs text-dark-5 mt-1">{dayjs(po.tanggal).format("DD MMM YYYY")}</p>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "supplier",
+        header: "Supplier",
+        cell: ({ row }) => (
+          <span className="font-medium text-dark dark:text-white">{row.original.supplier}</span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: () => <div className="text-center">Status</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <Badge variant={STATUS_VARIANT[row.original.status]}>{row.original.status}</Badge>
+          </div>
+        ),
+      },
+      {
+        id: "progress",
+        header: () => <div className="text-center">Progress</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-center">
+            <POProgressBar status={row.original.status} />
+          </div>
+        ),
+      },
+      {
+        accessorKey: "totalNilai",
+        header: "Total Nilai",
+        cell: ({ row }) => (
+          <p className="font-black text-dark dark:text-white">
+            Rp {formatNumber(row.original.totalNilai)}
+          </p>
+        ),
+      },
+      {
+        accessorKey: "estimasiTiba",
+        header: "Est. Tiba",
+        cell: ({ row }) => (
+          <p className="text-sm text-dark dark:text-white">
+            {row.original.estimasiTiba ? dayjs(row.original.estimasiTiba).format("DD MMM YYYY") : "—"}
+          </p>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right pr-2">Aksi</div>,
+        cell: () => (
+          <div className="flex items-center justify-end gap-2">
+            <ActionButton variant="primary" label="Detail" />
+            <ActionButton variant="danger" icon={<Icons.Delete size={14} />} />
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  const table = useReactTable({
+    data: MOCK_PURCHASE_ORDERS,
+    columns,
+    state: { globalFilter },
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getRowCanExpand: () => true,
+    initialState: { pagination: { pageSize: 10 } },
+  });
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
-      {/* Summary */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {[
-          { label: "Total PO Aktif", value: MOCK_PURCHASE_ORDERS.length, icon: Icons.Database, color: "bg-primary/10 text-primary" },
-          { label: "Draft", value: draft, icon: Icons.Pending, color: "bg-yellow/10 text-yellow" },
-          { label: "Dikirim", value: dikirim, icon: Icons.Antrean, color: "bg-blue-light-1 text-blue-dark" },
-          { label: "Total Nilai PO", value: `Rp ${formatNumber(totalNilai)}`, icon: Icons.Cash, color: "bg-green-light-1 text-green" },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-stroke bg-white p-4 shadow-sm dark:border-dark-3 dark:bg-gray-dark flex items-center gap-3"
-          >
-            <div className={cn("h-10 w-10 shrink-0 rounded-full flex items-center justify-center", color)}>
-              <Icon size={20} />
-            </div>
-            <div>
-              <p className="font-black text-base text-dark dark:text-white">{value}</p>
-              <p className="text-xs text-dark-5">{label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <POSummary />
 
-      {/* Table */}
       <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5">
-        <TableToolbar
-          title="Purchase Order (PO) Stok"
-          description="Kelola pemesanan dan pembelian stok dari supplier"
-          onSearch={setSearchTerm}
-          searchPlaceholder="Cari supplier atau nomor PO..."
-          primaryAction={{
-            label: "Buat PO Baru",
-            onClick: () => {},
-          }}
-          filterActions={
-            <ActionButton
-              variant="outline"
-              label="Export PO"
-              icon={<Icons.Print size={16} />}
-            />
-          }
-        />
+        {/* Toolbar */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-dark dark:text-white">Purchase Order (PO) Stok</h3>
+            <p className="text-sm text-dark-5">Kelola pemesanan dan pembelian stok dari supplier</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Icons.Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-5" />
+              <Input
+                placeholder="Cari supplier atau nomor PO..."
+                value={globalFilter}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                className="pl-9 max-w-[250px]"
+              />
+            </div>
+            <ActionButton variant="outline" label="Export PO" icon={<Icons.Print size={16} />} />
+            <Button>Buat PO Baru</Button>
+          </div>
+        </div>
 
+        {/* Table */}
         <div className="max-w-full overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
-                <TableHead className="font-bold text-left px-4">No. PO / Tanggal</TableHead>
-                <TableHead className="font-bold text-left px-4">Supplier</TableHead>
-                <TableHead className="font-bold text-center px-4">Status</TableHead>
-                <TableHead className="font-bold text-center px-4">Progress</TableHead>
-                <TableHead className="font-bold text-left px-4">Total Nilai</TableHead>
-                <TableHead className="font-bold text-left px-4">Est. Tiba</TableHead>
-                <TableHead className="font-bold text-right pr-4">Aksi</TableHead>
-              </TableRow>
+              {table.getHeaderGroups().map((hg) => (
+                <TableRow key={hg.id} className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
+                  {hg.headers.map((header) => (
+                    <TableHead key={header.id} className="font-bold">
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
             </TableHeader>
             <TableBody>
-              {filtered.map((po) => (
-                <>
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.flatMap((row) => [
                   <TableRow
-                    key={po.id}
+                    key={row.id}
                     className="border-[#eee] dark:border-dark-3 hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group cursor-pointer"
-                    onClick={() =>
-                      setExpandedId(expandedId === po.id ? null : po.id)
-                    }
+                    onClick={row.getToggleExpandedHandler()}
                   >
-                    <TableCell className="px-4">
-                      <p className="font-mono text-xs font-bold text-dark dark:text-white bg-gray-2 dark:bg-dark-2 px-2 py-1 rounded w-fit">
-                        {po.noPO}
-                      </p>
-                      <p className="text-xs text-dark-5 mt-1">
-                        {dayjs(po.tanggal).format("DD MMM YYYY")}
-                      </p>
-                    </TableCell>
-                    <TableCell className="px-4 font-medium text-dark dark:text-white">
-                      {po.supplier}
-                    </TableCell>
-                    <TableCell className="text-center px-4">
-                      <POStatusBadge status={po.status} />
-                    </TableCell>
-                    <TableCell className="text-center px-4">
-                      <POProgressBar status={po.status} />
-                    </TableCell>
-                    <TableCell className="px-4">
-                      <p className="font-black text-secondary">
-                        Rp {formatNumber(po.totalNilai)}
-                      </p>
-                    </TableCell>
-                    <TableCell className="px-4">
-                      <p className="text-sm text-dark dark:text-white">
-                        {po.estimasiTiba
-                          ? dayjs(po.estimasiTiba).format("DD MMM YYYY")
-                          : "—"}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-right pr-4">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ActionButton variant="primary" label="Detail" />
-                        <ActionButton variant="danger" icon={<Icons.Delete size={14} />} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-
-                  {expandedId === po.id && (
-                    <TableRow key={`${po.id}-detail`} className="bg-gray-1 dark:bg-dark-2">
-                      <TableCell colSpan={7} className="px-6 py-3">
-                        <div className="grid gap-2">
-                          {po.items.map((item, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center justify-between text-sm"
-                            >
-                              <div>
-                                <span className="font-mono text-xs bg-gray-2 dark:bg-dark-3 px-1.5 py-0.5 rounded mr-2">
-                                  {item.sku}
-                                </span>
-                                <span className="text-dark dark:text-white">
-                                  {item.nama}
-                                </span>
-                                <span className="text-dark-5 ml-2">× {item.qty}</span>
-                              </div>
-                              <span className="font-semibold text-dark dark:text-white">
-                                Rp {formatNumber(item.hargaSatuan * item.qty)}
-                              </span>
-                            </div>
-                          ))}
-                          {po.catatan && (
-                            <p className="text-xs text-dark-5 mt-1 italic">
-                              📝 {po.catatan}
-                            </p>
-                          )}
-                        </div>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
-                    </TableRow>
-                  )}
-                </>
-              ))}
+                    ))}
+                  </TableRow>,
+                  row.getIsExpanded() ? (
+                    <ExpandedDetail key={`${row.id}-exp`} row={row} />
+                  ) : null,
+                ])
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center text-dark-5">
+                    Data tidak ditemukan
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination */}
+        {table.getPageCount() > 1 && (
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-sm text-dark-5">
+              {table.getFilteredRowModel().rows.length} data ditemukan
+            </span>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+                Previous
+              </Button>
+              <span className="text-sm font-medium text-dark dark:text-white">
+                {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+              </span>
+              <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

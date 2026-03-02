@@ -32,11 +32,13 @@ export function DeleteConfirmModal({
       hideFooter
     >
       <div className="space-y-4">
-        <div className="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 p-4">
-          <p className="text-sm text-yellow-700 dark:text-yellow-400">
-            ⚠️ Data yang dihapus tidak dapat dikembalikan. Riwayat transaksi
-            akan tetap tersimpan.
-          </p>
+        <div className="rounded-lg border border-stroke bg-gray-2/50 dark:border-dark-3 dark:bg-dark-2 p-4">
+          <div className="flex gap-3">
+            <Icons.Alert size={18} className="text-red-600 shrink-0" />
+            <p className="text-xs font-bold text-dark-5 leading-relaxed">
+              Tindakan ini permanen. Profil <span className="text-dark dark:text-white font-black">{customer.name}</span> akan dihapus dari database pelanggan, namun riwayat transaksi servis sebelumnya akan tetap diarsipkan untuk laporan keuangan.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
@@ -47,7 +49,7 @@ export function DeleteConfirmModal({
             disabled={isLoading}
           />
           <ActionButton
-            variant="destructive"
+            variant="danger"
             label={isLoading ? "Menghapus..." : "Ya, Hapus"}
             onClick={onConfirm}
             disabled={isLoading}

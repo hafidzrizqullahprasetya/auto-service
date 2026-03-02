@@ -37,7 +37,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
     <div className={className}>
       <label
         htmlFor={id}
-        className="text-body-sm font-medium text-dark dark:text-white"
+        className="text-[11px] font-black uppercase tracking-widest text-dark-5 dark:text-dark-6"
       >
         {label}
         {required && <span className="ml-1 select-none text-red">*</span>}
@@ -45,7 +45,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
 
       <div
         className={cn(
-          "relative mt-3 [&_svg]:absolute [&_svg]:top-1/2 [&_svg]:-translate-y-1/2",
+          "relative mt-2.5 [&_svg]:absolute [&_svg]:top-1/2 [&_svg]:-translate-y-1/2",
           props.iconPosition === "left"
             ? "[&_svg]:left-4.5"
             : "[&_svg]:right-4.5",
@@ -60,7 +60,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
           value={props.value}
           defaultValue={props.defaultValue}
           className={cn(
-            "w-full rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition focus:border-primary disabled:cursor-default disabled:bg-gray-2 data-[active=true]:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary dark:disabled:bg-dark dark:data-[active=true]:border-primary",
+            "w-full rounded-lg border-2 border-stroke bg-white outline-none transition-none focus:border-dark disabled:cursor-default disabled:bg-gray-2 data-[active=true]:border-dark dark:border-dark-3 dark:bg-dark-2 dark:focus:border-white dark:disabled:bg-dark dark:data-[active=true]:border-white",
             type === "file"
               ? getFileStyles(props.fileStyleVariant!)
               : "px-5.5 py-3 text-dark placeholder:text-dark-6 dark:text-white",

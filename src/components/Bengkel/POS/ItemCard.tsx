@@ -12,7 +12,7 @@ interface ItemCardProps {
 export function ItemCard({ item, onAdd }: ItemCardProps) {
   return (
     <div 
-      className="flex flex-col rounded-lg border border-stroke bg-white overflow-hidden shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-dark-3 dark:bg-dark-2 cursor-pointer active:scale-[0.98]"
+      className="flex flex-col rounded-lg border border-stroke bg-white overflow-hidden shadow-sm hover:border-primary/30 dark:border-dark-3 dark:bg-dark-2 cursor-pointer"
       onClick={() => onAdd(item)}
     >
       <div className="relative h-32 w-full bg-gray-2 dark:bg-dark-3">

@@ -6,8 +6,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_DATA } from "./data";
 import { Icons } from "@/components/icons";
-import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
+import Link from "next/link";
+import Image from "next/image";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -15,24 +16,17 @@ export function Sidebar() {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const toggleExpanded = (title: string) => {
+    if (!isOpen && !isMobile) setIsOpen(true);
     setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
-
-    // Uncomment the following line to enable multiple expanded items
-    // setExpandedItems((prev) =>
-    //   prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title],
-    // );
   };
 
   useEffect(() => {
-    // Keep collapsible open, when it's subpage is active
     NAV_DATA.forEach((section) => {
       section.items.forEach((item) => {
-        if (item.items && item.items.length > 0) {
+        if (item.items?.length) {
           item.items.forEach((subItem: any) => {
-            if (subItem.url === pathname) {
-              if (!expandedItems.includes(item.title)) {
-                toggleExpanded(item.title);
-              }
+            if (subItem.url === pathname && !expandedItems.includes(item.title)) {
+              setExpandedItems((prev) => [...prev, item.title]);
             }
           });
         }
@@ -40,161 +34,209 @@ export function Sidebar() {
     });
   }, [pathname]);
 
+  const collapsed = !isOpen && !isMobile;
+
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
+          className="fixed inset-0 z-40 bg-black/40"
           onClick={() => setIsOpen(false)}
-          aria-hidden="true"
+          aria-hidden
         />
       )}
 
       <aside
-        className={cn(
-          "overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear dark:border-gray-800 dark:bg-gray-dark",
-          isMobile ? "fixed bottom-0 top-0 z-50" : "sticky top-0 h-screen",
-          isOpen ? "w-[290px]" : "w-[90px]",
-        )}
+        style={{
+          width: isMobile
+            ? isOpen ? 280 : 0
+            : isOpen ? 260 : 68,
+        }}
+        className="overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear"
         aria-label="Main navigation"
-        aria-hidden={!isOpen}
-        inert={!isOpen}
       >
-        <div className="flex h-full flex-col py-10 pl-[25px] pr-[7px]">
-          <div className="relative pr-4.5">
-            <div className={cn("px-0 py-2.5", !isOpen && "hidden", "min-[850px]:py-0")}>
-              <Logo onClick={() => isMobile && toggleSidebar()} />
-            </div>
+        <div
+          style={{ width: isMobile ? 280 : isOpen ? 260 : 68 }}
+          className="flex h-screen flex-col"
+        >
 
-            {/* Logo icon when collapsed */}
-            {!isOpen && !isMobile && (
-              <div className="flex items-center justify-center py-3">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="mx-auto"
-                >
-                  <path
-                    d="M3 9L12 3L21 9V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9Z"
-                    stroke="#5750F1"
-                    strokeWidth="2"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M7 14H17"
-                    stroke="#F87117"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-                </svg>
+          {/* ── Logo Header ───────────────────────────────────────────── */}
+          <div className={cn(
+            "flex border-b border-gray-100 py-5 transition-all duration-200",
+            collapsed ? "flex-col items-center gap-4 px-0" : "items-center gap-3 px-4"
+          )}>
+            <Link href="/" className="shrink-0 flex items-center justify-center" onClick={() => isMobile && setIsOpen(false)}>
+              <div className={cn(
+                "flex items-center justify-center rounded-lg bg-dark text-white transition-all duration-200",
+                collapsed ? "size-10" : "size-10"
+              )}>
+                <Icons.Repair size={collapsed ? 20 : 22} />
               </div>
-            )}
+            </Link>
 
-            {isMobile && (
+            {!collapsed ? (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-black uppercase tracking-tighter text-dark">
+                  Auto Service
+                </p>
+                <p className="truncate text-[10px] font-bold uppercase tracking-widest text-dark-5 -mt-0.5">
+                  Premium Garage
+                </p>
+              </div>
+            ) : null}
+
+            {/* Toggle button */}
+            {!isMobile && (
               <button
                 onClick={toggleSidebar}
-                className="absolute right-4.5 top-1/2 -translate-y-1/2"
+                className={cn(
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200",
+                  "bg-gray-1 text-dark-5 hover:bg-dark hover:text-white dark:bg-dark-2 dark:text-dark-4 dark:hover:bg-white dark:hover:text-dark",
+                  collapsed && "mt-1"
+                )}
+                title={isOpen ? "Tutup" : "Buka"}
               >
-                <span className="sr-only">Close Menu</span>
-                <Icons.Logout className="ml-auto size-7 rotate-180" />
+                {isOpen ? (
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+                )}
+              </button>
+            )}
+
+            {/* Mobile close */}
+            {isMobile && isOpen && (
+              <button
+                onClick={toggleSidebar}
+                className="ml-auto flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-dark-5"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
               </button>
             )}
           </div>
 
-          {/* Navigation - only show when sidebar is open */}
-          {isOpen && (
-            <div className="custom-scrollbar mt-6 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
+          {/* ── Nav items ─────────────────────────────────────────────── */}
+          <div className="custom-scrollbar flex-1 overflow-y-auto py-3">
             {NAV_DATA.map((section) => (
-              <div key={section.label} className="mb-6">
-                <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
-                  {section.label}
-                </h2>
+              <div key={section.label} className="mb-4 last:mb-0">
+                {/* Section label */}
+                {!collapsed && (
+                  <p className="mb-2 px-4 pt-4 text-[10px] font-black uppercase tracking-[0.2em] text-dark-5">
+                    {section.label}
+                  </p>
+                )}
+                {collapsed && (
+                  <div className="my-2 mx-3 h-px bg-gray-200" />
+                )}
 
-                <nav role="navigation" aria-label={section.label}>
-                  <ul className="space-y-2">
-                    {section.items.map((item) => (
+                <ul className="space-y-1 px-2">
+                  {section.items.map((item) => {
+                    const href =
+                      "url" in item
+                        ? (item.url as string)
+                        : "/" + (item as any).title.toLowerCase().split(" ").join("-");
+
+                    const hasChildren = !!item.items?.length;
+                    const isActive = hasChildren
+                      ? item.items.some(({ url }: any) => url === pathname)
+                      : pathname === href;
+                    const isExpanded = expandedItems.includes(item.title);
+
+                    return (
                       <li key={item.title}>
-                        {item.items.length ? (
-                          <div>
-                            <MenuItem
-                              isActive={item.items.some(
-                                ({ url }) => url === pathname,
-                              )}
+                        {hasChildren ? (
+                          <>
+                            <button
                               onClick={() => toggleExpanded(item.title)}
-                            >
-                              <item.icon
-                                className="size-6 shrink-0"
-                                aria-hidden="true"
-                              />
-
-                              <span>{item.title}</span>
-
-                              <Icons.ChevronUp
+                              title={collapsed ? item.title : undefined}
                                 className={cn(
-                                  "ml-auto rotate-180 transition-transform duration-200",
-                                  expandedItems.includes(item.title) &&
-                                    "rotate-0",
+                                  "flex w-full items-center gap-3 rounded-lg py-2.5 text-[13px] font-bold transition-none",
+                                  collapsed ? "justify-center px-1" : "px-3",
+                                  isActive
+                                    ? "bg-dark text-white shadow-none"
+                                    : "text-dark-5 hover:bg-gray-100 hover:text-dark"
                                 )}
-                                aria-hidden="true"
-                              />
-                            </MenuItem>
+                            >
+                              <item.icon className="size-[18px] shrink-0" />
+                              {!collapsed && (
+                                <>
+                                  <span className="flex-1 text-left">{item.title}</span>
+                                  <Icons.ChevronUp
+                                    className={cn(
+                                      "size-3.5 rotate-180 transition-transform",
+                                      isExpanded && "rotate-0"
+                                    )}
+                                  />
+                                </>
+                              )}
+                            </button>
 
-                            {expandedItems.includes(item.title) && (
-                              <ul
-                                className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
-                                role="menu"
-                              >
-                                {item.items.map((subItem: any) => (
-                                  <li key={subItem.title} role="none">
-                                    <MenuItem
-                                      as="link"
-                                      href={subItem.url}
-                                      isActive={pathname === subItem.url}
-                                    >
-                                      <span>{subItem.title}</span>
-                                    </MenuItem>
+                            {/* Sub items */}
+                            {!collapsed && isExpanded && (
+                              <ul className="ml-7 mt-1 space-y-1 border-l border-gray-100 pl-3 pb-2">
+                                {item.items.map((sub: any) => (
+                                  <li key={sub.title}>
+                                      <Link
+                                        href={sub.url}
+                                        onClick={() => isMobile && setIsOpen(false)}
+                                        className={cn(
+                                          "flex items-center gap-2 rounded-md px-2 py-2 text-[13px] font-bold tracking-tight transition-none",
+                                          pathname === sub.url
+                                            ? "font-black text-dark dark:text-white"
+                                            : "text-dark-5 hover:text-dark dark:hover:text-white"
+                                        )}
+                                      >
+                                        {sub.icon && <sub.icon size={14} className="shrink-0" />}
+                                        <span className="truncate">{sub.title}</span>
+                                      </Link>
                                   </li>
                                 ))}
                               </ul>
                             )}
-                          </div>
+                          </>
                         ) : (
-                          (() => {
-                            const href =
-                              "url" in item
-                                ? item.url + ""
-                                : "/" +
-                                  (item as any).title.toLowerCase().split(" ").join("-");
-
-                            return (
-                              <MenuItem
-                                className="flex items-center gap-3 py-3"
-                                as="link"
-                                href={href}
-                                isActive={pathname === href}
-                              >
-                                <item.icon
-                                  className="size-6 shrink-0"
-                                  aria-hidden="true"
-                                />
-
-                                <span>{item.title}</span>
-                              </MenuItem>
-                            );
-                          })()
+                          <Link
+                            href={href}
+                            onClick={() => isMobile && setIsOpen(false)}
+                            title={collapsed ? item.title : undefined}
+                            className={cn(
+                              "flex items-center gap-3 rounded-lg py-2.5 text-[13px] font-bold transition-none",
+                              collapsed ? "justify-center px-1" : "px-3",
+                              isActive
+                                ? "bg-dark text-white shadow-none"
+                                : "text-dark-5 hover:bg-gray-100 hover:text-dark"
+                            )}
+                          >
+                            <item.icon className="size-[18px] shrink-0" />
+                            {!collapsed && <span>{item.title}</span>}
+                          </Link>
                         )}
                       </li>
-                    ))}
-                  </ul>
-                </nav>
+                    );
+                  })}
+                </ul>
               </div>
             ))}
           </div>
-          )}
+
+          {/* ── Footer: Logout ──────────────────────────────────────────── */}
+          <div className="border-t border-gray-100 p-2">
+            <Link
+              href="/auth/sign-in"
+              title={collapsed ? "Keluar" : undefined}
+              className={cn(
+                "flex items-center gap-3 rounded-lg py-2 text-[13px] font-semibold text-dark-5 transition-colors hover:bg-red-50 hover:text-red-500",
+                collapsed ? "justify-center px-2" : "px-3"
+              )}
+            >
+              <Icons.Logout className="size-[18px] shrink-0" />
+              {!collapsed && <span>Keluar</span>}
+            </Link>
+          </div>
+
         </div>
       </aside>
     </>

@@ -1,82 +1,71 @@
 "use client";
 
-import { SearchIcon } from "@/assets/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebarContext } from "../sidebar/sidebar-context";
 import { MenuIcon } from "./icons";
 import { Notification } from "./notification";
-import { ThemeToggleSwitch } from "./theme-toggle";
 import { UserInfo } from "./user-info";
 
 const getPageTitle = (pathname: string) => {
   const paths: Record<string, { title: string; subtitle: string }> = {
-    "/": { title: "Dashboard", subtitle: "AutoService - Premium Garage" },
-    "/bengkel/antrean": { title: "Antrean", subtitle: "Manajemen Antrean Bengkel" },
-    "/bengkel/inventori": { title: "Inventori", subtitle: "Manajemen Stok Sparepart" },
-    "/bengkel/karyawan": { title: "Karyawan", subtitle: "Data Mekanik & Staff" },
-    "/bengkel/kasir": { title: "Kasir", subtitle: "Point of Sale" },
-    "/bengkel/kendaraan": { title: "Kendaraan", subtitle: "Data Kendaraan Pelanggan" },
-    "/bengkel/laporan": { title: "Laporan", subtitle: "Analitik & Laporan" },
-    "/bengkel/pelanggan": { title: "Pelanggan", subtitle: "Data Pelanggan" },
-    "/bengkel/pengaturan": { title: "Pengaturan", subtitle: "Konfigurasi Bengkel" },
-    "/bengkel/purchase-order": { title: "Purchase Order", subtitle: "Manajemen PO" },
-    "/bengkel/reminder": { title: "Reminder", subtitle: "Pengingat Servis" },
-    "/calendar": { title: "Calendar", subtitle: "Jadwal & Agenda" },
-    "/charts/basic-chart": { title: "Charts", subtitle: "Visualisasi Data" },
-    "/forms/form-elements": { title: "Form Elements", subtitle: "Komponen Form" },
-    "/forms/form-layout": { title: "Form Layout", subtitle: "Tata Letak Form" },
-    "/pages/settings": { title: "Settings", subtitle: "Pengaturan Akun" },
-    "/profile": { title: "Profile", subtitle: "Profil Pengguna" },
-    "/tables": { title: "Tables", subtitle: "Tabel Data" },
-    "/ui-elements/alerts": { title: "Alerts", subtitle: "Komponen Peringatan" },
-    "/ui-elements/buttons": { title: "Buttons", subtitle: "Komponen Tombol" },
+    "/": { title: "Dashboard", subtitle: "Ringkasan aktivitas bengkel hari ini" },
+    "/bengkel/antrean": { title: "Antrean", subtitle: "Manajemen antrean & status servis" },
+    "/bengkel/inventori": { title: "Inventori", subtitle: "Manajemen stok sparepart" },
+    "/bengkel/karyawan": { title: "Karyawan", subtitle: "Data mekanik & staff bengkel" },
+    "/bengkel/kasir": { title: "Kasir", subtitle: "Point of sale & pembayaran" },
+    "/bengkel/kendaraan": { title: "Kendaraan", subtitle: "Data kendaraan pelanggan" },
+    "/bengkel/laporan": { title: "Laporan", subtitle: "Analitik & ringkasan bisnis" },
+    "/bengkel/pelanggan": { title: "Pelanggan", subtitle: "Database pelanggan setia" },
+    "/bengkel/pengaturan": { title: "Pengaturan", subtitle: "Konfigurasi sistem & profil bengkel" },
+    "/bengkel/purchase-order": { title: "Purchase Order", subtitle: "Pemesanan & pembelian stok" },
+    "/bengkel/reminder": { title: "Reminder", subtitle: "Pengingat jadwal servis pelanggan" },
   };
 
   const path = pathname.split("/").slice(0, 4).join("/");
-  return paths[path] || { title: "Dashboard", subtitle: "AutoService" };
+  return paths[path] || { title: "Dashboard", subtitle: "Auto Service" };
 };
 
 export function Header() {
   const pathname = usePathname();
-  const { isMobile } = useSidebarContext();
+  const { isMobile, toggleSidebar } = useSidebarContext();
   const { title, subtitle } = getPageTitle(pathname);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
-      {isMobile && (
-        <Link href={"/"} className="max-[430px]:hidden min-[375px]:ml-4">
-          <Image
-            src={"/images/logo/logo-icon.svg"}
-            width={32}
-            height={32}
-            alt=""
-            role="presentation"
-          />
-        </Link>
-      )}
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-4 shadow-1 md:px-5 2xl:px-10">
+      {/* Kiri: hamburger (mobile) + judul halaman */}
+      <div className="flex items-center gap-3">
+        {isMobile && (
+          <button
+            onClick={toggleSidebar}
+            className="grid size-10 place-items-center rounded-lg border border-stroke text-dark transition-colors hover:bg-gray-2"
+            aria-label="Toggle sidebar"
+          >
+            <MenuIcon />
+          </button>
+        )}
 
-      <div className="max-xl:hidden">
-        <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
-          {title}
-        </h1>
-        <p className="font-medium">{subtitle}</p>
+        {isMobile && (
+          <Link href={"/"} className="max-[430px]:hidden">
+            <Image
+              src={"/images/logo/logo-icon.svg"}
+              width={28}
+              height={28}
+              alt=""
+              role="presentation"
+            />
+          </Link>
+        )}
+
+        <div className="max-xl:hidden">
+          <h1 className="mb-0.5 text-heading-5 font-bold text-dark">{title}</h1>
+          <p className="text-sm font-medium text-dark-5">{subtitle}</p>
+        </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">
-        <div className="relative w-full max-w-[300px]">
-          <input
-            type="search"
-            placeholder="Search"
-            className="flex w-full items-center gap-3.5 rounded-full border bg-gray-2 py-3 pl-[53px] pr-5 outline-none transition-colors focus-visible:border-primary dark:border-dark-3 dark:bg-dark-2 dark:hover:border-dark-4 dark:hover:bg-dark-3 dark:hover:text-dark-6 dark:focus-visible:border-primary"
-          />
-
-          <SearchIcon className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 max-[1015px]:size-5" />
-        </div>
-
-        <ThemeToggleSwitch />
-
+      {/* Kanan: Notifikasi + User */}
+      <div className="flex items-center gap-3">
         <Notification />
 
         <div className="shrink-0">

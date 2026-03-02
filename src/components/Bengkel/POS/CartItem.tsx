@@ -48,7 +48,7 @@ export function CartItemRow({ cartItem, onUpdateQty, onRemove }: CartItemRowProp
         </div>
 
         <button 
-          className="text-dark-5 hover:text-red transition-colors"
+          className="text-dark-5 hover:text-red"
           onClick={() => onRemove(item.id)}
         >
           <Icons.Delete size={20} />

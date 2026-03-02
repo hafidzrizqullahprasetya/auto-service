@@ -17,10 +17,24 @@ export const NAV_DATA = [
         items: [],
       },
       {
-        title: "Kasir & POS",
+        title: "Kasir & Transaksi",
         icon: Icons.Kasir,
         url: "/bengkel/kasir",
         items: [],
+      },
+    ],
+  },
+  {
+    label: "INVENTORI & STOK",
+    items: [
+      {
+        title: "Katalog Sparepart",
+        icon: Icons.Inventory,
+        items: [
+          { title: "Daftar Item", url: "/bengkel/inventori", icon: Icons.Boxes },
+          { title: "Stok Masuk / Keluar", url: "/bengkel/inventori/stok", icon: Icons.StockInOut },
+          { title: "Stok Opname", url: "/bengkel/inventori/opname", icon: Icons.StockOpname },
+        ],
       },
     ],
   },
@@ -40,18 +54,6 @@ export const NAV_DATA = [
         items: [],
       },
       {
-        title: "Inventori & Stok",
-        icon: Icons.Inventory,
-        url: "/bengkel/inventori",
-        items: [],
-      },
-      {
-        title: "Purchase Order",
-        icon: Icons.Database,
-        url: "/bengkel/purchase-order",
-        items: [],
-      },
-      {
         title: "Karyawan",
         icon: Icons.Karyawan,
         url: "/bengkel/karyawan",
@@ -63,7 +65,7 @@ export const NAV_DATA = [
     label: "REPORT & SETTINGS",
     items: [
       {
-        title: "Laporan Keuangan",
+        title: "Laporan",
         icon: Icons.Laporan,
         url: "/bengkel/laporan",
         items: [],

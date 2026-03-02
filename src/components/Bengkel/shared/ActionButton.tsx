@@ -17,15 +17,16 @@ export function ActionButton({
   children,
   ...props
 }: ActionButtonProps) {
-  const variants = {
-    primary: "bg-primary/10 text-primary hover:bg-primary hover:text-white",
-    secondary: "bg-secondary/10 text-secondary hover:bg-secondary hover:text-white",
-    danger: "bg-red/10 text-red hover:bg-red hover:text-white",
-    ghost: "text-dark-5 hover:bg-gray-2 dark:hover:bg-dark-3",
-    outline: "border border-stroke hover:border-primary hover:text-primary dark:border-dark-3",
+  // Monochrome + accent — primary sekarang hitam bukan ungu
+  const variants: Record<string, string> = {
+    primary:  "bg-dark text-white hover:bg-dark/80",
+    secondary: "bg-gray-100 text-dark hover:bg-gray-200",
+    danger:   "bg-red-50 text-red hover:bg-red hover:text-white",
+    ghost:    "text-dark-5 hover:bg-gray-1 hover:text-dark",
+    outline:  "border border-stroke text-dark-5 hover:border-dark hover:text-dark",
   };
 
-  const sizes = {
+  const sizes: Record<string, string> = {
     sm: "p-1.5 text-xs",
     md: "p-2 text-sm",
     lg: "p-2.5 text-base",
@@ -36,10 +37,10 @@ export function ActionButton({
   return (
     <button
       className={cn(
-        "flex items-center justify-center gap-2 rounded-lg transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
+        "flex items-center justify-center gap-2 rounded-lg disabled:pointer-events-none disabled:opacity-50",
         variants[variant],
         sizes[size],
-        hasLabel && "px-3 py-1.5 font-bold uppercase tracking-tight",
+        hasLabel && "px-3 py-1.5 font-semibold",
         className
       )}
       {...props}

@@ -7,122 +7,183 @@ import {
 } from "@/components/ui/dropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { BellIcon } from "./icons";
+import { Icons } from "@/components/icons";
 
-const notificationList = [
+// ─── Data notifikasi bengkel ────────────────────────────────────────────────
+type NotifType = "stock" | "service" | "payment" | "reminder";
+
+const NOTIF_ICON: Record<NotifType, React.ElementType> = {
+  stock: Icons.Inventory,
+  service: Icons.Repair,
+  payment: Icons.Cash,
+  reminder: Icons.Notification,
+};
+
+const NOTIF_COLOR: Record<NotifType, string> = {
+  stock: "bg-red-50 text-red-500",
+  service: "bg-gray-100 text-dark",
+  payment: "bg-gray-100 text-dark",
+  reminder: "bg-gray-100 text-dark",
+};
+
+interface Notif {
+  id: number;
+  type: NotifType;
+  title: string;
+  desc: string;
+  time: string;
+  isRead: boolean;
+}
+
+const MOCK_NOTIFS: Notif[] = [
   {
-    image: "/images/user/user-15.png",
-    title: "Piter Joined the Team!",
-    subTitle: "Congratulate him",
+    id: 1,
+    type: "stock",
+    title: "Stok Menipis!",
+    desc: "Oli Mesin SAE 10W-40 tersisa 3 botol (min. 5)",
+    time: "5 menit lalu",
+    isRead: false,
   },
   {
-    image: "/images/user/user-03.png",
-    title: "New message",
-    subTitle: "Devid sent a new message",
+    id: 2,
+    type: "stock",
+    title: "Stok Menipis!",
+    desc: "Filter Udara Honda tersisa 2 pcs (min. 10)",
+    time: "12 menit lalu",
+    isRead: false,
   },
   {
-    image: "/images/user/user-26.png",
-    title: "New Payment received",
-    subTitle: "Check your earnings",
+    id: 3,
+    type: "service",
+    title: "Servis Selesai",
+    desc: "B 1234 XYZ – Honda Jazz milik Budi Santoso",
+    time: "30 menit lalu",
+    isRead: false,
   },
   {
-    image: "/images/user/user-28.png",
-    title: "Jolly completed tasks",
-    subTitle: "Assign new task",
+    id: 4,
+    type: "payment",
+    title: "Pembayaran Diterima",
+    desc: "Invoice #INV-2025-042 – Rp 450.000 (Transfer)",
+    time: "1 jam lalu",
+    isRead: false,
   },
   {
-    image: "/images/user/user-27.png",
-    title: "Roman Joined the Team!",
-    subTitle: "Congratulate him",
+    id: 5,
+    type: "reminder",
+    title: "Reminder Servis",
+    desc: "Siti Rahayu – Toyota Avanza jatuh tempo hari ini",
+    time: "2 jam lalu",
+    isRead: true,
   },
 ];
 
 export function Notification() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDotVisible, setIsDotVisible] = useState(true);
+  const [notifs, setNotifs] = useState<Notif[]>(MOCK_NOTIFS);
   const isMobile = useIsMobile();
 
+  const unreadCount = notifs.filter((n) => !n.isRead).length;
+
+  const markAllRead = () => {
+    setNotifs((prev) => prev.map((n) => ({ ...n, isRead: true })));
+  };
+
   return (
-    <Dropdown
-      isOpen={isOpen}
-      setIsOpen={(open) => {
-        setIsOpen(open);
-
-        if (setIsDotVisible) setIsDotVisible(false);
-      }}
-    >
+    <Dropdown isOpen={isOpen} setIsOpen={setIsOpen}>
       <DropdownTrigger
-        className="grid size-12 place-items-center rounded-full border bg-gray-2 text-dark outline-none hover:text-primary focus-visible:border-primary focus-visible:text-primary dark:border-dark-4 dark:bg-dark-3 dark:text-white dark:focus-visible:border-primary"
-        aria-label="View Notifications"
+        className="relative grid size-10 place-items-center rounded-lg bg-gray-1 text-dark-5 outline-none transition-all duration-200 hover:bg-dark hover:text-white dark:bg-dark-2 dark:text-dark-4 dark:hover:bg-white dark:hover:text-dark"
+        aria-label="Lihat Notifikasi"
       >
-        <span className="relative">
-          <BellIcon />
-
-          {isDotVisible && (
-            <span
-              className={cn(
-                "absolute right-0 top-0 z-1 size-2 rounded-full bg-red-light ring-2 ring-gray-2 dark:ring-dark-3",
-              )}
-            >
-              <span className="absolute inset-0 -z-1 animate-ping rounded-full bg-red-light opacity-75" />
-            </span>
-          )}
-        </span>
+        <Icons.Notification size={20} />
+        {unreadCount > 0 && (
+          <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-md border-2 border-white bg-dark px-1 text-[10px] font-black leading-none text-white dark:border-dark dark:bg-white dark:text-dark">
+            {unreadCount}
+          </span>
+        )}
       </DropdownTrigger>
 
       <DropdownContent
-        align={isMobile ? "end" : "center"}
-        className="border border-stroke bg-white px-3.5 py-3 shadow-md dark:border-dark-3 dark:bg-gray-dark min-[350px]:min-w-[20rem]"
+        align={isMobile ? "end" : "end"}
+        className="border border-stroke bg-white shadow-lg min-[350px]:min-w-[22rem]"
       >
-        <div className="mb-1 flex items-center justify-between px-2 py-1.5">
-          <span className="text-lg font-medium text-dark dark:text-white">
-            Notifications
-          </span>
-          <span className="rounded-md bg-primary px-[9px] py-0.5 text-xs font-medium text-white">
-            5 new
-          </span>
+        {/* Header dropdown */}
+        <div className="flex items-center justify-between border-b border-stroke px-4 py-3">
+          <div>
+            <span className="text-base font-bold text-dark">Notifikasi</span>
+            {unreadCount > 0 && (
+              <span className="ml-2 rounded-full bg-dark px-2 py-0.5 text-[10px] font-bold text-white">
+                {unreadCount} baru
+              </span>
+            )}
+          </div>
+          {unreadCount > 0 && (
+            <button
+              onClick={markAllRead}
+              className="text-xs font-medium text-dark-5 underline hover:text-dark transition-colors"
+            >
+              Tandai semua dibaca
+            </button>
+          )}
         </div>
 
-        <ul className="mb-3 max-h-[23rem] space-y-1.5 overflow-y-auto">
-          {notificationList.map((item, index) => (
-            <li key={index} role="menuitem">
-              <Link
-                href="#"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-4 rounded-lg px-2 py-1.5 outline-none hover:bg-gray-2 focus-visible:bg-gray-2 dark:hover:bg-dark-3 dark:focus-visible:bg-dark-3"
-              >
-                <Image
-                  src={item.image}
-                  className="size-14 rounded-full object-cover"
-                  width={200}
-                  height={200}
-                  alt="User"
-                />
+        {/* List notif */}
+        <ul className="max-h-[20rem] divide-y divide-stroke overflow-y-auto">
+          {notifs.map((notif) => {
+            const Icon = NOTIF_ICON[notif.type];
+            return (
+              <li key={notif.id}>
+                <button
+                  onClick={() => {
+                    setNotifs((prev) =>
+                      prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
+                    );
+                  }}
+                  className={cn(
+                    "flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-1",
+                    !notif.isRead && "bg-gray-50"
+                  )}
+                >
+                  {/* Icon tipe */}
+                  <div
+                    className={cn(
+                      "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                      NOTIF_COLOR[notif.type]
+                    )}
+                  >
+                    <Icon size={16} />
+                  </div>
 
-                <div>
-                  <strong className="block text-sm font-medium text-dark dark:text-white">
-                    {item.title}
-                  </strong>
+                  {/* Konten */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-dark leading-snug">{notif.title}</p>
+                    <p className="mt-0.5 truncate text-xs text-dark-5">{notif.desc}</p>
+                    <p className="mt-1 text-[10px] text-dark-5">{notif.time}</p>
+                  </div>
 
-                  <span className="truncate text-sm font-medium text-dark-5 dark:text-dark-6">
-                    {item.subTitle}
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
+                  {/* Unread dot */}
+                  {!notif.isRead && (
+                    <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-dark" />
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
 
-        <Link
-          href="#"
-          onClick={() => setIsOpen(false)}
-          className="block rounded-lg border border-primary p-2 text-center text-sm font-medium tracking-wide text-primary outline-none transition-colors hover:bg-blue-light-5 focus:bg-blue-light-5 focus:text-primary focus-visible:border-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-dark-5 dark:hover:bg-dark-3 dark:hover:text-dark-7 dark:focus-visible:border-dark-5 dark:focus-visible:bg-dark-3 dark:focus-visible:text-dark-7"
-        >
-          See all notifications
-        </Link>
+        {/* Footer */}
+        <div className="border-t border-stroke p-2">
+          <Link
+            href="/bengkel/reminder"
+            onClick={() => setIsOpen(false)}
+            className="block w-full rounded-lg py-2 text-center text-sm font-medium text-dark transition-colors hover:bg-gray-1"
+          >
+            Lihat semua notifikasi →
+          </Link>
+        </div>
       </DropdownContent>
     </Dropdown>
   );

@@ -1,82 +1,203 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { MOCK_ANTREAN } from "@/mock/antrean";
-import { AntreanRow } from "./AntreanRow";
-import { TableToolbar } from "@/components/Bengkel/shared";
-import { AntreanFormModal } from ".";
+import React, { useState, useMemo } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/DataTable";
+import { Antrean } from "@/mock/antrean";
+import { ActionButton, Badge, ConfirmDeleteModal } from "@/components/Bengkel/shared";
+import { Icons } from "@/components/icons";
+import { AntreanFormModal } from "./AntreanFormModal";
+import { SPKModal } from "./SPKModal";
+import dayjs from "dayjs";
 
-export function AntreanTable() {
-  const [searchTerm, setSearchTerm] = useState("");
+const getStatusVariant = (status: Antrean["status"]) => {
+  switch (status) {
+    case "Selesai":            return "success"  as const;
+    case "Menunggu":           return "danger"   as const;
+    case "Dikerjakan":         return "info"     as const;
+    case "Menunggu Sparepart": return "warning"  as const;
+    default:                   return "neutral"  as const;
+  }
+};
+
+interface AntreanTableProps {
+  data: Antrean[];
+}
+
+export function AntreanTable({ data }: AntreanTableProps) {
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Antrean | null>(null);
 
-  const filteredData = useMemo(() => {
-    return MOCK_ANTREAN.filter(item => 
-      item.noPolisi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.kendaraan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.pelanggan.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm]);
+  const handleAction = (item: Antrean, type: "print" | "edit" | "delete") => {
+    setSelectedItem(item);
+    if (type === "edit") {
+      setShowModal(true);
+    } else if (type === "print") {
+      setShowPrintModal(true);
+    } else if (type === "delete") {
+      setShowDeleteModal(true);
+    }
+  };
+
+  const columns = useMemo<ColumnDef<Antrean>[]>(
+    () => [
+      {
+        accessorKey: "noPolisi",
+        header: () => <div className="text-left font-black tracking-widest uppercase">Kendaraan</div>,
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div className="flex items-center gap-3 py-2">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-2 text-dark dark:bg-dark-2 dark:text-white">
+                {item.tipe === "Mobil" ? (
+                  <Icons.KendaraanMobil size={20} />
+                ) : (
+                  <Icons.KendaraanMotor size={20} />
+                )}
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-dark dark:text-white text-sm">
+                  {item.noPolisi}
+                </span>
+                <span className="text-[10px] font-medium text-dark-5">
+                  {item.kendaraan}
+                </span>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "pelanggan",
+        header: () => <div className="text-left font-black tracking-widest uppercase">Pelanggan</div>,
+        cell: ({ row }) => (
+          <div className="flex flex-col py-2">
+            <span className="font-bold text-dark dark:text-white text-sm">
+              {row.original.pelanggan}
+            </span>
+            <span className="text-[10px] font-medium text-dark-5 uppercase tracking-wider">
+              Customer
+            </span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "layanan",
+        header: () => <div className="text-left font-black tracking-widest uppercase">Layanan</div>,
+        cell: ({ row }) => (
+          <p className="max-w-[180px] truncate text-xs font-bold text-dark-5" title={row.original.layanan}>
+            {row.original.layanan}
+          </p>
+        ),
+      },
+      {
+        accessorKey: "waktuMasuk",
+        header: () => <div className="text-left font-black tracking-widest uppercase text-xs">Masuk</div>,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2 tabular-nums text-sm font-bold text-dark-5">
+            <Icons.Pending size={14} />
+            {dayjs(row.original.waktuMasuk).format("HH:mm")}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: () => <div className="w-full text-center font-black tracking-widest uppercase">Status</div>,
+        cell: ({ row }) => (
+          <div className="flex w-full justify-center">
+            <Badge 
+              variant={getStatusVariant(row.original.status)} 
+              className="min-w-[90px] justify-center px-3 py-1 text-[10px] font-black uppercase"
+            >
+              {row.original.status}
+            </Badge>
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="w-full text-right font-black tracking-widest uppercase text-dark dark:text-white">Opsi</div>,
+        cell: ({ row }) => (
+          <div className="flex w-full items-center justify-end gap-1.5">
+            <ActionButton 
+              icon={<Icons.Print size={14} />} 
+              variant="secondary" 
+              onClick={() => handleAction(row.original, "print")}
+              title="Cetak SPK"
+            />
+            <ActionButton 
+              icon={<Icons.Repair size={14} />} 
+              variant="secondary" 
+              onClick={() => handleAction(row.original, "edit")}
+              title="Edit Antrean"
+            />
+            <ActionButton 
+              icon={<Icons.Delete size={14} />} 
+              variant="danger" 
+              onClick={() => handleAction(row.original, "delete")}
+              title="Hapus"
+            />
+          </div>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
-    <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card sm:p-7.5">
-      <TableToolbar 
-        title="Antrean Kendaraan Terkini"
-        description="Daftar mobil dan motor yang sedang dalam proses perbaikan"
-        onSearch={setSearchTerm}
+    <>
+      <DataTable
+        columns={columns}
+        data={data}
+        searchable={["noPolisi", "kendaraan", "pelanggan"]}
         searchPlaceholder="Cari no polisi atau pelanggan..."
-        primaryAction={{
-          label: "Entry Antrean Baru",
-          onClick: () => setShowModal(true),
-        }}
+        title="Daftar Antrean Servis"
+        description="Monitoring antrean kendaraan perbaikan hari ini"
+        pageSize={10}
       />
 
-      <div className="max-w-full overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
-              <TableHead className="min-w-[140px] font-bold text-left">No. Polisi</TableHead>
-              <TableHead className="min-w-[180px] font-bold text-left">Kendaraan</TableHead>
-              <TableHead className="font-bold text-left">Pelanggan</TableHead>
-              <TableHead className="font-bold text-left">Layanan</TableHead>
-              <TableHead className="font-bold text-left px-4">Waktu Masuk</TableHead>
-              <TableHead className="font-bold text-center">Status</TableHead>
-              <TableHead className="text-right font-bold pr-4">Opsi</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {filteredData.length > 0 ? (
-              filteredData.map((item) => (
-                <AntreanRow key={item.id} item={item} />
-              ))
-            ) : (
-              <TableRow>
-                <TableHead colSpan={7} className="text-center py-10 text-dark-5">
-                  Data tidak ditemukan
-                </TableHead>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
       {showModal && (
-        <AntreanFormModal 
-          onClose={() => setShowModal(false)}
-          onSave={(data) => {
-            console.log("Saving new queue:", data);
+        <AntreanFormModal
+          item={selectedItem}
+          onClose={() => {
             setShowModal(false);
+            setSelectedItem(null);
+          }}
+          onSave={(data) => {
+            console.log("Saving queue:", data);
+            setShowModal(false);
+            setSelectedItem(null);
           }}
         />
       )}
-    </div>
+
+      {showDeleteModal && (
+        <ConfirmDeleteModal
+          title="Hapus Antrean"
+          description="Apakah Anda yakin ingin menghapus antrean kendaraan ini dari sistem?"
+          itemDisplay={selectedItem?.noPolisi}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setSelectedItem(null);
+          }}
+          onConfirm={() => {
+            console.log("Deleting item:", selectedItem?.id);
+            setShowDeleteModal(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+      {showPrintModal && selectedItem && (
+        <SPKModal
+          item={selectedItem}
+          onClose={() => {
+            setShowPrintModal(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+    </>
   );
 }

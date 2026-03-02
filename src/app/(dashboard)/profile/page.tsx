@@ -4,8 +4,8 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
 
 import { useState } from "react";
-import { CameraIcon } from "./_components/icons";
 import { SocialAccounts } from "./_components/social-accounts";
+import { Icons } from "@/components/icons";
 
 export default function Page() {
   const [data, setData] = useState({
@@ -38,10 +38,10 @@ export default function Page() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[970px]">
-      <Breadcrumb pageName="Profile" />
+    <div className="mx-auto w-full max-w-[970px] pb-10">
+      <Breadcrumb pageName="SISTEM PROFIL" />
 
-      <div className="overflow-hidden rounded-[10px] bg-white shadow-1 dark:bg-gray-dark dark:shadow-card">
+      <div className="overflow-hidden rounded-lg border border-stroke bg-white shadow-none dark:border-dark-3 dark:bg-gray-dark">
         <div className="relative z-20 h-35 md:h-65">
           <Image
             src={data?.coverPhoto}
@@ -57,7 +57,7 @@ export default function Page() {
           <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
             <label
               htmlFor="cover"
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-[15px] py-[5px] text-body-sm font-medium text-white hover:bg-opacity-90"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark px-[20px] py-[8px] text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark border-2 border-dark transition-all dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white"
             >
               <input
                 type="file"
@@ -68,9 +68,9 @@ export default function Page() {
                 accept="image/png, image/jpg, image/jpeg"
               />
 
-              <CameraIcon />
+              <Icons.Edit size={14} />
 
-              <span>Edit</span>
+              <span>GANTI COVER</span>
             </label>
           </div>
         </div>
@@ -89,9 +89,9 @@ export default function Page() {
 
                   <label
                     htmlFor="profilePhoto"
-                    className="absolute bottom-0 right-0 flex size-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
+                    className="absolute bottom-0 right-0 flex size-9 cursor-pointer items-center justify-center rounded-lg bg-dark text-white border-2 border-white hover:bg-white hover:text-dark transition-all dark:bg-white dark:text-dark dark:border-dark dark:hover:bg-dark dark:hover:text-white sm:bottom-2 sm:right-2"
                   >
-                    <CameraIcon />
+                    <Icons.Edit size={14} />
 
                     <input
                       type="file"
@@ -107,41 +107,39 @@ export default function Page() {
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="mb-1 text-heading-6 font-bold text-dark dark:text-white">
+            <h3 className="mb-1 text-heading-6 font-black uppercase tracking-tighter text-dark dark:text-white">
               {data?.name}
             </h3>
-            <p className="font-medium">Ui/Ux Designer</p>
-            <div className="mx-auto mb-5.5 mt-5 grid max-w-[370px] grid-cols-3 rounded-[5px] border border-stroke py-[9px] shadow-1 dark:border-dark-3 dark:bg-dark-2 dark:shadow-card">
-              <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-dark-3 xsm:flex-row">
-                <span className="font-medium text-dark dark:text-white">
-                  259
+            <p className="text-xs font-black uppercase tracking-widest text-dark-5">SENIOR MECHANIC & OPERATION MANAGER</p>
+            <div className="mx-auto mb-6 mt-6 grid max-w-[450px] grid-cols-3 rounded-lg border-2 border-dark py-3 shadow-none dark:border-white dark:bg-dark-2">
+              <div className="flex flex-col items-center justify-center gap-1 border-r-2 border-dark px-4 dark:border-white">
+                <span className="text-xs font-black uppercase tracking-widest text-dark-5">
+                  ROLE
                 </span>
-                <span className="text-body-sm">Posts</span>
+                <span className="text-sm font-black text-dark dark:text-white uppercase">ADMIN</span>
               </div>
-              <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-dark-3 xsm:flex-row">
-                <span className="font-medium text-dark dark:text-white">
-                  129K
+              <div className="flex flex-col items-center justify-center gap-1 border-r-2 border-dark px-4 dark:border-white">
+                <span className="text-xs font-black uppercase tracking-widest text-dark-5">
+                  LAYANAN
                 </span>
-                <span className="text-body-sm">Followers</span>
+                <span className="text-sm font-black text-dark dark:text-white uppercase">1.2K+</span>
               </div>
-              <div className="flex flex-col items-center justify-center gap-1 px-4 xsm:flex-row">
-                <span className="font-medium text-dark dark:text-white">
-                  2K
+              <div className="flex flex-col items-center justify-center gap-1 px-4">
+                <span className="text-xs font-black uppercase tracking-widest text-dark-5">
+                  RATING
                 </span>
-                <span className="text-body-sm-sm">Following</span>
+                <span className="text-sm font-black text-dark dark:text-white uppercase">4.9/5.0</span>
               </div>
             </div>
 
-            <div className="mx-auto max-w-[720px]">
-              <h4 className="font-medium text-dark dark:text-white">
-                About Me
+            <div className="mx-auto max-w-[720px] border-t border-stroke pt-6 dark:border-dark-3">
+              <h4 className="text-sm font-black uppercase tracking-widest text-dark dark:text-white">
+                BIOGRAFI SINGKAT
               </h4>
-              <p className="mt-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Pellentesque posuere fermentum urna, eu condimentum mauris
-                tempus ut. Donec fermentum blandit aliquet. Etiam dictum dapibus
-                ultricies. Sed vel aliquet libero. Nunc a augue fermentum,
-                pharetra ligula sed, aliquam lacus.
+              <p className="mt-4 text-sm font-bold text-dark-5 leading-relaxed uppercase tracking-tight">
+                Berpengalaman lebih dari 8 tahun dalam menangani berbagai macam kendala mesin mobil dan motor.
+                Fokus pada efisiensi kerja dan kepuasan pelanggan di AutoService Premium Garage.
+                Bertanggung jawab penuh atas manajemen antrean dan inventori stok harian.
               </p>
             </div>
 

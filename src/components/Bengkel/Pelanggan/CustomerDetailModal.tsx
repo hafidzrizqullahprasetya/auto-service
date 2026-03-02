@@ -115,36 +115,46 @@ export function CustomerDetailModal({
 
         {/* 📊 STATISTIK */}
         <section>
-          <h4 className="mb-3 flex items-center gap-2 font-bold text-dark dark:text-white">
-            <Icons.Laporan size={18} />
-            Statistik
+          <h4 className="mb-4 flex items-center gap-2 font-black text-[11px] uppercase tracking-widest text-dark-5">
+            <Icons.Laporan size={14} />
+            Statistik Loyalitas
           </h4>
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-              <div className="text-sm text-blue-600 dark:text-blue-400">
-                Total Kunjungan
-              </div>
-              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                {customer.totalVisits}
-              </div>
-              <div className="text-xs text-blue-500">kali</div>
-            </div>
-            <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-              <div className="text-sm text-green-600 dark:text-green-400">
-                Total Transaksi
-              </div>
-              <div className="text-2xl font-bold text-green-700 dark:text-green-300">
-                Rp {formatNumber(customer.totalSpent)}
+            <div className="rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+                  <Icons.History size={18} />
+                </div>
+                <div>
+                  <h5 className="text-lg font-black text-dark dark:text-white leading-none">{customer.totalVisits}</h5>
+                  <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-dark-5">Kunjungan</p>
+                </div>
               </div>
             </div>
-            <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900/20">
-              <div className="text-sm text-purple-600 dark:text-purple-400">
-                Terakhir Datang
+
+            <div className="rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+                  <Icons.Cash size={18} />
+                </div>
+                <div>
+                  <h5 className="text-lg font-black text-dark dark:text-white leading-none">Rp {formatNumber(customer.totalSpent).split(',')[0]}K</h5>
+                  <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-dark-5">Transaksi</p>
+                </div>
               </div>
-              <div className="text-lg font-bold text-purple-700 dark:text-purple-300">
-                {customer.lastVisit
-                  ? dayjs(customer.lastVisit).format("DD MMM YYYY")
-                  : "-"}
+            </div>
+
+            <div className="rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+                  <Icons.Calendar size={18} />
+                </div>
+                <div>
+                  <h5 className="text-[11px] font-black text-dark dark:text-white leading-none uppercase">
+                    {customer.lastVisit ? dayjs(customer.lastVisit).format("DD MMM YY") : "-"}
+                  </h5>
+                  <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-dark-5">Terakhir</p>
+                </div>
               </div>
             </div>
           </div>

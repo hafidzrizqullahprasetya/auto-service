@@ -100,22 +100,22 @@ export function CustomerTable({
         id: "no",
         header: () => <div className="text-center">No.</div>,
         cell: ({ row }) => (
-          <div className="text-center font-medium text-dark dark:text-white">
+          <div className="text-center font-bold text-dark-5">
             {row.index + 1}
           </div>
         ),
-        size: 60,
+        size: 50,
       },
       {
         accessorKey: "name",
         header: "Nama Pelanggan",
         cell: ({ row }) => (
-          <div className="flex flex-col items-center text-center">
-            <p className="font-bold text-dark dark:text-white">
+          <div className="flex flex-col">
+            <p className="font-bold text-sm text-dark dark:text-white leading-tight">
               {row.original.name}
             </p>
-            <div className="flex items-center gap-1 text-[11px] font-medium text-dark-5">
-              <Icons.Whatsapp size={10} />
+            <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-dark-5 uppercase tracking-wider">
+              <Icons.Whatsapp size={10} className="text-primary" />
               {row.original.phone}
             </div>
           </div>
@@ -123,27 +123,27 @@ export function CustomerTable({
       },
       {
         accessorKey: "vehicles",
-        header: () => <div className="text-center">Kendaraan Terdaftar</div>,
+        header: () => <div className="text-center">Kendaraan</div>,
         cell: ({ row }) => (
-          <div className="flex flex-wrap gap-1 justify-center">
+          <div className="flex flex-wrap gap-1 justify-center max-w-[150px] mx-auto">
             {row.original.vehicles.map((v) => (
-              <Badge
+              <span
                 key={v}
-                variant="info"
-                className="text-[9px] px-1.5 py-0"
+                className="bg-gray-2 dark:bg-dark-3 text-dark dark:text-white text-[9px] px-1.5 py-0.5 rounded font-black border border-stroke dark:border-dark-4 uppercase tracking-tighter"
               >
                 {v}
-              </Badge>
+              </span>
             ))}
           </div>
         ),
       },
       {
         accessorKey: "totalVisits",
-        header: () => <div className="text-center">Total Kunjungan</div>,
+        header: () => <div className="text-center">Kunjungan</div>,
         cell: ({ row }) => (
-          <div className="text-center font-bold text-dark dark:text-white">
-            {row.original.totalVisits} {VISIT_UNIT}
+          <div className="text-center">
+            <span className="font-black text-sm text-dark dark:text-white">{row.original.totalVisits}</span>
+            <span className="ml-1 text-[9px] font-bold text-dark-5 uppercase">Kali</span>
           </div>
         ),
       },
@@ -151,18 +151,18 @@ export function CustomerTable({
         accessorKey: "totalSpent",
         header: () => <div className="text-center">Total Transaksi</div>,
         cell: ({ row }) => (
-          <p className="text-center font-black text-primary">
+          <p className="text-center font-black text-sm text-secondary">
             Rp {formatNumber(row.original.totalSpent)}
           </p>
         ),
       },
       {
         accessorKey: "lastVisit",
-        header: () => <div className="text-center">Terakhir Datang</div>,
+        header: () => <div className="text-center">Terakhir</div>,
         cell: ({ row }) => (
-          <span className="text-center text-sm font-medium text-dark-5 dark:text-dark-6">
+          <div className="text-center text-[11px] font-bold text-dark-5 uppercase tracking-wide">
             {dayjs(row.original.lastVisit).format("DD MMM YYYY")}
-          </span>
+          </div>
         ),
       },
       {
@@ -175,7 +175,7 @@ export function CustomerTable({
               variant="outline"
               icon={<Icons.Eye size={16} />}
               onClick={() => handleViewCustomer(row.original)}
-              tooltip="Lihat Detail"
+              title="Lihat Detail"
             />
 
             {/* Quick Edit */}
@@ -183,7 +183,7 @@ export function CustomerTable({
               variant="outline"
               icon={<Icons.Edit size={16} />}
               onClick={() => handleEditCustomer(row.original)}
-              tooltip="Edit Cepat"
+              title="Edit Cepat"
             />
 
             {/* Quick Delete */}
@@ -191,7 +191,7 @@ export function CustomerTable({
               variant="outline"
               icon={<Icons.Delete size={16} className="text-red-600" />}
               onClick={() => handleDeleteCustomer(row.original)}
-              tooltip="Hapus"
+              title="Hapus"
               className="hover:bg-red-50 dark:hover:bg-red-900/20"
             />
           </div>

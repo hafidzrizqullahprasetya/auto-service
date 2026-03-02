@@ -36,6 +36,10 @@ import {
   Eye,
   Pencil,
   User,
+  Star,
+  Boxes,
+  ArrowLeftRight,
+  ClipboardCheck,
 } from "lucide-react";
 
 export const Icons = {
@@ -76,4 +80,8 @@ export const Icons = {
   Eye: Eye,
   Edit: Pencil,
   User: User,
+  Star: Star,
+  Boxes: Boxes,
+  StockInOut: ArrowLeftRight,
+  StockOpname: ClipboardCheck,
 };

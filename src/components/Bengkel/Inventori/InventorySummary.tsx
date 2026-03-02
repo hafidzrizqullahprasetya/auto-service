@@ -12,50 +12,50 @@ export function InventorySummary() {
 
   return (
     <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
-      <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Icons.Inventory size={20} />
+      <div className="rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+            <Icons.Inventory size={22} />
           </div>
           <div>
-            <p className="text-sm font-medium text-dark-5">Total SKU Produk</p>
-            <h4 className="text-xl font-bold text-dark dark:text-white">{totalItems} Item</h4>
+            <h4 className="text-xl font-black text-dark dark:text-white leading-none">{totalItems}</h4>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Total SKU Produk</p>
           </div>
         </div>
       </div>
 
-      <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow/10 text-yellow">
-            <Icons.Alert size={20} />
+      <div className="rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+            <Icons.Alert size={22} />
           </div>
           <div>
-            <p className="text-sm font-medium text-dark-5">Stok Menipis (&lt;10)</p>
-            <h4 className="text-xl font-bold text-dark dark:text-white">{lowStockItems} Item</h4>
+            <h4 className="text-xl font-black text-dark dark:text-white leading-none">{lowStockItems}</h4>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Stok Menipis (&lt;10)</p>
           </div>
         </div>
       </div>
 
-      <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-light-1 text-green">
-            <Icons.Chart size={20} />
+      <div className="rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+            <Icons.Chart size={22} />
           </div>
           <div>
-            <p className="text-sm font-medium text-dark-5">Total Nilai Aset</p>
-            <h4 className="text-xl font-bold text-dark dark:text-white">Rp {formatNumber(totalValue)}</h4>
+            <h4 className="text-xl font-black text-dark dark:text-white leading-none">Rp {formatNumber(totalValue)}</h4>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Total Nilai Aset</p>
           </div>
         </div>
       </div>
 
-      <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-light-1 text-red">
-            <Icons.Antrean size={20} />
+      <div className="rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+            <Icons.Antrean size={22} />
           </div>
           <div>
-            <p className="text-sm font-medium text-dark-5">Habis Stok</p>
-            <h4 className="text-xl font-bold text-dark dark:text-white">{outOfStock} Item</h4>
+            <h4 className="text-xl font-black text-dark dark:text-white leading-none">{outOfStock}</h4>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-dark-5">Habis Stok</p>
           </div>
         </div>
       </div>

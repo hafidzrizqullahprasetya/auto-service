@@ -16,7 +16,7 @@ const Chart = dynamic(() => import("react-apexcharts"), {
 
 export function CampaignVisitorsChart({ data }: PropsType) {
   const options: ApexOptions = {
-    colors: ["#5750F1"],
+    colors: ["#1C2434"],
     chart: {
       fontFamily: "Satoshi, sans-serif",
       type: "bar",

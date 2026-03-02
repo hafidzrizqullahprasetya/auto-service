@@ -17,11 +17,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -35,13 +35,17 @@ interface DataTableProps<TData, TValue> {
     label: string;
     onClick: () => void;
   };
+  secondaryAction?: {
+    label: string;
+    onClick: () => void;
+    variant?: "danger" | "outline" | "primary";
+  };
   isLoading?: boolean;
+  borderless?: boolean;
 }
 
 const SEARCH_DEBOUNCE_MS = 300;
 const DEFAULT_PAGE_SIZE = 10;
-const SEARCH_INPUT_MAX_WIDTH = "max-w-[250px]";
-const SEARCH_ICON_SIZE = 18;
 
 export function DataTable<TData, TValue>({
   columns,
@@ -52,7 +56,9 @@ export function DataTable<TData, TValue>({
   title,
   description,
   primaryAction,
+  secondaryAction,
   isLoading = false,
+  borderless = false,
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState("");
   const debouncedFilter = useDebounce(globalFilter, SEARCH_DEBOUNCE_MS);
@@ -60,76 +66,92 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    state: {
-      globalFilter: debouncedFilter,
-    },
+    state: { globalFilter: debouncedFilter },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    initialState: {
-      pagination: { pageSize },
-    },
+    initialState: { pagination: { pageSize } },
   });
 
   const totalRows = useMemo(
     () => table.getFilteredRowModel().rows.length,
     [table]
   );
-
   const currentPage = table.getState().pagination.pageIndex + 1;
   const totalPages = table.getPageCount();
-  const canPreviousPage = table.getCanPreviousPage();
-  const canNextPage = table.getCanNextPage();
 
   return (
-    <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5">
-      {/* Header */}
-      {(title || searchable || primaryAction) && (
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className={cn(
+      "overflow-hidden",
+      !borderless ? "rounded-2xl border border-stroke bg-white shadow-sm" : "bg-transparent"
+    )}>
+
+      {/* ── Toolbar ─────────────────────────────────────────────────── */}
+      {(title || searchable || primaryAction || secondaryAction) && (
+        <div className="flex flex-col gap-4 border-b border-stroke px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             {title && (
-              <h3 className="text-lg font-bold text-dark dark:text-white">
-                {title}
-              </h3>
+              <h3 className="text-[17px] font-black tracking-tight text-dark">{title}</h3>
             )}
             {description && (
-              <p className="text-sm font-medium text-dark-5 dark:text-dark-6">
-                {description}
-              </p>
+              <p className="text-xs font-medium text-dark-5">{description}</p>
             )}
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Search */}
             {searchable && (
               <div className="relative">
                 <Icons.Search
-                  size={SEARCH_ICON_SIZE}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-5"
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-dark-5"
                 />
-                <Input
+                <input
+                  type="search"
                   placeholder={searchPlaceholder}
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
-                  className={`${SEARCH_INPUT_MAX_WIDTH} pl-9`}
+                  className="h-11 w-full min-w-[280px] rounded-xl border border-stroke bg-gray-1/50 pl-11 pr-4 text-sm text-dark outline-none placeholder:text-dark-5 focus:border-dark focus:bg-white"
                 />
               </div>
             )}
 
-            {primaryAction && (
-              <Button onClick={primaryAction.onClick} disabled={isLoading}>
-                {primaryAction.label}
-              </Button>
-            )}
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              {secondaryAction && (
+                <button
+                  onClick={secondaryAction.onClick}
+                  className={cn(
+                    "flex h-11 items-center gap-2 rounded-xl border px-4 text-sm font-bold",
+                    secondaryAction.variant === "danger"
+                      ? "border-red/20 bg-red-50 text-red hover:bg-red hover:text-white"
+                      : "border-stroke bg-white text-dark-5 hover:border-dark hover:text-dark"
+                  )}
+                >
+                  {secondaryAction.label}
+                </button>
+              )}
+
+              {primaryAction && (
+                <button
+                  onClick={primaryAction.onClick}
+                  className="flex h-11 items-center gap-2 rounded-xl bg-dark px-5 text-sm font-bold text-white hover:bg-dark/90"
+                >
+                  <Plus size={16} />
+                  {primaryAction.label}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Table */}
-      <div className="max-w-full overflow-x-auto">
+      {/* ── Table ───────────────────────────────────────────────────── */}
+      <div className="overflow-x-auto">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <div className="flex items-center justify-center py-24">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-dark border-t-transparent" />
           </div>
         ) : (
           <Table>
@@ -137,34 +159,47 @@ export function DataTable<TData, TValue>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white [&>th]:text-center"
+                  className="border-b border-stroke bg-gray-2/30 [&>th]:px-8 [&>th]:py-5"
                 >
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="font-bold">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                    <TableHead 
+                      key={header.id}
+                      className="text-[11px] font-black uppercase tracking-widest text-dark-5"
+                    >
+                      <div className="relative flex items-center min-h-[14px]">
+                        <div className="w-full">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </div>
+                        {!header.column.id.includes("actions") && !header.column.id.includes("no") && (
+                          <Icons.ChevronDown 
+                            size={10} 
+                            className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-30" 
+                          /> 
+                        )}
+                      </div>
                     </TableHead>
                   ))}
                 </TableRow>
               ))}
             </TableHeader>
+
             <TableBody>
               {totalRows > 0 ? (
-                table.getRowModel().rows.map((row) => (
+                table.getRowModel().rows.map((row, i) => (
                   <TableRow
                     key={row.id}
-                    className="border-[#eee] dark:border-dark-3 hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors group [&>td]:text-center"
+                    className={cn(
+                      "group h-[84px] border-b border-stroke hover:bg-gray-2/50",
+                      i % 2 === 0 ? "bg-white" : "bg-gray-2/20"
+                    )}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                      <TableCell key={cell.id} className="px-8 py-0">
+                        <div className="flex h-full items-center">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
                       </TableCell>
                     ))}
                   </TableRow>
@@ -173,9 +208,14 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center text-dark-5"
+                    className="h-48 text-center text-sm text-dark-5"
                   >
-                    Data tidak ditemukan
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-1">
+                        <Icons.Search size={32} className="opacity-20" />
+                      </div>
+                      <p className="font-medium">Data tidak ditemukan</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -184,35 +224,54 @@ export function DataTable<TData, TValue>({
         )}
       </div>
 
-      {/* Pagination */}
+      {/* ── Pagination ──────────────────────────────────────────────── */}
       {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-dark-5 dark:text-dark-6">
-            Menampilkan {totalRows} dari {data.length} data
-          </div>
+        <div className="flex items-center justify-between border-t border-stroke px-8 py-5">
+          <p className="text-xs font-medium text-dark-5">
+            Menampilkan{" "}
+            <span className="font-bold text-dark">{totalRows}</span>{" "}
+            dari <span className="font-bold text-dark">{data.length}</span> data
+          </p>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
+          <div className="flex items-center gap-1.5">
+            <button
               onClick={() => table.previousPage()}
-              disabled={!canPreviousPage}
+              disabled={!table.getCanPreviousPage()}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
             >
-              Previous
-            </Button>
+              <ChevronLeft size={16} />
+            </button>
 
-            <span className="text-sm font-medium text-dark dark:text-white">
-              Page {currentPage} of {totalPages}
-            </span>
+            <div className="flex items-center gap-1 mx-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                .map((page, idx, arr) => (
+                  <React.Fragment key={page}>
+                    {idx > 0 && arr[idx - 1] !== page - 1 && (
+                      <span className="px-2 text-xs font-bold text-dark-5/40">•••</span>
+                    )}
+                    <button
+                      onClick={() => table.setPageIndex(page - 1)}
+                      className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all active:scale-90",
+                        currentPage === page
+                          ? "bg-dark text-white shadow-lg shadow-dark/20"
+                          : "text-dark-5 hover:bg-gray-1 hover:text-dark"
+                      )}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
+                ))}
+            </div>
 
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={() => table.nextPage()}
-              disabled={!canNextPage}
+              disabled={!table.getCanNextPage()}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
             >
-              Next
-            </Button>
+              <ChevronRight size={16} />
+            </button>
           </div>
         </div>
       )}

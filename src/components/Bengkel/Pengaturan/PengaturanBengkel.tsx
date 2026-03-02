@@ -5,13 +5,18 @@ import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { KatalogJasa } from "@/components/Bengkel/Kasir/KatalogJasa";
 
-type Tab = "bengkel" | "operasional" | "invoice" | "katalog";
+import { MOCK_WA_NOTIFICATIONS } from "@/mock/wa-notifications";
+import { Badge } from "@/components/Bengkel/shared";
+import dayjs from "dayjs";
+
+type Tab = "bengkel" | "operasional" | "invoice" | "katalog" | "wa";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "bengkel", label: "Profil Bengkel", icon: Icons.Dashboard },
   { id: "operasional", label: "Operasional", icon: Icons.Repair },
   { id: "invoice", label: "Pengaturan Invoice", icon: Icons.Print },
   { id: "katalog", label: "Katalog Jasa", icon: Icons.Kasir },
+  { id: "wa", label: "WA Gateway", icon: Icons.Notification },
 ];
 
 function InputField({
@@ -27,14 +32,14 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
+      <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">
         {label}
       </label>
       <input
         type={type}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-stroke bg-gray-1 px-4 py-2.5 text-sm text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+        className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
       />
     </div>
   );
@@ -49,10 +54,10 @@ function SelectField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
+      <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">
         {label}
       </label>
-      <select className="w-full rounded-xl border border-stroke bg-gray-1 px-4 py-2.5 text-sm text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white">
+      <select className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white">
         {children}
       </select>
     </div>
@@ -70,24 +75,24 @@ function ToggleField({
 }) {
   const [checked, setChecked] = useState(defaultChecked ?? false);
   return (
-    <div className="flex items-center justify-between py-3 border-b border-stroke dark:border-dark-3 last:border-0">
+    <div className="flex items-center justify-between py-4 border-b border-stroke dark:border-dark-3 last:border-0">
       <div>
-        <p className="text-sm font-semibold text-dark dark:text-white">{label}</p>
+        <p className="text-xs font-black uppercase tracking-wider text-dark dark:text-white">{label}</p>
         {description && (
-          <p className="mt-0.5 text-xs text-dark-5">{description}</p>
+          <p className="mt-1 text-[10px] font-bold text-dark-5 uppercase tracking-tight">{description}</p>
         )}
       </div>
       <button
         onClick={() => setChecked(!checked)}
         className={cn(
-          "relative h-6 w-11 rounded-full transition-colors",
-          checked ? "bg-primary" : "bg-gray-3 dark:bg-dark-3"
+          "relative h-6 w-12 rounded-lg border-2 border-stroke bg-gray-1 dark:bg-dark-2",
+          checked ? "bg-dark border-dark dark:bg-white dark:border-white" : "bg-gray-2 dark:bg-dark-3"
         )}
       >
         <span
           className={cn(
-            "absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-            checked ? "left-6" : "left-1"
+            "absolute top-0.5 h-4 w-5 rounded-md shadow-none",
+            checked ? "right-0.5 bg-white dark:bg-dark" : "left-0.5 bg-dark dark:bg-white"
           )}
         />
       </button>
@@ -103,9 +108,9 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-stroke bg-white shadow-sm dark:border-dark-3 dark:bg-gray-dark">
+    <div className="rounded-lg border border-stroke bg-white shadow-none dark:border-dark-3 dark:bg-gray-dark">
       <div className="border-b border-stroke px-6 py-4 dark:border-dark-3">
-        <h3 className="font-bold text-dark dark:text-white">{title}</h3>
+        <h3 className="text-sm font-black uppercase tracking-widest text-dark dark:text-white">{title}</h3>
       </div>
       <div className="p-6">{children}</div>
     </div>
@@ -118,14 +123,14 @@ function ProfilTab() {
       <SectionCard title="Identitas Bengkel">
         {/* Logo Upload */}
         <div className="mb-6 flex items-center gap-5">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-primary/10 border-2 border-dashed border-primary/30">
-            <Icons.Dashboard size={30} className="text-primary/50" />
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-3 border-2 border-dashed border-stroke dark:border-dark-4">
+            <Icons.Dashboard size={30} className="text-dark-5" />
           </div>
           <div>
-            <p className="font-semibold text-dark dark:text-white text-sm">Logo Bengkel</p>
-            <p className="text-xs text-dark-5 mt-0.5">PNG, JPG maksimal 2MB. Ukuran rekomendasi 500×500px</p>
-            <button className="mt-2 rounded-lg border border-stroke px-4 py-1.5 text-xs font-semibold text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-colors">
-              Unggah Logo
+            <p className="font-black text-dark dark:text-white text-xs uppercase tracking-wider">Logo Bengkel</p>
+            <p className="text-[10px] font-bold text-dark-5 mt-1 uppercase">PNG, JPG MAKS 2MB · 500×500PX</p>
+            <button className="mt-3 rounded-lg border-2 border-dark px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-white bg-dark hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">
+              GANTI LOGO
             </button>
           </div>
         </div>
@@ -133,17 +138,17 @@ function ProfilTab() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <InputField label="Nama Bengkel" defaultValue="AutoService Premium Garage" />
           <InputField label="Nomor Telepon / WA" defaultValue="+62 812-3456-7890" />
-          <InputField label="Email" type="email" defaultValue="info@autoservice.id" />
-          <InputField label="Website" defaultValue="www.autoservice.id" />
+          <InputField label="Email Address" type="email" defaultValue="info@autoservice.id" />
+          <InputField label="Website Office" defaultValue="www.autoservice.id" />
         </div>
         <div className="mt-4">
-          <label className="mb-2 block text-sm font-semibold text-dark dark:text-white">
-            Alamat Lengkap
+          <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">
+            Alamat Operasional
           </label>
           <textarea
             rows={3}
             defaultValue="Jl. Otomotif No. 123, Kawasan Industri Otomotif, Jakarta Selatan, DKI Jakarta 12345."
-            className="w-full rounded-xl border border-stroke bg-gray-1 px-4 py-2.5 text-sm text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white resize-none"
+            className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white resize-none"
           />
         </div>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -164,6 +169,98 @@ function ProfilTab() {
   );
 }
 
+function WAGatewayTab() {
+  const [waNumber, setWaNumber] = useState("+62 812-3456-7890");
+  const [waToken, setWaToken] = useState("");
+  const [provider, setProvider] = useState("fonnte");
+
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionCard title="Konfigurasi WhatsApp Gateway">
+        <div className="mb-4 rounded-lg border border-stroke bg-gray-1 p-3 text-xs text-dark-5 dark:border-dark-3 dark:bg-dark-2">
+          <p>WA Gateway digunakan untuk mengirim notifikasi otomatis ke pemilik bengkel saat stok sparepart mencapai batas minimum. Gunakan layanan seperti <strong>Fonnte</strong> atau <strong>WA Business API</strong>.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">Provider Gateway</label>
+            <select
+              value={provider}
+              onChange={(e) => setProvider(e.target.value)}
+              className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+            >
+              <option value="fonnte">FO-NNTE</option>
+              <option value="wablas">WA-BLAS</option>
+              <option value="wa_business">WA-BUSINESS-API</option>
+              <option value="custom">CUSTOM-API-GATEWAY</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">Nomor WA Penerima</label>
+            <input
+              type="text"
+              value={waNumber}
+              onChange={(e) => setWaNumber(e.target.value)}
+              placeholder="+62 812-xxxx-xxxx"
+              className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+            />
+          </div>
+        </div>
+        <div className="mt-4">
+          <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">API Secret Key</label>
+          <input
+            type="password"
+            value={waToken}
+            onChange={(e) => setWaToken(e.target.value)}
+            placeholder="Key dari provider..."
+            className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-black text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white font-mono tracking-widest"
+          />
+        </div>
+        <div className="mt-6 flex gap-3">
+          <button className="rounded-lg bg-dark px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark border-2 border-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">SIMPAN & TEST GATEWAY</button>
+          <button className="rounded-lg border-2 border-stroke px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">RESET OPTION</button>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Log Notifikasi WA">
+        <div className="flex flex-col gap-2">
+          {MOCK_WA_NOTIFICATIONS.map((notif) => (
+            <div
+              key={notif.id}
+              className="flex items-start justify-between gap-4 rounded-lg border border-stroke p-4 dark:border-dark-3"
+            >
+              <div className="flex-1">
+                <p className="text-sm font-bold text-dark dark:text-white">{notif.sparePartName}</p>
+                <p className="font-mono text-[10px] text-dark-5">{notif.sku}</p>
+                <p className="mt-1 text-xs text-dark-5">
+                  Stok: <span className="font-bold text-secondary">{notif.currentStock}</span> / Min: {notif.minimumStock}
+                  {" · "} Ke: {notif.waNumber}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <Badge
+                  variant={
+                    notif.status === "sent"
+                      ? "success"
+                      : notif.status === "pending"
+                      ? "warning"
+                      : "danger"
+                  }
+                  className="text-[10px]"
+                >
+                  {notif.status === "sent" ? "Terkirim" : notif.status === "pending" ? "Menunggu" : "Gagal"}
+                </Badge>
+                <p className="text-[10px] text-dark-5">
+                  {notif.sentAt ? dayjs(notif.sentAt).format("DD/MM/YY HH:mm") : "—"}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
 function OperasionalTab() {
   return (
     <div className="flex flex-col gap-6">
@@ -172,8 +269,8 @@ function OperasionalTab() {
           <InputField label="Jam Buka" type="time" defaultValue="08:00" />
           <InputField label="Jam Tutup" type="time" defaultValue="17:00" />
         </div>
-        <div className="mt-4">
-          <p className="mb-2 text-sm font-semibold text-dark dark:text-white">Hari Operasional</p>
+        <div className="mt-5">
+          <p className="mb-3 text-[11px] font-black uppercase tracking-widest text-dark dark:text-white">Hari Operasional</p>
           <div className="flex flex-wrap gap-2">
             {["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"].map((d, i) => {
               const active = i < 6; // default Mon–Sat
@@ -181,10 +278,10 @@ function OperasionalTab() {
                 <button
                   key={d}
                   className={cn(
-                    "rounded-lg px-4 py-2 text-sm font-bold transition-all",
+                    "rounded-lg px-5 py-2 text-xs font-black uppercase tracking-widest border-2 transition-all",
                     active
-                      ? "bg-primary text-white"
-                      : "border border-stroke text-dark-5 dark:border-dark-3 hover:bg-gray-1 dark:hover:bg-dark-2"
+                      ? "bg-dark text-white border-dark dark:bg-white dark:text-dark dark:border-white"
+                      : "border-stroke text-dark-5 dark:border-dark-3 hover:bg-gray-1 dark:hover:bg-dark-2"
                   )}
                 >
                   {d}
@@ -275,12 +372,12 @@ function InvoiceTab() {
       </SectionCard>
 
       {/* Preview */}
-      <SectionCard title="Preview Invoice">
-        <div className="rounded-xl border-2 border-dashed border-stroke dark:border-dark-3 p-8 text-center text-dark-5">
-          <Icons.Print size={40} className="mx-auto mb-2 opacity-20" />
-          <p className="text-sm">Preview invoice akan muncul di sini</p>
-          <button className="mt-4 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-opacity-90 transition-all">
-            Lihat Preview
+      <SectionCard title="Preview Invoice Visual">
+        <div className="rounded-lg border-2 border-dashed border-stroke dark:border-dark-3 p-10 text-center text-dark-5 bg-gray-1 dark:bg-dark-2">
+          <Icons.Print size={40} className="mx-auto mb-4 opacity-10" />
+          <p className="text-[11px] font-black uppercase tracking-widest">Live billing preview unavailable</p>
+          <button className="mt-6 rounded-lg bg-dark border-2 border-dark px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all">
+            GENERATE PREVIEW PDF
           </button>
         </div>
       </SectionCard>
@@ -294,19 +391,19 @@ export function PengaturanBengkel() {
   return (
     <div className="flex flex-col gap-6">
       {/* Tab Navigation */}
-      <div className="flex gap-1 rounded-xl border border-stroke bg-white p-1 shadow-sm dark:border-dark-3 dark:bg-gray-dark w-fit">
+      <div className="flex gap-1 bg-gray-1 dark:bg-dark-2 p-1 rounded-lg w-fit">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => setActiveTab(id)}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all",
+              "flex items-center gap-2 rounded-md px-4 py-2 text-[11px] font-black uppercase tracking-wider transition-none",
               activeTab === id
-                ? "bg-primary text-white shadow-sm"
+                ? "bg-dark text-white dark:bg-white dark:text-dark shadow-none"
                 : "text-dark-5 hover:text-dark dark:hover:text-white"
             )}
           >
-            <Icon size={16} />
+            <Icon size={14} />
             {label}
           </button>
         ))}
@@ -317,15 +414,16 @@ export function PengaturanBengkel() {
       {activeTab === "operasional" && <OperasionalTab />}
       {activeTab === "invoice" && <InvoiceTab />}
       {activeTab === "katalog" && <KatalogJasa />}
+      {activeTab === "wa" && <WAGatewayTab />}
 
       {/* Save Button — only for form tabs */}
-      {activeTab !== "katalog" && (
-        <div className="flex justify-end gap-3">
-          <button className="rounded-xl border border-stroke px-6 py-2.5 text-sm font-semibold text-dark hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">
-            Reset
+      {activeTab !== "katalog" && activeTab !== "wa" && (
+        <div className="flex justify-end gap-3 mt-4">
+          <button className="rounded-lg border-2 border-stroke px-6 py-3 text-[11px] font-black uppercase tracking-widest text-dark hover:bg-gray-2 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2 transition-all">
+            RESET DEFAULT
           </button>
-          <button className="rounded-xl bg-primary px-8 py-2.5 text-sm font-bold text-white hover:bg-opacity-90 transition-all active:scale-95 shadow-sm">
-            Simpan Perubahan
+          <button className="rounded-lg bg-dark border-2 border-dark px-10 py-3 text-[11px] font-black uppercase tracking-widest text-white hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white transition-all active:scale-100 shadow-none">
+            COMMIT CHANGES
           </button>
         </div>
       )}

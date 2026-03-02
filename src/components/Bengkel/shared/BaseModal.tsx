@@ -1,7 +1,8 @@
 "use client";
 
+import { ReactNode, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icons } from "@/components/icons";
-import { ReactNode, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface BaseModalProps {
@@ -35,19 +36,23 @@ export function BaseModal({
   footer,
   hideFooter = false,
 }: BaseModalProps) {
-  // Prevent scrolling when modal is open
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "unset";
     };
   }, []);
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+  if (!mounted) return null;
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all duration-300">
       <div 
         className={cn(
-          "relative w-full max-h-[95vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-dark border border-stroke dark:border-dark-3 flex flex-col animate-slide-up",
+          "relative w-full max-h-[95vh] overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-dark border border-stroke dark:border-dark-3 flex flex-col",
           maxWidthClasses[maxWidth]
         )}
       >
@@ -72,7 +77,7 @@ export function BaseModal({
           </div>
           <button 
             onClick={onClose}
-            className="rounded-lg p-2 text-dark-5 hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors active:scale-90"
+            className="rounded-lg p-2 text-dark-5 hover:bg-gray-1 dark:hover:bg-dark-3 transition-colors"
           >
             <Icons.Plus size={24} className="rotate-45" />
           </button>
@@ -84,7 +89,7 @@ export function BaseModal({
         </div>
 
         {/* Footer */}
-        {!hideFooter && (footer || children) && (
+        {!hideFooter && footer && (
           <div className="border-t border-stroke p-5 dark:border-dark-3 bg-gray-50 dark:bg-dark-2">
             {footer}
           </div>
@@ -92,4 +97,6 @@ export function BaseModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

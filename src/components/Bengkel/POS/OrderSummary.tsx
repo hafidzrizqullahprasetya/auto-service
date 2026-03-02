@@ -34,7 +34,7 @@ export function OrderSummary({ subtotal, tax, total, onCheckout, disabled }: Ord
         disabled={disabled}
         variant="primary"
         label="Bayar Sekarang (Checkout)"
-        className="w-full py-4 shadow-lg text-lg"
+        className="w-full py-4 text-lg"
       />
       
       <p className="mt-3 text-center text-[10px] text-dark-5 dark:text-dark-6">
