@@ -6,7 +6,7 @@ import { DataTable } from "@/components/ui/DataTable";
 import { MOCK_STOCK_MOVEMENTS, StockMovement } from "@/mock/stock-movements";
 import { Badge } from "@/components/Bengkel/shared";
 import { ActionButton } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { StockMovementForm } from "./StockMovementForm";
 import dayjs from "dayjs";
 

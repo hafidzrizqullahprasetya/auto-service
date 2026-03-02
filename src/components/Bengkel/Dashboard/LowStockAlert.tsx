@@ -1,7 +1,7 @@
 "use client";
 
 import { LOW_STOCK_ITEMS } from "@/mock/wa-notifications";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import Link from "next/link";
 
 export function LowStockAlert() {

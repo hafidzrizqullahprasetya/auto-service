@@ -2,7 +2,7 @@
 
 import React from "react";
 import Barcode from "react-barcode";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { Item } from "@/mock/inventory";
 import { formatNumber } from "@/lib/format-number";
 

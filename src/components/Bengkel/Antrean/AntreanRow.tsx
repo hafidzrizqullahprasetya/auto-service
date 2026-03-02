@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import { Antrean } from "@/mock/antrean";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/components/Bengkel/shared";
 
 interface AntreanRowProps {

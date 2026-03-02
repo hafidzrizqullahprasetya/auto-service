@@ -6,7 +6,7 @@ import { AntreanTable, KanbanBoard, AntreanFormModal } from "@/components/Bengke
 import { MOCK_ANTREAN, Antrean } from "@/mock/antrean";
 import { LayoutGrid, LayoutList, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";
 
 type ViewType = "kanban" | "table";

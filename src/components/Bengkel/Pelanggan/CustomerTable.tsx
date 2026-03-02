@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Customer } from "@/mock/customers";
 import { formatNumber } from "@/lib/format-number";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { Badge, ActionButton } from "@/components/Bengkel/shared";
 import dayjs from "dayjs";
 import { DataTable } from "@/components/ui/DataTable";

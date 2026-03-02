@@ -15,7 +15,7 @@ import { Badge } from "@/components/Bengkel/shared";
 import { ActionButton } from "@/components/Bengkel/shared";
 import { TableToolbar } from "@/components/Bengkel/shared";
 import { BaseModal } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { MOCK_OPNAMES, MOCK_OPEN_OPNAME, StockOpname, OpnameItem } from "@/mock/opname";
 import { MOCK_ITEMS } from "@/mock/inventory";
 import dayjs from "dayjs";

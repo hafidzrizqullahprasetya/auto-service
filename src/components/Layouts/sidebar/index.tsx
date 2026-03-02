@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_DATA } from "./data";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { useSidebarContext } from "./sidebar-context";
 import Link from "next/link";
 import Image from "next/image";

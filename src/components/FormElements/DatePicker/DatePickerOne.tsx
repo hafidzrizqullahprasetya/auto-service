@@ -1,6 +1,6 @@
 "use client";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import flatpickr from "flatpickr";
 import { useEffect } from "react";
 

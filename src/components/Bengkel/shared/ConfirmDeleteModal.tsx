@@ -2,7 +2,7 @@
 
 import { BaseModal } from "./BaseModal";
 import { ActionButton } from "./ActionButton";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 
 interface ConfirmDeleteModalProps {

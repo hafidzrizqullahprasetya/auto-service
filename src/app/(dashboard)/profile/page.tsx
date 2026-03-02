@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import { useState } from "react";
 import { SocialAccounts } from "./_components/social-accounts";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 
 export default function Page() {
   const [data, setData] = useState({

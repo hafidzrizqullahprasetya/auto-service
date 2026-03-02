@@ -1,5 +1,5 @@
 import { Item } from "@/mock/inventory";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { formatNumber } from "@/lib/format-number";
 
 interface CartItem {

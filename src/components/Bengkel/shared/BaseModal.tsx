@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 
 interface BaseModalProps {

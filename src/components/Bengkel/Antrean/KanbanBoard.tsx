@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Antrean } from "@/mock/antrean";
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 

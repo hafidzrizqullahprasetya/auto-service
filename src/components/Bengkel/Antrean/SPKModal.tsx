@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { Antrean } from "@/mock/antrean";
 import dayjs from "dayjs";
 import { BaseModal } from "../shared/BaseModal";

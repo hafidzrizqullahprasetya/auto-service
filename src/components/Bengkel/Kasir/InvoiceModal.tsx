@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { Transaction } from "@/mock/transactions";
 import { formatNumber } from "@/lib/format-number";
 import dayjs from "dayjs";

@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { MOCK_ITEMS, Item } from "@/mock/inventory";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 import { BarcodeLabelModal } from "@/components/Bengkel/shared";
 import { ActionButton } from "@/components/Bengkel/shared";

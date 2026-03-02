@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Item } from "@/mock/inventory";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 
 interface ItemCardProps {
   item: Item;

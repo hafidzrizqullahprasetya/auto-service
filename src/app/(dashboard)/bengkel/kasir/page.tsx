@@ -12,7 +12,7 @@ import { InvoiceModal } from "@/components/Bengkel/Kasir";
 import { MOCK_ITEMS, Item } from "@/mock/inventory";
 import { Transaction } from "@/mock/transactions";
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";
 
 type Tab = "riwayat" | "buat" | "pos";

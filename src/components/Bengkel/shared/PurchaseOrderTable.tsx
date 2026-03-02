@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { MOCK_PURCHASE_ORDERS, PurchaseOrder } from "@/mock/service-history";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/components/Bengkel/shared";
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";

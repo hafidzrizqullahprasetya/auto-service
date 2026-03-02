@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MOCK_SERVICE_CATALOG, ServiceCatalog } from "@/mock/service-catalog";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 
 const KATEGORI_COLORS: Record<ServiceCatalog["kategori"], string> = {

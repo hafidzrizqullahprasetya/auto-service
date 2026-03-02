@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { MOCK_EMPLOYEES, Employee } from "@/mock/employees";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/components/Bengkel/shared";
 import { EmployeeFormModal } from "@/components/Bengkel/Karyawan";
 

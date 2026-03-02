@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import React, { useState, useMemo } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";

@@ -1,7 +1,7 @@
 "use client";
 
 import { BaseModal, ActionButton } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { Customer } from "@/mock/customers";
 
 interface CustomerFormModalProps {

@@ -1,4 +1,4 @@
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 

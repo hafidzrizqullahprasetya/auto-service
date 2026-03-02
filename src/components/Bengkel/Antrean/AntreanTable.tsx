@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { Antrean } from "@/mock/antrean";
 import { ActionButton, Badge, ConfirmDeleteModal } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { AntreanFormModal } from "./AntreanFormModal";
 import { SPKModal } from "./SPKModal";
 import dayjs from "dayjs";

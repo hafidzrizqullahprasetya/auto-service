@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MOCK_SERVICE_HISTORY, ServiceRecord } from "@/mock/service-history";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";
 
 interface ServiceHistoryModalProps {

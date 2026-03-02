@@ -1,4 +1,4 @@
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { ServiceRecord } from "@/mock/vehicles";
 import { formatNumber } from "@/lib/format-number";
 import dayjs from "dayjs";

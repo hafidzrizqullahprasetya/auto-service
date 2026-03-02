@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { MOCK_TRANSACTIONS } from "@/mock/transactions";
 import { formatNumber } from "@/lib/format-number";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { Badge } from "@/components/Bengkel/shared";
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";

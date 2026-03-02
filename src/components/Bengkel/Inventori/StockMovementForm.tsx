@@ -4,7 +4,7 @@ import { useState } from "react";
 import { BaseModal } from "@/components/Bengkel/shared";
 import { ActionButton } from "@/components/Bengkel/shared";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { MOCK_ITEMS, Item } from "@/mock/inventory";
 import { formatNumber } from "@/lib/format-number";
 

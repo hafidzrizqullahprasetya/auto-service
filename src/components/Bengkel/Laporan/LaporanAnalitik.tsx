@@ -3,7 +3,7 @@
 import { MOCK_TRANSACTIONS } from "@/mock/transactions";
 import { MOCK_SERVICE_HISTORY } from "@/mock/service-history";
 import { formatNumber } from "@/lib/format-number";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 
 // --- Compute top services from service history ---

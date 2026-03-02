@@ -6,7 +6,7 @@ import { DataTable } from "@/components/ui/DataTable";
 import { MOCK_TRANSACTIONS, Transaction } from "@/mock/transactions";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";
 import { InvoiceModal } from "@/components/Bengkel/Kasir";
 import { ActionButton } from "@/components/Bengkel/shared";

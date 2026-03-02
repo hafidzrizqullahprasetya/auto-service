@@ -1,6 +1,6 @@
 "use client";
 
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { formatNumber } from "@/lib/format-number";
 import { cn } from "@/lib/utils";
 

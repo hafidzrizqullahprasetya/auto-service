@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { MOCK_REMINDERS, ServiceReminder } from "@/mock/service-history";
 import { Badge } from "@/components/Bengkel/shared";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/components/Bengkel/shared";
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";

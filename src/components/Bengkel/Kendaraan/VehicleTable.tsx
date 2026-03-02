@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { MOCK_VEHICLES, Vehicle } from "@/mock/vehicles";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/components/Bengkel/shared";
 import { ServiceHistoryModal } from "@/components/Bengkel/shared";
 import { VehicleFormModal } from "@/components/Bengkel/Kendaraan";

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 import { BellIcon } from "./icons";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/Icons";
 
 // ─── Data notifikasi bengkel ────────────────────────────────────────────────
 type NotifType = "stock" | "service" | "payment" | "reminder";
