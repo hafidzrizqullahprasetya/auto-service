@@ -17,6 +17,8 @@ export function DonutChart({ data }: PropsType) {
     chart: {
       type: "donut",
       fontFamily: "inherit",
+      redrawOnParentResize: true,
+      redrawOnWindowResize: true,
     },
     colors: ["#1C2434", "#475569", "#94A3B8", "#CBD5E1"],
     labels: data.map((item) => item.name),
@@ -64,7 +66,7 @@ export function DonutChart({ data }: PropsType) {
         breakpoint: 2600,
         options: {
           chart: {
-            width: 415,
+            width: "100%",
           },
         },
       },
@@ -92,6 +94,7 @@ export function DonutChart({ data }: PropsType) {
       options={chartOptions}
       series={data.map((item) => item.amount)}
       type="donut"
+      width="100%"
     />
   );
 }

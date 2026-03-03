@@ -38,7 +38,7 @@ export async function VehicleTypeRatio({
         <PeriodPicker defaultValue={timeFrame} sectionKey="used_devices" />
       </div>
 
-      <div className="grid place-items-center">
+      <div className="w-full grid place-items-center">
         <DonutChart data={data} />
       </div>
     </div>
