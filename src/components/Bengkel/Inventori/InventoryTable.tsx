@@ -312,7 +312,7 @@ export function InventoryTable() {
             <div className="flex flex-col items-end gap-1.5">
               <ExcelButtons
                 moduleKey="inventori"
-                exportData={inventoriToExcelRows(filteredData)}
+                exportData={inventoriToExcelRows(filteredData) as any}
                 onImport={(rows) => console.log("Import inventori:", rows)}
               />
               <Button

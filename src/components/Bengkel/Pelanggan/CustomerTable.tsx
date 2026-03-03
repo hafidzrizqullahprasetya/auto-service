@@ -220,7 +220,7 @@ export function CustomerTable({
         extraActions={
           <ExcelButtons
             moduleKey="pelanggan"
-            exportData={pelangganToExcelRows(data)}
+            exportData={pelangganToExcelRows(data) as any}
             onImport={(rows) => console.log("Import pelanggan:", rows)}
           />
         }

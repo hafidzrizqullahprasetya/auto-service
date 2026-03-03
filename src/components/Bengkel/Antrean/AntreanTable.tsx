@@ -206,7 +206,7 @@ export function AntreanTable({ data }: AntreanTableProps) {
         extraActions={
           <ExcelButtons
             moduleKey="antrean"
-            exportData={antreanToExcelRows(data)}
+            exportData={antreanToExcelRows(data) as any}
             onImport={(rows) => console.log("Import antrean:", rows)}
           />
         }

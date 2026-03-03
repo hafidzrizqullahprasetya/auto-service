@@ -161,7 +161,7 @@ export function EmployeeTable() {
         extraActions={
           <ExcelButtons
             moduleKey="karyawan"
-            exportData={karyawanToExcelRows(MOCK_EMPLOYEES)}
+            exportData={karyawanToExcelRows(MOCK_EMPLOYEES) as any}
             onImport={(rows) => console.log("Import karyawan:", rows)}
           />
         }

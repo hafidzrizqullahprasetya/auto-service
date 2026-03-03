@@ -127,7 +127,7 @@ export function VehicleTable() {
         extraActions={
           <ExcelButtons
             moduleKey="kendaraan"
-            exportData={kendaraanToExcelRows(MOCK_VEHICLES)}
+            exportData={kendaraanToExcelRows(MOCK_VEHICLES) as any}
             onImport={(rows) => console.log("Import kendaraan:", rows)}
           />
         }
