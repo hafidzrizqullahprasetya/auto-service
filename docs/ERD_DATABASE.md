@@ -1,7 +1,7 @@
 # ERD & Database Schema — AutoService Inventory Web Panel
 
 > **Dokumen ini** adalah referensi desain database untuk PM (validasi ERD) dan BE Developer (implementasi).
-> **Last Updated:** 2026-03-02
+> **Last Updated:** 2026-03-03
 
 ---
 
@@ -12,9 +12,9 @@ erDiagram
     USERS {
         int id PK
         string name
-        string email
+        string username "unique"
         string password_hash
-        enum role "admin|kasir|mekanik|owner"
+        enum role "owner|admin|kasir"
         boolean is_active
         timestamp created_at
         timestamp updated_at
@@ -137,8 +137,27 @@ erDiagram
         int id PK
         string name "nama jasa, misal Ganti Oli"
         string description
+        string kategori "Mesin|Rem & Transmisi|Kelistrikan|AC & Kabin|Body & Cat|Lainnya"
         decimal standard_price
+        string durasi_estimasi "contoh: 1-2 jam"
+        enum berlaku_untuk "mobil|motor|keduanya"
+        string garansi "nullable"
         boolean is_active
+    }
+
+    WORK_ORDERS {
+        int id PK
+        int vehicle_id FK
+        int customer_id FK
+        string layanan
+        string keluhan
+        enum status "menunggu|dikerjakan|menunggu_sparepart|selesai"
+        string mekanik "nama mekanik, nullable"
+        decimal estimasi_biaya
+        string estimasi_selesai "contoh: 2 jam"
+        boolean menginap
+        timestamp waktu_masuk
+        timestamp created_at
     }
 
     WA_NOTIFICATIONS {
@@ -153,7 +172,10 @@ erDiagram
 
     CUSTOMERS ||--o{ VEHICLES : "memiliki"
     CUSTOMERS ||--o{ TRANSACTIONS : "melakukan"
+    CUSTOMERS ||--o{ WORK_ORDERS : "punya work order"
     VEHICLES ||--o{ TRANSACTIONS : "terlibat di"
+    VEHICLES ||--o{ WORK_ORDERS : "masuk servis"
+    WORK_ORDERS ||--o| TRANSACTIONS : "dikonversi jadi"
     TRANSACTIONS ||--|{ TRANSACTION_ITEMS : "punya baris item"
     TRANSACTION_ITEMS }o--|| SPARE_PARTS : "referensi"
     SPARE_PARTS }o--|| CATEGORIES : "masuk kategori"
@@ -171,13 +193,14 @@ erDiagram
 ## Detail Schema per Tabel
 
 ### `users`
+
 ```sql
 CREATE TABLE users (
   id            INT PRIMARY KEY AUTO_INCREMENT,
   name          VARCHAR(100) NOT NULL,
-  email         VARCHAR(150) UNIQUE NOT NULL,
+  username      VARCHAR(50) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  role          ENUM('admin', 'kasir', 'mekanik', 'owner') DEFAULT 'kasir',
+  role          ENUM('owner', 'admin', 'kasir') DEFAULT 'kasir',
   is_active     BOOLEAN DEFAULT TRUE,
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at    TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -185,6 +208,7 @@ CREATE TABLE users (
 ```
 
 ### `customers`
+
 ```sql
 CREATE TABLE customers (
   id         INT PRIMARY KEY AUTO_INCREMENT,
@@ -198,6 +222,7 @@ CREATE TABLE customers (
 ```
 
 ### `vehicles`
+
 ```sql
 CREATE TABLE vehicles (
   id           INT PRIMARY KEY AUTO_INCREMENT,
@@ -213,6 +238,7 @@ CREATE TABLE vehicles (
 ```
 
 ### `categories`
+
 ```sql
 CREATE TABLE categories (
   id          INT PRIMARY KEY AUTO_INCREMENT,
@@ -222,6 +248,7 @@ CREATE TABLE categories (
 ```
 
 ### `spare_parts`
+
 ```sql
 CREATE TABLE spare_parts (
   id                INT PRIMARY KEY AUTO_INCREMENT,
@@ -242,6 +269,7 @@ CREATE TABLE spare_parts (
 ```
 
 ### `stock_movements`
+
 ```sql
 CREATE TABLE stock_movements (
   id             INT PRIMARY KEY AUTO_INCREMENT,
@@ -261,6 +289,7 @@ CREATE TABLE stock_movements (
 ```
 
 ### `stock_opnames`
+
 ```sql
 CREATE TABLE stock_opnames (
   id           INT PRIMARY KEY AUTO_INCREMENT,
@@ -274,6 +303,7 @@ CREATE TABLE stock_opnames (
 ```
 
 ### `stock_opname_items`
+
 ```sql
 CREATE TABLE stock_opname_items (
   id            INT PRIMARY KEY AUTO_INCREMENT,
@@ -289,6 +319,7 @@ CREATE TABLE stock_opname_items (
 ```
 
 ### `transactions`
+
 ```sql
 CREATE TABLE transactions (
   id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -310,6 +341,7 @@ CREATE TABLE transactions (
 ```
 
 ### `transaction_items`
+
 ```sql
 CREATE TABLE transaction_items (
   id             INT PRIMARY KEY AUTO_INCREMENT,
@@ -325,7 +357,45 @@ CREATE TABLE transaction_items (
 );
 ```
 
+### `service_catalog`
+
+```sql
+CREATE TABLE service_catalog (
+  id               INT PRIMARY KEY AUTO_INCREMENT,
+  name             VARCHAR(200) NOT NULL,
+  description      TEXT,
+  kategori         VARCHAR(100),
+  standard_price   DECIMAL(15,2) DEFAULT 0,
+  durasi_estimasi  VARCHAR(50),
+  berlaku_untuk    ENUM('mobil', 'motor', 'keduanya') DEFAULT 'keduanya',
+  garansi          VARCHAR(100),
+  is_active        BOOLEAN DEFAULT TRUE
+);
+```
+
+### `work_orders`
+
+```sql
+CREATE TABLE work_orders (
+  id               INT PRIMARY KEY AUTO_INCREMENT,
+  vehicle_id       INT,
+  customer_id      INT,
+  layanan          VARCHAR(300) NOT NULL,
+  keluhan          TEXT,
+  status           ENUM('menunggu', 'dikerjakan', 'menunggu_sparepart', 'selesai') DEFAULT 'menunggu',
+  mekanik          VARCHAR(100),
+  estimasi_biaya   DECIMAL(15,2) DEFAULT 0,
+  estimasi_selesai VARCHAR(50),
+  menginap         BOOLEAN DEFAULT FALSE,
+  waktu_masuk      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (vehicle_id) REFERENCES vehicles(id),
+  FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+```
+
 ### `wa_notifications`
+
 ```sql
 CREATE TABLE wa_notifications (
   id            INT PRIMARY KEY AUTO_INCREMENT,

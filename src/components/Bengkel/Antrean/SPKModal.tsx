@@ -65,20 +65,49 @@ export function SPKModal({ item, onClose }: SPKModalProps) {
           <div className="text-right space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-widest text-dark-5">Pemilik / Customer</p>
             <p className="text-sm font-bold text-dark dark:text-white uppercase">{item.pelanggan}</p>
+            <p className="text-xs font-medium text-dark-5 mt-1">WA: {item.waPelanggan || '-'}</p>
             <p className="text-xs font-medium text-dark-5">Masuk: {dayjs(item.waktuMasuk).format('DD/MM/YYYY HH:mm')}</p>
+            {item.menginap && (
+              <span className="inline-block mt-2 rounded bg-danger/10 px-2 py-1 text-[10px] font-black text-danger uppercase tracking-widest">
+                Unit / Kendaraan Menginap
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Instruksi Pekerjaan */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 border-b border-stroke pb-2 dark:border-dark-3">
-            <Icons.Repair size={16} className="text-dark-5" />
-            <h4 className="text-xs font-black uppercase tracking-widest text-dark dark:text-white">Deskripsi Pekerjaan</h4>
+        {/* Keluhan & Instruksi Pekerjaan */}
+        <div className="space-y-4 border-b border-stroke pb-4 dark:border-dark-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Icons.Kasir size={16} className="text-dark-5" />
+              <h4 className="text-xs font-black uppercase tracking-widest text-dark dark:text-white">Keluhan Pelanggan</h4>
+            </div>
+            <div className="rounded-lg bg-gray-1 p-3 dark:bg-dark-2">
+              <p className="text-sm font-medium text-dark dark:text-gray-4 italic">
+                "{item.keluhan || 'Tidak ada catatan keluhan spesifik.'}"
+              </p>
+            </div>
           </div>
-          <div className="min-h-[100px] rounded-xl border-2 border-dashed border-stroke p-4 dark:border-dark-3">
-            <p className="text-sm font-bold text-dark dark:text-white">{item.layanan}</p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Icons.Repair size={16} className="text-dark-5" />
+              <h4 className="text-xs font-black uppercase tracking-widest text-dark dark:text-white">Instruksi Layanan / Pekerjaan</h4>
+            </div>
+            <div className="min-h-[60px] rounded-lg border-2 border-dashed border-stroke p-3 dark:border-dark-3">
+              <p className="text-sm font-bold text-dark dark:text-white">{item.layanan}</p>
+            </div>
           </div>
         </div>
+
+        {/* Estimasi Biaya */}
+        {item.estimasiBiaya ? (
+          <div className="flex justify-between items-center rounded-xl bg-gray-50 p-4 border border-stroke dark:border-dark-3 dark:bg-dark-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-dark-5">Estimasi Biaya Dasar</p>
+            <p className="text-lg font-black text-dark dark:text-white">
+              Rp {item.estimasiBiaya.toLocaleString('id-ID')}
+            </p>
+          </div>
+        ) : null}
 
         {/* Checklist & Catatan Mekanik */}
         <div className="grid grid-cols-2 gap-6">

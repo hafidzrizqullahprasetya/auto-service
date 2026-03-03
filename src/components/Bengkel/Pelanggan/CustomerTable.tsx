@@ -4,9 +4,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Customer } from "@/mock/customers";
 import { formatNumber } from "@/lib/format-number";
 import { Icons } from "@/components/Icons";
-import { Badge, ActionButton } from "@/components/Bengkel/shared";
+import { Badge, ActionButton, ExcelButtons } from "@/components/Bengkel/shared";
 import dayjs from "dayjs";
 import { DataTable } from "@/components/ui/DataTable";
+import { pelangganToExcelRows } from "@/lib/excel";
 import { CustomerFormModal } from "./CustomerFormModal";
 import { CustomerDetailModal } from "./CustomerDetailModal";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
@@ -35,7 +36,7 @@ export function CustomerTable({
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null
+    null,
   );
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -57,7 +58,7 @@ export function CustomerTable({
         setShowDetailModal(true);
       }
     },
-    [onViewCustomer]
+    [onViewCustomer],
   );
 
   const handleEditCustomer = useCallback(
@@ -69,7 +70,7 @@ export function CustomerTable({
         setShowFormModal(true);
       }
     },
-    [onEditCustomer]
+    [onEditCustomer],
   );
 
   const handleDeleteCustomer = useCallback(
@@ -81,7 +82,7 @@ export function CustomerTable({
         setShowDeleteModal(true);
       }
     },
-    [onDeleteCustomer]
+    [onDeleteCustomer],
   );
 
   const handleConfirmDelete = useCallback(() => {
@@ -96,16 +97,15 @@ export function CustomerTable({
 
   const columns = useMemo<ColumnDef<Customer>[]>(
     () => [
-
       {
         accessorKey: "name",
         header: "Nama Pelanggan",
         cell: ({ row }) => (
           <div className="flex flex-col">
-            <p className="font-bold text-sm text-dark dark:text-white leading-tight">
+            <p className="text-sm font-bold leading-tight text-dark dark:text-white">
               {row.original.name}
             </p>
-            <div className="flex items-center gap-1 mt-1 text-[11px] font-medium text-dark-5">
+            <div className="mt-1 flex items-center gap-1 text-[11px] font-medium text-dark-5">
               <Icons.Whatsapp size={10} className="text-primary" />
               {row.original.phone}
             </div>
@@ -116,11 +116,11 @@ export function CustomerTable({
         accessorKey: "vehicles",
         header: () => <div className="w-full text-center">Kendaraan</div>,
         cell: ({ row }) => (
-          <div className="flex w-full flex-wrap gap-1 justify-center max-w-[150px] mx-auto">
+          <div className="mx-auto flex w-full max-w-[150px] flex-wrap justify-center gap-1">
             {row.original.vehicles.map((v) => (
               <span
                 key={v}
-                className="bg-gray-2 dark:bg-dark-3 text-dark dark:text-white text-[10px] px-1.5 py-0.5 rounded font-medium border border-stroke dark:border-dark-4"
+                className="rounded border border-stroke bg-gray-2 px-1.5 py-0.5 text-[10px] font-medium text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white"
               >
                 {v}
               </span>
@@ -132,9 +132,13 @@ export function CustomerTable({
         accessorKey: "totalVisits",
         header: () => <div className="w-full text-center">Kunjungan</div>,
         cell: ({ row }) => (
-          <div className="flex w-full justify-center items-center">
-            <span className="font-bold text-sm text-dark dark:text-white">{row.original.totalVisits}</span>
-            <span className="ml-1 text-[10px] font-medium text-dark-5">Kali</span>
+          <div className="flex w-full items-center justify-center">
+            <span className="text-sm font-bold text-dark dark:text-white">
+              {row.original.totalVisits}
+            </span>
+            <span className="ml-1 text-[10px] font-medium text-dark-5">
+              Kali
+            </span>
           </div>
         ),
       },
@@ -143,7 +147,7 @@ export function CustomerTable({
         header: () => <div className="w-full text-center">Total Transaksi</div>,
         cell: ({ row }) => (
           <div className="flex w-full justify-center">
-            <p className="font-bold text-sm text-secondary">
+            <p className="text-sm font-bold text-secondary">
               Rp {formatNumber(row.original.totalSpent)}
             </p>
           </div>
@@ -192,7 +196,7 @@ export function CustomerTable({
         ),
       },
     ],
-    [handleViewCustomer, handleEditCustomer, handleDeleteCustomer]
+    [handleViewCustomer, handleEditCustomer, handleDeleteCustomer],
   );
 
   return (
@@ -212,6 +216,13 @@ export function CustomerTable({
                 onClick: handleAddCustomer,
               }
             : undefined
+        }
+        extraActions={
+          <ExcelButtons
+            moduleKey="pelanggan"
+            exportData={pelangganToExcelRows(data)}
+            onImport={(rows) => console.log("Import pelanggan:", rows)}
+          />
         }
       />
 
@@ -259,4 +270,3 @@ export function CustomerTable({
     </>
   );
 }
-

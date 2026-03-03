@@ -1,7 +1,7 @@
 export interface Employee {
   id: string;
   name: string;
-  role: "Mekanik Senior" | "Mekanik" | "Admin" | "Service Advisor" | "Helper";
+  role: "Owner" | "Admin" | "Kasir";
   status: "Aktif" | "Cuti" | "Off";
   joinDate: string;
   totalTasks: number;
@@ -14,7 +14,7 @@ export const MOCK_EMPLOYEES: Employee[] = [
   {
     id: "emp1",
     name: "Suryo Atmojo",
-    role: "Mekanik Senior",
+    role: "Owner",
     status: "Aktif",
     joinDate: "2023-01-10",
     totalTasks: 452,
@@ -24,7 +24,7 @@ export const MOCK_EMPLOYEES: Employee[] = [
   {
     id: "emp2",
     name: "Budi Setiadi",
-    role: "Mekanik",
+    role: "Kasir",
     status: "Aktif",
     joinDate: "2023-06-15",
     totalTasks: 215,
@@ -34,7 +34,7 @@ export const MOCK_EMPLOYEES: Employee[] = [
   {
     id: "emp3",
     name: "Agus Prasetyo",
-    role: "Mekanik",
+    role: "Kasir",
     status: "Off",
     joinDate: "2023-08-20",
     totalTasks: 180,
@@ -54,7 +54,7 @@ export const MOCK_EMPLOYEES: Employee[] = [
   {
     id: "emp5",
     name: "Riko Simanjuntak",
-    role: "Service Advisor",
+    role: "Admin",
     status: "Aktif",
     joinDate: "2023-03-12",
     totalTasks: 120,

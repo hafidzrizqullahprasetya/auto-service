@@ -1,50 +1,79 @@
 "use client";
-import { EmailIcon, PasswordIcon } from "@/assets/icons";
+import { PasswordIcon } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { Checkbox } from "../FormElements/checkbox";
 
+const MOCK_USERS = [
+  {
+    username: "owner",
+    password: "owner123",
+    role: "Owner",
+    name: "Suryo Atmojo",
+  },
+  { username: "admin", password: "admin123", role: "Admin", name: "Larasati" },
+  {
+    username: "kasir",
+    password: "kasir123",
+    role: "Kasir",
+    name: "Budi Setiadi",
+  },
+];
+
 export default function SigninWithPassword() {
   const router = useRouter();
   const [data, setData] = useState({
-    email: process.env.NEXT_PUBLIC_DEMO_USER_MAIL || "admin@autoservice.com",
-    password: process.env.NEXT_PUBLIC_DEMO_USER_PASS || "admin123",
+    username: "",
+    password: "",
     remember: false,
   });
-
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({
-      ...data,
-      [e.target.name]: e.target.value,
-    });
+    setError("");
+    setData({ ...data, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
-    // Dummy authentication logic
     setTimeout(() => {
+      const user = MOCK_USERS.find(
+        (u) => u.username === data.username && u.password === data.password,
+      );
+      if (user) {
+        localStorage.setItem(
+          "auth_user",
+          JSON.stringify({
+            name: user.name,
+            role: user.role,
+            username: user.username,
+          }),
+        );
+        router.push(user.role === "Kasir" ? "/bengkel/antrean" : "/");
+      } else {
+        setError("Username atau password salah.");
+      }
       setLoading(false);
-      router.push("/");
-    }, 1500);
+    }, 800);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <InputGroup
-        type="email"
-        label="Email"
+        type="text"
+        label="Username"
         className="mb-4 [&_input]:py-[15px]"
-        placeholder="nama@email.com"
-        name="email"
+        placeholder="owner / admin / kasir"
+        name="username"
         handleChange={handleChange}
-        value={data.email}
-        icon={<EmailIcon />}
+        value={data.username}
+        icon={<PasswordIcon />}
       />
 
       <InputGroup
@@ -58,6 +87,12 @@ export default function SigninWithPassword() {
         icon={<PasswordIcon />}
       />
 
+      {error && (
+        <p className="bg-danger/10 text-danger mb-4 rounded-lg px-4 py-2.5 text-sm font-bold">
+          {error}
+        </p>
+      )}
+
       <div className="mb-6 flex items-center justify-between gap-2 py-2">
         <Checkbox
           label="Ingat Sesi Saya"
@@ -66,20 +101,8 @@ export default function SigninWithPassword() {
           minimal
           radius="md"
           className="text-xs font-medium text-dark-5"
-          onChange={(e) =>
-            setData({
-              ...data,
-              remember: e.target.checked,
-            })
-          }
+          onChange={(e) => setData({ ...data, remember: e.target.checked })}
         />
-
-        <Link
-          href="/auth/forgot-password"
-          className="text-dark-5 hover:text-dark dark:hover:text-white text-xs font-semibold transition-none"
-        >
-          Lupa Kata Sandi?
-        </Link>
       </div>
 
       <div className="mb-4.5">

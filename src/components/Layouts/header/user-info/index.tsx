@@ -10,22 +10,39 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
+import type { AuthUser } from "@/hooks/useAuth";
+
+const ROLE_AVATARS: Record<string, string> = {
+  owner: "/images/user/user-03.png",
+  admin: "/images/user/user-03.png",
+  kasir: "/images/user/user-03.png",
+};
 
 export function UserInfo() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
-  const USER = {
-    name: "Admin Bengkel",
-    email: "admin@autoservice.com",
-    img: "/images/user/user-03.png",
-  };
+  useEffect(() => {
+    const stored = localStorage.getItem("auth_user");
+    if (stored) {
+      try {
+        setAuthUser(JSON.parse(stored) as AuthUser);
+      } catch {}
+    }
+  }, []);
+
+  const displayName = authUser?.name ?? "Pengguna";
+  const displayRole = authUser?.role ?? "";
+  const displayImg = authUser
+    ? (ROLE_AVATARS[authUser.username] ?? "/images/user/user-03.png")
+    : "/images/user/user-03.png";
 
   const handleLogout = () => {
     setIsOpen(false);
-    // Simulate logout process
+    localStorage.removeItem("auth_user");
     router.push("/auth/sign-in");
   };
 
@@ -36,15 +53,15 @@ export function UserInfo() {
 
         <figure className="flex items-center gap-3">
           <Image
-            src={USER.img}
+            src={displayImg}
             className="size-12"
-            alt={`Avatar of ${USER.name}`}
+            alt={`Avatar of ${displayName}`}
             role="presentation"
             width={200}
             height={200}
           />
           <figcaption className="flex items-center gap-1 font-medium text-dark dark:text-dark-6 max-[1024px]:sr-only">
-            <span>{USER.name}</span>
+            <span>{displayName}</span>
 
             <ChevronUpIcon
               aria-hidden
@@ -66,9 +83,9 @@ export function UserInfo() {
 
         <figure className="flex items-center gap-2.5 px-5 py-3.5">
           <Image
-            src={USER.img}
+            src={displayImg}
             className="size-12"
-            alt={`Avatar for ${USER.name}`}
+            alt={`Avatar for ${displayName}`}
             role="presentation"
             width={200}
             height={200}
@@ -76,10 +93,10 @@ export function UserInfo() {
 
           <figcaption className="space-y-1 text-base font-medium">
             <div className="mb-2 leading-none text-dark dark:text-white">
-              {USER.name}
+              {displayName}
             </div>
 
-            <div className="leading-none text-gray-6">{USER.email}</div>
+            <div className="text-gray-6 leading-none">{displayRole}</div>
           </figcaption>
         </figure>
 

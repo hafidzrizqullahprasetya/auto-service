@@ -1,5 +1,3 @@
-import Link from "next/link";
-import GoogleSigninButton from "../GoogleSigninButton";
 import SigninWithPassword from "../SigninWithPassword";
 
 export default function Signin() {
@@ -12,26 +10,17 @@ export default function Signin() {
         Akses Panel Kendali AutoService
       </p>
 
-      <GoogleSigninButton text="Masuk dengan Google" />
-
-      <div className="my-6 flex items-center justify-center">
-        <span className="block h-px w-full bg-stroke dark:bg-dark-3"></span>
-        <div className="block w-full min-w-fit bg-white px-3 text-center text-xs font-semibold text-dark-5 dark:bg-gray-dark">
-          Masuk dengan Email
-        </div>
-        <span className="block h-px w-full bg-stroke dark:bg-dark-3"></span>
-      </div>
-
       <div>
         <SigninWithPassword />
       </div>
 
       <div className="mt-6 text-center">
         <p className="text-sm font-medium text-dark-5">
-          Belum punya akses?{" "}
-          <Link href="/auth/sign-up" className="text-dark hover:underline dark:text-white ml-1 font-semibold">
-            Minta Akses Admin
-          </Link>
+          Belum punya akses? Hubungi{" "}
+          <span className="font-semibold text-dark dark:text-white">Owner</span>{" "}
+          atau{" "}
+          <span className="font-semibold text-dark dark:text-white">Admin</span>{" "}
+          untuk mendapatkan akun.
         </p>
       </div>
     </>

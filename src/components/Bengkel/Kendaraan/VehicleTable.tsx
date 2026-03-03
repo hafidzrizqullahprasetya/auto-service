@@ -5,9 +5,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { MOCK_VEHICLES, Vehicle } from "@/mock/vehicles";
 import { Icons } from "@/components/Icons";
-import { ActionButton } from "@/components/Bengkel/shared";
+import { ActionButton, ExcelButtons } from "@/components/Bengkel/shared";
 import { ServiceHistoryModal } from "@/components/Bengkel/shared";
 import { VehicleFormModal } from "@/components/Bengkel/Kendaraan";
+import { kendaraanToExcelRows } from "@/lib/excel";
 
 export function VehicleTable() {
   const [historyVehicle, setHistoryVehicle] = useState<Vehicle | null>(null);
@@ -16,7 +17,6 @@ export function VehicleTable() {
 
   const columns = useMemo<ColumnDef<Vehicle>[]>(
     () => [
-
       {
         accessorKey: "plateNumber",
         header: "No. Polisi",
@@ -24,14 +24,14 @@ export function VehicleTable() {
           const v = row.original;
           return (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-3 text-dark dark:text-white border border-stroke dark:border-dark-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-stroke bg-gray-2 text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white">
                 {v.type === "Mobil" ? (
                   <Icons.KendaraanMobil size={22} />
                 ) : (
                   <Icons.KendaraanMotor size={22} />
                 )}
               </div>
-              <span className="font-bold text-dark dark:text-white text-lg uppercase leading-none">
+              <span className="text-lg font-bold uppercase leading-none text-dark dark:text-white">
                 {v.plateNumber}
               </span>
             </div>
@@ -45,10 +45,12 @@ export function VehicleTable() {
           const v = row.original;
           return (
             <div className="flex flex-col">
-              <p className="font-bold text-sm text-dark dark:text-white leading-tight">
+              <p className="text-sm font-bold leading-tight text-dark dark:text-white">
                 {v.brand} {v.model}
               </p>
-              <span className="text-[11px] font-medium text-dark-5">{v.color}</span>
+              <span className="text-[11px] font-medium text-dark-5">
+                {v.color}
+              </span>
             </div>
           );
         },
@@ -58,7 +60,7 @@ export function VehicleTable() {
         header: () => <div className="w-full text-center">Pemilik</div>,
         cell: ({ row }) => (
           <div className="flex w-full items-center justify-center gap-2">
-            <span className="text-[11px] font-medium py-0.5 px-2 bg-gray-2 dark:bg-dark-3 rounded text-dark-5 border border-stroke">
+            <span className="rounded border border-stroke bg-gray-2 px-2 py-0.5 text-[11px] font-medium text-dark-5 dark:bg-dark-3">
               ID: {row.original.ownerId}
             </span>
           </div>
@@ -79,7 +81,8 @@ export function VehicleTable() {
         cell: ({ row }) => (
           <div className="flex w-full items-center justify-center gap-1.5 text-sm font-bold text-secondary">
             <Icons.Repair size={14} />
-            {row.original.lastServiceKm.toLocaleString()} <span className="text-[10px] font-medium text-dark-5">KM</span>
+            {row.original.lastServiceKm.toLocaleString()}{" "}
+            <span className="text-[10px] font-medium text-dark-5">KM</span>
           </div>
         ),
       },
@@ -104,7 +107,7 @@ export function VehicleTable() {
         ),
       },
     ],
-    []
+    [],
   );
 
   return (
@@ -121,6 +124,13 @@ export function VehicleTable() {
           label: "Registrasi Baru",
           onClick: () => setShowRegModal(true),
         }}
+        extraActions={
+          <ExcelButtons
+            moduleKey="kendaraan"
+            exportData={kendaraanToExcelRows(MOCK_VEHICLES)}
+            onImport={(rows) => console.log("Import kendaraan:", rows)}
+          />
+        }
       />
 
       {historyVehicle && (

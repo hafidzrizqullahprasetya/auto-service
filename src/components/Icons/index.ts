@@ -40,6 +40,7 @@ import {
   Boxes,
   ArrowLeftRight,
   ClipboardCheck,
+  Lock,
 } from "lucide-react";
 
 export const Icons = {
@@ -84,4 +85,5 @@ export const Icons = {
   Boxes: Boxes,
   StockInOut: ArrowLeftRight,
   StockOpname: ClipboardCheck,
+  Lock: Lock,
 };

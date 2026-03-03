@@ -9,6 +9,10 @@ export interface Antrean {
   waktuMasuk: string;
   mekanik?: string;
   estimasiSelesai?: string; // e.g. "2 jam"
+  keluhan?: string;
+  estimasiBiaya?: number;
+  waPelanggan?: string;
+  menginap?: boolean;
 }
 
 export const MOCK_ANTREAN: Antrean[] = [
@@ -23,6 +27,9 @@ export const MOCK_ANTREAN: Antrean[] = [
     waktuMasuk: "2024-05-24T08:30:00Z",
     mekanik: "Suryo Atmojo",
     estimasiSelesai: "1 jam",
+    keluhan: "Tarikan berat, mesin sering ngelitik",
+    waPelanggan: "081234567890",
+    estimasiBiaya: 450000,
   },
   {
     id: "2",
@@ -34,6 +41,10 @@ export const MOCK_ANTREAN: Antrean[] = [
     status: "Menunggu",
     waktuMasuk: "2024-05-24T09:15:00Z",
     estimasiSelesai: "3 jam",
+    keluhan: "Rem berdecit, AC kurang dingin",
+    waPelanggan: "085678123456",
+    estimasiBiaya: 850000,
+    menginap: true,
   },
   {
     id: "3",
@@ -45,6 +56,9 @@ export const MOCK_ANTREAN: Antrean[] = [
     status: "Selesai",
     waktuMasuk: "2024-05-24T07:45:00Z",
     mekanik: "Budi Setiadi",
+    keluhan: "Setir getar saat kecepatan tinggi",
+    waPelanggan: "089988776655",
+    estimasiBiaya: 1250000,
   },
   {
     id: "4",
@@ -55,6 +69,9 @@ export const MOCK_ANTREAN: Antrean[] = [
     layanan: "Ganti Aki",
     status: "Menunggu",
     waktuMasuk: "2024-05-24T10:00:00Z",
+    keluhan: "Starter mati, lampu redup",
+    waPelanggan: "082123456789",
+    estimasiBiaya: 750000,
   },
   {
     id: "5",
@@ -66,5 +83,8 @@ export const MOCK_ANTREAN: Antrean[] = [
     status: "Menunggu Sparepart",
     waktuMasuk: "2024-05-24T10:30:00Z",
     mekanik: "Agus Prasetyo",
+    keluhan: "Gas nyendat-nyendat",
+    waPelanggan: "081122334455",
+    estimasiBiaya: 250000,
   },
 ];

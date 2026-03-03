@@ -39,11 +39,9 @@ export function EmployeeFormModal({ onClose, onSave, initialData, mode = "create
               defaultValue={initialData?.role}
               className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark dark:text-white outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
             >
-              <option value="Mekanik Senior">Mekanik Senior</option>
-              <option value="Mekanik Junior">Mekanik Junior</option>
-              <option value="Front Desk">Front Desk / Kasir</option>
-              <option value="Supervisor">Supervisor</option>
               <option value="Owner">Owner</option>
+              <option value="Admin">Admin</option>
+              <option value="Kasir">Kasir</option>
             </select>
           </div>
           <div className="space-y-1.5">

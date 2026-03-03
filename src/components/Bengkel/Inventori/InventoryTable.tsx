@@ -28,12 +28,17 @@ import { Badge } from "@/components/Bengkel/shared";
 import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 import { BarcodeLabelModal } from "@/components/Bengkel/shared";
-import { ActionButton } from "@/components/Bengkel/shared";
+import { ActionButton, ExcelButtons } from "@/components/Bengkel/shared";
 import { InventoryFormModal } from "@/components/Bengkel/Inventori";
 import { InventorySummary } from "./InventorySummary";
+import { inventoriToExcelRows } from "@/lib/excel";
 
 // Custom filter function untuk multi-column text search
-const multiColFilter: FilterFn<Item> = (row, _columnId, filterValue: string) => {
+const multiColFilter: FilterFn<Item> = (
+  row,
+  _columnId,
+  filterValue: string,
+) => {
   const v = filterValue.toLowerCase();
   const item = row.original;
   return (
@@ -44,25 +49,32 @@ const multiColFilter: FilterFn<Item> = (row, _columnId, filterValue: string) => 
 };
 
 const isLowStock = (item: Item) =>
-  item.stock !== undefined && item.minimumStock !== undefined && item.stock <= item.minimumStock;
+  item.stock !== undefined &&
+  item.minimumStock !== undefined &&
+  item.stock <= item.minimumStock;
 
 export function InventoryTable() {
   const [barcodeItem, setBarcodeItem] = useState<Item | null>(null);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "Mobil" | "Motor" | "Umum">("all");
-  const [filterCategory, setFilterCategory] = useState<"all" | "Part" | "Oil" | "Service">("all");
+  const [filterType, setFilterType] = useState<
+    "all" | "Mobil" | "Motor" | "Umum"
+  >("all");
+  const [filterCategory, setFilterCategory] = useState<
+    "all" | "Part" | "Oil" | "Service"
+  >("all");
 
   // Apply extra filters (tipe & kategori) sebelum masuk TanStack
   const filteredData = useMemo(
     () =>
       MOCK_ITEMS.filter((item) => {
         const matchType = filterType === "all" || item.type === filterType;
-        const matchCat = filterCategory === "all" || item.category === filterCategory;
+        const matchCat =
+          filterCategory === "all" || item.category === filterCategory;
         return matchType && matchCat;
       }),
-    [filterType, filterCategory]
+    [filterType, filterCategory],
   );
 
   const columns = useMemo<ColumnDef<Item>[]>(
@@ -99,7 +111,9 @@ export function InventoryTable() {
           const item = row.original;
           return (
             <div>
-              <p className="font-medium text-dark dark:text-white">{item.name}</p>
+              <p className="font-medium text-dark dark:text-white">
+                {item.name}
+              </p>
               {isLowStock(item) && (
                 <span className="text-[10px] font-bold text-red-500">
                   ⚠ Stok Menipis
@@ -119,8 +133,8 @@ export function InventoryTable() {
                 row.original.category === "Service"
                   ? "warning"
                   : row.original.category === "Oil"
-                  ? "info"
-                  : "primary"
+                    ? "info"
+                    : "primary"
               }
             >
               {row.original.category}
@@ -133,7 +147,7 @@ export function InventoryTable() {
         header: () => <div className="w-full text-center">Tipe</div>,
         cell: ({ row }) => (
           <div className="flex w-full justify-center">
-            <Badge variant="secondary" outline className="text-[10px] py-0.5">
+            <Badge variant="secondary" outline className="py-0.5 text-[10px]">
               {row.original.type}
             </Badge>
           </div>
@@ -146,7 +160,9 @@ export function InventoryTable() {
           const item = row.original;
           return (
             <div>
-              <p className="font-bold text-dark dark:text-white">Rp {formatNumber(item.price)}</p>
+              <p className="font-bold text-dark dark:text-white">
+                Rp {formatNumber(item.price)}
+              </p>
               {item.costPrice > 0 && (
                 <p className="text-[10px] text-dark-5">
                   Modal: Rp {formatNumber(item.costPrice)}
@@ -162,16 +178,22 @@ export function InventoryTable() {
         cell: ({ row }) => {
           const item = row.original;
           if (item.category === "Service")
-            return <div className="flex w-full justify-center text-sm text-dark-5">—</div>;
+            return (
+              <div className="flex w-full justify-center text-sm text-dark-5">
+                —
+              </div>
+            );
           return (
             <div
               className={cn(
-                "flex w-full justify-center font-bold text-sm",
-                isLowStock(item) ? "text-red-500" : "text-dark dark:text-white"
+                "flex w-full justify-center text-sm font-bold",
+                isLowStock(item) ? "text-red-500" : "text-dark dark:text-white",
               )}
             >
               {item.stock ?? 0}{" "}
-              <span className="ml-1 text-[10px] font-medium text-dark-5">{item.unit}</span>
+              <span className="ml-1 text-[10px] font-medium text-dark-5">
+                {item.unit}
+              </span>
             </div>
           );
         },
@@ -186,7 +208,9 @@ export function InventoryTable() {
               {item.minimumStock} {item.unit}
             </div>
           ) : (
-            <div className="flex w-full justify-center text-sm text-dark-5">—</div>
+            <div className="flex w-full justify-center text-sm text-dark-5">
+              —
+            </div>
           );
         },
       },
@@ -199,14 +223,21 @@ export function InventoryTable() {
               variant="edit"
               title="Edit Item"
               icon={<Icons.Edit size={16} />}
-              onClick={() => { setEditItem(row.original); setShowAddModal(true); }}
+              onClick={() => {
+                setEditItem(row.original);
+                setShowAddModal(true);
+              }}
             />
-            <ActionButton variant="delete" title="Hapus" icon={<Icons.Delete size={16} />} />
+            <ActionButton
+              variant="delete"
+              title="Hapus"
+              icon={<Icons.Delete size={16} />}
+            />
           </div>
         ),
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -226,7 +257,7 @@ export function InventoryTable() {
     <div className="flex flex-col gap-4 md:gap-6">
       <InventorySummary />
 
-      <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5 flex flex-col">
+      <div className="flex flex-col rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5">
         {/* Toolbar custom — ada filter tipe + kategori */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -240,18 +271,23 @@ export function InventoryTable() {
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
             <div className="relative">
-              <Icons.Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-5" />
+              <Icons.Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-5"
+              />
               <Input
                 placeholder="Cari SKU atau nama item..."
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-9 max-w-[220px]"
+                className="max-w-[220px] pl-9"
               />
             </div>
             {/* Filter Tipe */}
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as typeof filterType)}
+              onChange={(e) =>
+                setFilterType(e.target.value as typeof filterType)
+              }
               className="rounded-lg border border-stroke bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
             >
               <option value="all">Semua Tipe</option>
@@ -262,7 +298,9 @@ export function InventoryTable() {
             {/* Filter Kategori */}
             <select
               value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value as typeof filterCategory)}
+              onChange={(e) =>
+                setFilterCategory(e.target.value as typeof filterCategory)
+              }
               className="rounded-lg border border-stroke bg-transparent px-3 py-2 text-sm outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
             >
               <option value="all">Semua Kategori</option>
@@ -271,7 +309,17 @@ export function InventoryTable() {
               <option value="Service">Jasa</option>
             </select>
             {/* Tambah Item */}
-            <Button onClick={() => { setEditItem(null); setShowAddModal(true); }}>
+            <ExcelButtons
+              moduleKey="inventori"
+              exportData={inventoriToExcelRows(filteredData)}
+              onImport={(rows) => console.log("Import inventori:", rows)}
+            />
+            <Button
+              onClick={() => {
+                setEditItem(null);
+                setShowAddModal(true);
+              }}
+            >
               <Icons.Plus size={16} className="mr-1" /> Tambah Item
             </Button>
           </div>
@@ -288,7 +336,10 @@ export function InventoryTable() {
                 >
                   {hg.headers.map((header) => (
                     <TableHead key={header.id}>
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -300,14 +351,18 @@ export function InventoryTable() {
                   <tr
                     key={row.id}
                     className={cn(
-                      "group border-b border-stroke dark:border-dark-3 h-[84px] hover:bg-gray-2/50",
-                      isLowStock(row.original) && "bg-red-50/20 dark:bg-red-900/10"
+                      "group h-[84px] border-b border-stroke hover:bg-gray-2/50 dark:border-dark-3",
+                      isLowStock(row.original) &&
+                        "bg-red-50/20 dark:bg-red-900/10",
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="px-4 py-0">
                         <div className="flex h-full items-center">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                         </div>
                       </td>
                     ))}
@@ -315,15 +370,24 @@ export function InventoryTable() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-[300px] text-center">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[300px] text-center"
+                  >
                     <div className="flex flex-col items-center justify-center gap-3">
                       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-1">
-                        <Icons.Search size={32} className="text-dark-5 opacity-20" />
+                        <Icons.Search
+                          size={32}
+                          className="text-dark-5 opacity-20"
+                        />
                       </div>
                       <div className="space-y-1">
-                        <p className="font-bold text-dark">Data Tidak Ditemukan</p>
+                        <p className="font-bold text-dark">
+                          Data Tidak Ditemukan
+                        </p>
                         <p className="text-xs text-dark-5">
-                          Stok atau jasa yang Anda cari tidak tersedia dalam daftar ini
+                          Stok atau jasa yang Anda cari tidak tersedia dalam
+                          daftar ini
                         </p>
                       </div>
                     </div>
@@ -336,29 +400,42 @@ export function InventoryTable() {
 
         {/* Pagination - Muncul hanya jika lebih dari 1 halaman */}
         {table.getPageCount() > 1 && (
-          <div className="flex items-center justify-between border-t border-stroke pt-5 mt-5">
+          <div className="mt-5 flex items-center justify-between border-t border-stroke pt-5">
             <p className="text-xs font-medium text-dark-5">
               Menampilkan{" "}
-              <span className="font-bold text-dark">{table.getFilteredRowModel().rows.length}</span>{" "}
-              dari <span className="font-bold text-dark">{MOCK_ITEMS.length}</span> data
+              <span className="font-bold text-dark">
+                {table.getFilteredRowModel().rows.length}
+              </span>{" "}
+              dari{" "}
+              <span className="font-bold text-dark">{MOCK_ITEMS.length}</span>{" "}
+              data
             </p>
 
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark active:scale-90 disabled:opacity-20"
               >
                 <ChevronLeft size={16} />
               </button>
 
-              <div className="flex items-center gap-1 mx-2">
+              <div className="mx-2 flex items-center gap-1">
                 {Array.from({ length: table.getPageCount() }, (_, i) => i + 1)
-                  .filter((p) => p === 1 || p === table.getPageCount() || Math.abs(p - (table.getState().pagination.pageIndex + 1)) <= 1)
+                  .filter(
+                    (p) =>
+                      p === 1 ||
+                      p === table.getPageCount() ||
+                      Math.abs(
+                        p - (table.getState().pagination.pageIndex + 1),
+                      ) <= 1,
+                  )
                   .map((page, idx, arr) => (
                     <React.Fragment key={page}>
                       {idx > 0 && arr[idx - 1] !== page - 1 && (
-                        <span className="px-2 text-xs font-bold text-dark-5/40">•••</span>
+                        <span className="px-2 text-xs font-bold text-dark-5/40">
+                          •••
+                        </span>
                       )}
                       <button
                         onClick={() => table.setPageIndex(page - 1)}
@@ -366,7 +443,7 @@ export function InventoryTable() {
                           "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all active:scale-90",
                           table.getState().pagination.pageIndex + 1 === page
                             ? "bg-dark text-white"
-                            : "text-dark-5 hover:bg-gray-1 hover:text-dark"
+                            : "text-dark-5 hover:bg-gray-1 hover:text-dark",
                         )}
                       >
                         {page}
@@ -378,7 +455,7 @@ export function InventoryTable() {
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark disabled:opacity-20 active:scale-90"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-stroke bg-white text-dark-5 transition-all hover:border-dark hover:text-dark active:scale-90 disabled:opacity-20"
               >
                 <ChevronRight size={16} />
               </button>
@@ -388,11 +465,17 @@ export function InventoryTable() {
       </div>
 
       {barcodeItem && (
-        <BarcodeLabelModal item={barcodeItem} onClose={() => setBarcodeItem(null)} />
+        <BarcodeLabelModal
+          item={barcodeItem}
+          onClose={() => setBarcodeItem(null)}
+        />
       )}
       {showAddModal && (
         <InventoryFormModal
-          onClose={() => { setShowAddModal(false); setEditItem(null); }}
+          onClose={() => {
+            setShowAddModal(false);
+            setEditItem(null);
+          }}
           onSave={(data) => {
             console.log(editItem ? "Update:" : "New:", data);
             setShowAddModal(false);

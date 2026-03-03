@@ -1,9 +1,7 @@
 # API Specification — AutoService Inventory Web Panel
 
-> **Base URL:** `https://api.autoservice.local/api/v1`
-> **Auth:** Bearer Token (JWT) di header `Authorization: Bearer <token>`
-> **Format:** JSON (`Content-Type: application/json`)
-> **Last Updated:** 2026-03-02
+> **Base URL:** `https://api.autoservice.local/api/v1` > **Auth:** Bearer Token (JWT) di header `Authorization: Bearer <token>` > **Format:** JSON (`Content-Type: application/json`)
+> **Last Updated:** 2026-03-03
 
 ---
 
@@ -36,10 +34,12 @@ Semua response menggunakan format standar:
 ## 1. Authentication
 
 ### `POST /auth/login`
+
 Login user, dapatkan token.
+
 ```json
 // Request
-{ "email": "admin@bengkel.com", "password": "secret" }
+{ "username": "admin", "password": "secret" }
 
 // Response 200
 {
@@ -47,51 +47,57 @@ Login user, dapatkan token.
   "data": {
     "token": "eyJ...",
     "expires_in": 86400,
-    "user": { "id": 1, "name": "Admin", "role": "admin" }
+    "user": { "id": 1, "name": "Larasati", "role": "admin" }
   }
 }
 ```
 
 ### `POST /auth/logout`
+
 Invalidate token (gunakan token di header).
 
 ### `GET /auth/me`
+
 Ambil data user yang sedang login.
 
 ---
 
-## 2. Users (Admin Only)
+## 2. Users (Owner & Admin Only)
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/users` | List semua user |
-| POST | `/users` | Buat user baru |
-| GET | `/users/{id}` | Detail user |
-| PUT | `/users/{id}` | Update user |
+| Method | Endpoint      | Deskripsi                      |
+| ------ | ------------- | ------------------------------ |
+| GET    | `/users`      | List semua user                |
+| POST   | `/users`      | Buat user baru                 |
+| GET    | `/users/{id}` | Detail user                    |
+| PUT    | `/users/{id}` | Update user                    |
 | DELETE | `/users/{id}` | Nonaktifkan user (soft delete) |
 
 ```json
 // POST /users — Request Body
 {
-  "name": "Budi Mekanik",
-  "email": "budi@bengkel.com",
+  "name": "Budi Kasir",
+  "username": "budi.kasir",
   "password": "password123",
-  "role": "mekanik"
+  "role": "kasir"
 }
+// Catatan: role 'owner' tidak dapat dibuat via API. Hanya 'admin' dan 'kasir'.
+
+
+// Admin hanya dapat membuat akun 'kasir'. Owner dapat membuat 'admin' dan 'kasir'.
 ```
 
 ---
 
 ## 3. Customers
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/customers` | List customer (paginated) |
-| POST | `/customers` | Tambah customer baru |
-| GET | `/customers/{id}` | Detail + daftar kendaraan |
-| PUT | `/customers/{id}` | Update data customer |
-| DELETE | `/customers/{id}` | Soft delete customer |
-| GET | `/customers/{id}/history` | Riwayat servis customer |
+| Method | Endpoint                  | Deskripsi                 |
+| ------ | ------------------------- | ------------------------- |
+| GET    | `/customers`              | List customer (paginated) |
+| POST   | `/customers`              | Tambah customer baru      |
+| GET    | `/customers/{id}`         | Detail + daftar kendaraan |
+| PUT    | `/customers/{id}`         | Update data customer      |
+| DELETE | `/customers/{id}`         | Soft delete customer      |
+| GET    | `/customers/{id}/history` | Riwayat servis customer   |
 
 ```json
 // POST /customers — Request Body
@@ -121,11 +127,11 @@ Ambil data user yang sedang login.
 
 ## 4. Vehicles
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/customers/{id}/vehicles` | List kendaraan milik customer |
-| POST | `/customers/{id}/vehicles` | Tambah kendaraan |
-| PUT | `/vehicles/{id}` | Update data kendaraan |
+| Method | Endpoint                   | Deskripsi                     |
+| ------ | -------------------------- | ----------------------------- |
+| GET    | `/customers/{id}/vehicles` | List kendaraan milik customer |
+| POST   | `/customers/{id}/vehicles` | Tambah kendaraan              |
+| PUT    | `/vehicles/{id}`           | Update data kendaraan         |
 
 ```json
 // POST /customers/{id}/vehicles — Request Body
@@ -142,26 +148,26 @@ Ambil data user yang sedang login.
 
 ## 5. Categories
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/categories` | List semua kategori |
-| POST | `/categories` | Buat kategori baru |
-| PUT | `/categories/{id}` | Update kategori |
-| DELETE | `/categories/{id}` | Hapus kategori |
+| Method | Endpoint           | Deskripsi           |
+| ------ | ------------------ | ------------------- |
+| GET    | `/categories`      | List semua kategori |
+| POST   | `/categories`      | Buat kategori baru  |
+| PUT    | `/categories/{id}` | Update kategori     |
+| DELETE | `/categories/{id}` | Hapus kategori      |
 
 ---
 
 ## 6. Spare Parts (Inventory)
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/spare-parts` | List semua item (filter: category, low_stock) |
-| POST | `/spare-parts` | Tambah item baru (SKU auto-gen) |
-| GET | `/spare-parts/{id}` | Detail item + riwayat stok |
-| PUT | `/spare-parts/{id}` | Update item |
-| DELETE | `/spare-parts/{id}` | Soft delete item |
-| GET | `/spare-parts/{id}/barcode` | Ambil barcode image (PNG/SVG) |
-| POST | `/spare-parts/{id}/barcode/print` | Generate PDF barcode untuk cetak |
+| Method | Endpoint                          | Deskripsi                                     |
+| ------ | --------------------------------- | --------------------------------------------- |
+| GET    | `/spare-parts`                    | List semua item (filter: category, low_stock) |
+| POST   | `/spare-parts`                    | Tambah item baru (SKU auto-gen)               |
+| GET    | `/spare-parts/{id}`               | Detail item + riwayat stok                    |
+| PUT    | `/spare-parts/{id}`               | Update item                                   |
+| DELETE | `/spare-parts/{id}`               | Soft delete item                              |
+| GET    | `/spare-parts/{id}/barcode`       | Ambil barcode image (PNG/SVG)                 |
+| POST   | `/spare-parts/{id}/barcode/print` | Generate PDF barcode untuk cetak              |
 
 ```json
 // POST /spare-parts — Request Body
@@ -195,11 +201,11 @@ Ambil data user yang sedang login.
 
 ## 7. Stock Movements
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/stock-movements` | Log semua pergerakan stok |
-| POST | `/stock/in` | Catat stok masuk (restock) |
-| POST | `/stock/out` | Catat stok keluar manual |
+| Method | Endpoint           | Deskripsi                  |
+| ------ | ------------------ | -------------------------- |
+| GET    | `/stock-movements` | Log semua pergerakan stok  |
+| POST   | `/stock/in`        | Catat stok masuk (restock) |
+| POST   | `/stock/out`       | Catat stok keluar manual   |
 
 ```json
 // POST /stock/in — Request Body
@@ -223,14 +229,14 @@ Ambil data user yang sedang login.
 
 ## 8. Stock Opname
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/opnames` | List semua sesi opname |
-| POST | `/opnames` | Mulai sesi opname baru |
-| GET | `/opnames/{id}` | Detail sesi + semua item |
-| POST | `/opnames/{id}/items` | Input hitungan fisik per item |
-| PUT | `/opnames/{id}/items/{item_id}` | Update hitungan fisik |
-| POST | `/opnames/{id}/close` | Tutup sesi & apply adjustment stok |
+| Method | Endpoint                        | Deskripsi                          |
+| ------ | ------------------------------- | ---------------------------------- |
+| GET    | `/opnames`                      | List semua sesi opname             |
+| POST   | `/opnames`                      | Mulai sesi opname baru             |
+| GET    | `/opnames/{id}`                 | Detail sesi + semua item           |
+| POST   | `/opnames/{id}/items`           | Input hitungan fisik per item      |
+| PUT    | `/opnames/{id}/items/{item_id}` | Update hitungan fisik              |
+| POST   | `/opnames/{id}/close`           | Tutup sesi & apply adjustment stok |
 
 ```json
 // POST /opnames — Request Body
@@ -250,13 +256,13 @@ Ambil data user yang sedang login.
 
 ## 9. Transactions
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/transactions` | List transaksi (filter: date, status) |
-| POST | `/transactions` | Buat nota/invoice baru |
-| GET | `/transactions/{id}` | Detail transaksi + semua item |
-| PATCH | `/transactions/{id}/payment` | Update status & jumlah bayar |
-| GET | `/transactions/{id}/pdf` | Generate PDF nota |
+| Method | Endpoint                     | Deskripsi                             |
+| ------ | ---------------------------- | ------------------------------------- |
+| GET    | `/transactions`              | List transaksi (filter: date, status) |
+| POST   | `/transactions`              | Buat nota/invoice baru                |
+| GET    | `/transactions/{id}`         | Detail transaksi + semua item         |
+| PATCH  | `/transactions/{id}/payment` | Update status & jumlah bayar          |
+| GET    | `/transactions/{id}/pdf`     | Generate PDF nota                     |
 
 ```json
 // POST /transactions — Request Body
@@ -295,12 +301,12 @@ Ambil data user yang sedang login.
 
 ## 10. Reports
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/reports/revenue` | Laporan omset (query: period=daily/monthly&date=2026-03) |
-| GET | `/reports/top-products` | Top sparepart terlaris |
-| GET | `/reports/low-stock` | Daftar barang stok menipis |
-| GET | `/reports/opname/{id}` | Rekap hasil opname tertentu |
+| Method | Endpoint                | Deskripsi                                                |
+| ------ | ----------------------- | -------------------------------------------------------- |
+| GET    | `/reports/revenue`      | Laporan omset (query: period=daily/monthly&date=2026-03) |
+| GET    | `/reports/top-products` | Top sparepart terlaris                                   |
+| GET    | `/reports/low-stock`    | Daftar barang stok menipis                               |
+| GET    | `/reports/opname/{id}`  | Rekap hasil opname tertentu                              |
 
 ```json
 // GET /reports/revenue?period=monthly&date=2026-03
@@ -320,19 +326,19 @@ Ambil data user yang sedang login.
 
 ## 11. WA Notifications
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/notifications/wa` | Log semua notifikasi WA |
-| POST | `/notifications/wa/test` | Kirim notif WA test ke nomor owner |
+| Method | Endpoint                 | Deskripsi                          |
+| ------ | ------------------------ | ---------------------------------- |
+| GET    | `/notifications/wa`      | Log semua notifikasi WA            |
+| POST   | `/notifications/wa/test` | Kirim notif WA test ke nomor owner |
 
 ---
 
 ## 12. Settings
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| GET | `/settings` | Ambil profil bengkel & konfigurasi |
-| PUT | `/settings` | Update profil + WA config |
+| Method | Endpoint    | Deskripsi                          |
+| ------ | ----------- | ---------------------------------- |
+| GET    | `/settings` | Ambil profil bengkel & konfigurasi |
+| PUT    | `/settings` | Update profil + WA config          |
 
 ```json
 // PUT /settings — Request Body
@@ -347,14 +353,73 @@ Ambil data user yang sedang login.
 
 ---
 
+## 13. Work Orders (Antrean Servis)
+
+| Method | Endpoint                     | Deskripsi                                       |
+| ------ | ---------------------------- | ----------------------------------------------- |
+| GET    | `/work-orders`               | List semua work order (filter: status, date)    |
+| POST   | `/work-orders`               | Buat work order baru saat kendaraan masuk       |
+| GET    | `/work-orders/{id}`          | Detail work order                               |
+| PUT    | `/work-orders/{id}`          | Update data work order (keluhan, estimasi, dll) |
+| PATCH  | `/work-orders/{id}/status`   | Update status pengerjaan                        |
+| PATCH  | `/work-orders/{id}/mechanic` | Tugaskan mekanik                                |
+| DELETE | `/work-orders/{id}`          | Hapus work order                                |
+
+```json
+// POST /work-orders — Request Body
+{
+  "customer_id": 1,
+  "vehicle_id": 1,
+  "layanan": "Service Rutin 10.000km",
+  "keluhan": "Rem berdecit, AC kurang dingin",
+  "estimasi_biaya": 850000,
+  "estimasi_selesai": "3 jam",
+  "menginap": true
+}
+
+// PATCH /work-orders/{id}/status — Request Body
+{ "status": "dikerjakan" }
+// status: "menunggu" | "dikerjakan" | "menunggu_sparepart" | "selesai"
+
+// PATCH /work-orders/{id}/mechanic — Request Body
+{ "mekanik": "Suryo Atmojo" }
+```
+
+---
+
+## 14. Service Catalog (Katalog Jasa)
+
+| Method | Endpoint                       | Deskripsi                                          |
+| ------ | ------------------------------ | -------------------------------------------------- |
+| GET    | `/service-catalog`             | List semua jasa (filter: berlaku_untuk, is_active) |
+| POST   | `/service-catalog`             | Tambah jasa baru                                   |
+| PUT    | `/service-catalog/{id}`        | Update jasa                                        |
+| PATCH  | `/service-catalog/{id}/toggle` | Aktifkan / nonaktifkan jasa                        |
+| DELETE | `/service-catalog/{id}`        | Hapus jasa                                         |
+
+```json
+// POST /service-catalog — Request Body
+{
+  "name": "Ganti Oli & Filter",
+  "description": "Penggantian oli mesin dan filter oli",
+  "kategori": "Mesin",
+  "standard_price": 50000,
+  "durasi_estimasi": "30-45 menit",
+  "berlaku_untuk": "keduanya",
+  "garansi": "1 bulan / 1.000 km"
+}
+```
+
+---
+
 ## Error Codes
 
-| Code | HTTP Status | Keterangan |
-|------|-------------|------------|
-| `UNAUTHORIZED` | 401 | Token tidak valid atau expired |
-| `FORBIDDEN` | 403 | User tidak punya akses ke resource ini |
-| `NOT_FOUND` | 404 | Resource tidak ditemukan |
-| `VALIDATION_ERROR` | 422 | Data input tidak valid |
-| `STOCK_INSUFFICIENT` | 422 | Stok tidak cukup untuk dikurangi |
-| `OPNAME_ALREADY_OPEN` | 409 | Ada sesi opname yang masih terbuka |
-| `SERVER_ERROR` | 500 | Kesalahan internal server |
+| Code                  | HTTP Status | Keterangan                             |
+| --------------------- | ----------- | -------------------------------------- |
+| `UNAUTHORIZED`        | 401         | Token tidak valid atau expired         |
+| `FORBIDDEN`           | 403         | User tidak punya akses ke resource ini |
+| `NOT_FOUND`           | 404         | Resource tidak ditemukan               |
+| `VALIDATION_ERROR`    | 422         | Data input tidak valid                 |
+| `STOCK_INSUFFICIENT`  | 422         | Stok tidak cukup untuk dikurangi       |
+| `OPNAME_ALREADY_OPEN` | 409         | Ada sesi opname yang masih terbuka     |
+| `SERVER_ERROR`        | 500         | Kesalahan internal server              |

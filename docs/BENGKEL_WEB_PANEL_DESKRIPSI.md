@@ -17,49 +17,65 @@ Desain panel menggunakan pendekatan **"Minimalist Monochrome"** — putih sebaga
 ## Modul-Modul Sistem
 
 ### 1. Dashboard
+
 Snapshot aktivitas dan kondisi terkini bengkel secara real-time.
+
 - **Ringkasan Stok**: Total item, barang hampir habis, barang out-of-stock
 - **Statistik Transaksi**: Omset hari ini, bulan ini (pengganti catatan manual di komputer)
 - **Top 5 Barang Terlaris**: Rekomendasi otomatis berdasarkan data penjualan
 - **Alert Panel**: Notifikasi barang stok menipis (threshold kustom per item)
 
 ### 2. Manajemen Inventori & Stok (Core Feature)
+
 Pengelolaan katalog dan stok sparepart — **fitur utama aplikasi**.
+
 - **Katalog Sparepart**: Daftar item (nama, SKU, kategori mobil/motor/umum, harga modal, harga jual, stok saat ini, stok minimum)
 - **Generate Barcode**: Sistem men-generate kode SKU/Barcode unik per item. Bisa dicetak (PDF/thermal) dan ditempel manual ke fisik barang/rak
 - **Stok Masuk (Restock)**: Pencatatan barang masuk dari supplier
 - **Stok Keluar**: Pencatatan pemakaian sparepart (dari servis atau jual ecer)
 - **Stok Opname**: Fitur rekonsiliasi stok fisik vs sistem — input jumlah fisik aktual, sistem otomatis hitung selisih
 
-### 3. Notifikasi Stok (WhatsApp Alert)
-Sistem notifikasi otomatis saat stok mendekati batas minimum.
-- **Threshold per Item**: Setiap sparepart punya nilai minimum stok yang dapat dikonfigurasi
-- **Kirim via WA**: Notifikasi dikirim ke nomor WA owner/admin menggunakan WA API/Gateway
-- **Riwayat Notif**: Log notifikasi yang sudah terkirim
+### 3. Notifikasi WhatsApp (Stok & Progress Servis)
 
-### 4. Manajemen Pelanggan & Riwayat Servis
-- **Data Customer**: Nama, telepon, kendaraan yang dimiliki
-- **Riwayat Kunjungan**: Histori servis tiap customer (tanggal, keluhan, sparepart yang dipakai, total bayar)
-- **Lookup Cepat**: Cari customer berdasarkan nama/nomor telp/plat kendaraan
+Sistem notifikasi otomatis via WhatsApp Gateway.
+
+- **Alert Stok**: Notifikasi dikirim ke nomor WA owner/admin saat stok mendekati batas minimum.
+- **Progress Servis Pelanggan**: Notifikasi otomatis ke nomor HP pelanggan saat status kendaraan berubah (misal: "Sedang Dikerjakan" atau "Selesai & Bisa Diambil").
+- **Riwayat Notif**: Log notifikasi yang sudah terkirim (stok dan pelanggan).
+
+### 4. Manajemen Pelanggan, Kendaraan & Work Order (Penerimaan)
+
+Modul untuk mendata pelanggan dan membuat dokumen penerimaan sebelum diservis.
+
+- **Data Customer**: Nama, nomor WA, dan daftar kendaraan yang dimiliki.
+- **Penerimaan / Work Order**: Pencatatan awal saat mobil datang. Berisi keluhan pelanggan, catatan mekanik, dan penentuan apakah kendaraan **Menginap** atau tidak.
+- **Estimasi Biaya (Quotation)**: Perkiraan awal biaya jasa dan sparepart yang disampaikan ke pelanggan sebelum pengerjaan.
+- **Riwayat Kunjungan**: Histori servis tiap customer (tanggal, keluhan, sparepart, total bayar).
 
 ### 5. Transaksi & Invoice Sederhana
-Pencatatan transaksi sebagai pengganati nota manual, bukan full POS.
-- **Buat Nota Servis**: Catat item jasa + sparepart yang dipakai (scan/input barcode)
-- **Total Tagihan**: Kalkulasi otomatis
-- **Status Bayar**: Lunas / Belum Lunas / DP
-- **Cetak Nota**: Export PDF A4 atau layout thermal
+
+Pencatatan transaksi sebagai pengganti nota manual, terintegrasi dengan data Work Order.
+
+- **Buat Nota Servis**: Konversi dari Work Order / Estimasi menjadi nota aktual (scan/input barcode jika ada tambahan).
+- **Total Tagihan**: Kalkulasi otomatis (termasuk diskon/pajak jika ada).
+- **Status Bayar**: Lunas / Belum Lunas / DP.
+- **Cetak Nota**: Export PDF A4 atau layout thermal.
 
 ### 6. Laporan & Analitik
+
 Menggantikan pencatatan omset manual di komputer.
-- **Laporan Omset Harian/Bulanan**: Total pemasukan, margin kotor
-- **Laporan Penjualan Sparepart**: Barang terlaris, barang slow-moving
-- **Laporan Stok Opname**: Rekap selisih stok dari sesi opname
-- **Export**: CSV / PDF
+
+- **Laporan Omset Harian/Bulanan**: Total pemasukan, margin kotor.
+- **Laporan Penjualan Sparepart**: Barang terlaris, barang slow-moving.
+- **Laporan Stok Opname**: Rekap selisih stok dari sesi opname.
+- **Export**: CSV / PDF.
 
 ### 7. Pengaturan (Settings)
-- **Profil Bengkel**: Nama, alamat, logo, kontak WA
-- **Manajemen User & Role**: Admin, Kasir, Mekanik (hak akses berbeda)
-- **Konfigurasi WA Gateway**: Setup nomor & token API gateway
+
+- **Profil Bengkel**: Nama, alamat, logo, kontak WA.
+- **Manajemen User & Role**: Owner, Admin, Kasir (3 Role Sistem). Tambah / edit akun oleh Owner atau Admin. Akun Owner tidak bisa dibuat atau dihapus via panel.
+- **Permission Editor** _(Owner only)_: Owner dapat mengatur halaman mana yang boleh diakses oleh Admin dan Kasir. Perubahan disimpan di local storage dan diterapkan ke sidebar + route guard secara langsung.
+- **Konfigurasi WA Gateway**: Setup nomor & token API gateway (untuk notif stok & pelanggan).
 
 ---
 

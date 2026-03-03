@@ -38,12 +38,19 @@ interface KanbanCardProps {
   onPrint: () => void;
 }
 
-function KanbanCard({ item, onStatusChange, onMechanicAssign, onEdit, onDelete, onPrint }: KanbanCardProps) {
+function KanbanCard({
+  item,
+  onStatusChange,
+  onMechanicAssign,
+  onEdit,
+  onDelete,
+  onPrint,
+}: KanbanCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showMechanicMenu, setShowMechanicMenu] = useState(false);
 
   return (
-    <div className="relative rounded-xl border border-stroke bg-white p-4 shadow-sm dark:border-dark-3 dark:bg-gray-dark hover:shadow-md transition-shadow">
+    <div className="relative rounded-xl border border-stroke bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-dark-3 dark:bg-gray-dark">
       {/* Header card */}
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -55,14 +62,21 @@ function KanbanCard({ item, onStatusChange, onMechanicAssign, onEdit, onDelete, 
             )}
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-dark dark:text-white">{item.noPolisi}</span>
-            <span className="text-[10px] font-medium text-dark-5">{item.kendaraan}</span>
+            <span className="text-sm font-bold text-dark dark:text-white">
+              {item.noPolisi}
+            </span>
+            <span className="text-[10px] font-medium text-dark-5">
+              {item.kendaraan}
+            </span>
           </div>
         </div>
 
         <button
           className="rounded-lg p-1 text-dark-5 hover:bg-gray-2"
-          onClick={() => { setShowMenu(!showMenu); setShowMechanicMenu(false); }}
+          onClick={() => {
+            setShowMenu(!showMenu);
+            setShowMechanicMenu(false);
+          }}
         >
           <Icons.Settings size={14} />
         </button>
@@ -72,35 +86,51 @@ function KanbanCard({ item, onStatusChange, onMechanicAssign, onEdit, onDelete, 
             <div className="mb-1 border-b border-stroke pb-1 dark:border-dark-3">
               <button
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
-                onClick={() => { onEdit(); setShowMenu(false); }}
+                onClick={() => {
+                  onEdit();
+                  setShowMenu(false);
+                }}
               >
                 <Icons.Edit size={12} className="text-dark-5" />
                 Ubah Detail
               </button>
               <button
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
-                onClick={() => { onPrint(); setShowMenu(false); }}
+                onClick={() => {
+                  onPrint();
+                  setShowMenu(false);
+                }}
               >
                 <Icons.Print size={12} className="text-dark-5" />
                 Cetak SPK
               </button>
               <button
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-red transition-colors hover:bg-red/10"
-                onClick={() => { onDelete(); setShowMenu(false); }}
+                onClick={() => {
+                  onDelete();
+                  setShowMenu(false);
+                }}
               >
                 <Icons.Delete size={12} />
                 Hapus Antrean
               </button>
             </div>
-            
-            <p className="px-3 py-1 text-[11px] font-bold text-dark-5 mt-1">Pindah Status</p>
+
+            <p className="mt-1 px-3 py-1 text-[11px] font-bold text-dark-5">
+              Pindah Status
+            </p>
             {STATUS_COLUMNS.filter((s) => s !== item.status).map((s) => (
               <button
                 key={s}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold text-dark transition-colors hover:bg-gray-2 dark:text-white"
-                onClick={() => { onStatusChange(item.id, s); setShowMenu(false); }}
+                onClick={() => {
+                  onStatusChange(item.id, s);
+                  setShowMenu(false);
+                }}
               >
-                <span className={cn("h-2 w-2 rounded-full", STATUS_COLORS[s])} />
+                <span
+                  className={cn("h-2 w-2 rounded-full", STATUS_COLORS[s])}
+                />
                 {s}
               </button>
             ))}
@@ -122,17 +152,25 @@ function KanbanCard({ item, onStatusChange, onMechanicAssign, onEdit, onDelete, 
           <Icons.Pending size={12} />
           <span>{dayjs(item.waktuMasuk).format("HH:mm")}</span>
         </div>
+        {item.menginap && (
+          <span className="bg-danger/20 inline-flex items-center gap-1 rounded px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-dark">
+            Menginap
+          </span>
+        )}
       </div>
 
       {/* Mechanic Assign */}
       <div className="relative mt-3">
         <button
-          onClick={() => { setShowMechanicMenu(!showMechanicMenu); setShowMenu(false); }}
+          onClick={() => {
+            setShowMechanicMenu(!showMechanicMenu);
+            setShowMenu(false);
+          }}
           className={cn(
             "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-all",
             item.mekanik
               ? "bg-secondary text-white shadow-lg shadow-secondary/10"
-              : "border border-dashed border-stroke text-dark-5 hover:border-dark hover:text-dark dark:border-dark-3"
+              : "border border-dashed border-stroke text-dark-5 hover:border-dark hover:text-dark dark:border-dark-3",
           )}
         >
           <Icons.Karyawan size={12} />
@@ -140,15 +178,20 @@ function KanbanCard({ item, onStatusChange, onMechanicAssign, onEdit, onDelete, 
         </button>
 
         {showMechanicMenu && (
-          <div className="absolute left-0 bottom-full z-20 mb-1.5 w-full rounded-xl border border-stroke bg-white p-1.5 shadow-2xl dark:border-dark-3 dark:bg-dark-2">
+          <div className="absolute bottom-full left-0 z-20 mb-1.5 w-full rounded-xl border border-stroke bg-white p-1.5 shadow-2xl dark:border-dark-3 dark:bg-dark-2">
             {MECHANICS.map((m) => (
               <button
                 key={m}
                 className={cn(
                   "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-gray-2 dark:text-white",
-                  item.mekanik === m ? "font-bold text-secondary" : "font-medium"
+                  item.mekanik === m
+                    ? "font-bold text-secondary"
+                    : "font-medium",
                 )}
-                onClick={() => { onMechanicAssign(item.id, m); setShowMechanicMenu(false); }}
+                onClick={() => {
+                  onMechanicAssign(item.id, m);
+                  setShowMechanicMenu(false);
+                }}
               >
                 {m}
               </button>
@@ -166,7 +209,11 @@ interface KanbanBoardProps {
   onMechanicAssign: (id: string, mekanik: string) => void;
 }
 
-export function KanbanBoard({ items, onStatusChange, onMechanicAssign }: KanbanBoardProps) {
+export function KanbanBoard({
+  items,
+  onStatusChange,
+  onMechanicAssign,
+}: KanbanBoardProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -189,15 +236,22 @@ export function KanbanBoard({ items, onStatusChange, onMechanicAssign }: KanbanB
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 px-2">
+      <div className="grid grid-cols-1 gap-4 px-2 sm:grid-cols-2 lg:grid-cols-4">
         {STATUS_COLUMNS.map((status) => {
           const colItems = items.filter((i) => i.status === status);
           return (
             <div key={status} className="flex flex-col gap-4">
               <div className="flex items-center justify-between border-b-2 border-stroke pb-3 dark:border-dark-3">
                 <div className="flex items-center gap-2">
-                  <span className={cn("h-2.5 w-2.5 rounded-full", STATUS_COLORS[status])} />
-                  <h3 className="text-sm font-bold text-dark dark:text-white">{status}</h3>
+                  <span
+                    className={cn(
+                      "h-2.5 w-2.5 rounded-full",
+                      STATUS_COLORS[status],
+                    )}
+                  />
+                  <h3 className="text-sm font-bold text-dark dark:text-white">
+                    {status}
+                  </h3>
                 </div>
                 <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-gray-2 text-[10px] font-bold text-dark dark:bg-dark-2 dark:text-white">
                   {colItems.length}
@@ -218,7 +272,9 @@ export function KanbanBoard({ items, onStatusChange, onMechanicAssign }: KanbanB
                 ))}
                 {colItems.length === 0 && (
                   <div className="flex h-32 items-center justify-center rounded-xl border-2 border-dashed border-stroke dark:border-dark-3">
-                    <p className="text-[10px] font-bold text-dark-5/40 italic">Kosong</p>
+                    <p className="text-[10px] font-bold italic text-dark-5/40">
+                      Kosong
+                    </p>
                   </div>
                 )}
               </div>
