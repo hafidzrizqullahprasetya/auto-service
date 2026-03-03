@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   },
   description:
     "Sistem manajemen bengkel mobil dan motor profesional.",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
