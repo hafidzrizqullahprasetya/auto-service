@@ -308,20 +308,23 @@ export function InventoryTable() {
               <option value="Oil">Oli</option>
               <option value="Service">Jasa</option>
             </select>
-            {/* Tambah Item */}
-            <ExcelButtons
-              moduleKey="inventori"
-              exportData={inventoriToExcelRows(filteredData)}
-              onImport={(rows) => console.log("Import inventori:", rows)}
-            />
-            <Button
-              onClick={() => {
-                setEditItem(null);
-                setShowAddModal(true);
-              }}
-            >
-              <Icons.Plus size={16} className="mr-1" /> Tambah Item
-            </Button>
+            {/* Excel + Tambah Item (stacked kanan) */}
+            <div className="flex flex-col items-end gap-1.5">
+              <ExcelButtons
+                moduleKey="inventori"
+                exportData={inventoriToExcelRows(filteredData)}
+                onImport={(rows) => console.log("Import inventori:", rows)}
+              />
+              <Button
+                className="w-full"
+                onClick={() => {
+                  setEditItem(null);
+                  setShowAddModal(true);
+                }}
+              >
+                <Icons.Plus size={16} className="mr-1" /> Tambah Item
+              </Button>
+            </div>
           </div>
         </div>
 
