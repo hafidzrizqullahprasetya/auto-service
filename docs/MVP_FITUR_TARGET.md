@@ -33,7 +33,7 @@ MVP (Minimum Viable Product) adalah versi paling sederhana dari sistem yang **su
 | F-07  | Catat Stok Masuk (restock dari supplier)                   | Inventory    | BE + FE | `Done`      | `Backlog` |
 | F-08  | Catat Stok Keluar manual                                   | Inventory    | BE + FE | `Done`      | `Backlog` |
 | F-09  | Stok Opname — input fisik vs sistem, hitung selisih        | Inventory    | BE + FE | `Done`      | `Backlog` |
-| F-10  | Notifikasi WA otomatis saat stok < minimum                 | Notifikasi   | BE      | `Done (UI)` | `Backlog` |
+| F-10  | Notifikasi WA otomatis saat stok < minimum                 | Notifikasi   | BE      | `Done (UI)` | `Done`    |
 | F-11  | Konfigurasi threshold stok minimum per item                | Inventory    | BE + FE | `Done`      | `Backlog` |
 | F-12  | CRUD Data Customer (nama, telp, kendaraan)                 | Customer     | BE + FE | `Done`      | `Backlog` |
 | F-13  | Riwayat Servis per Customer                                | Customer     | BE + FE | `Done`      | `Backlog` |
@@ -44,8 +44,8 @@ MVP (Minimum Viable Product) adalah versi paling sederhana dari sistem yang **su
 | F-18  | Laporan Omset Harian & Bulanan                             | Laporan      | BE + FE | `Done`      | `Backlog` |
 | F-19  | Laporan Sparepart Terlaris (Top 10)                        | Laporan      | BE + FE | `Done`      | `Backlog` |
 | F-20  | Pengaturan profil bengkel & konfigurasi WA Gateway         | Settings     | BE + FE | `Done`      | `Backlog` |
-| F-21  | CRUD Work Order / Antrean (penerimaan kendaraan masuk)     | Antrean      | BE + FE | `Done`      | `Backlog` |
-| F-22  | Update status pengerjaan & penugasan mekanik               | Antrean      | BE + FE | `Done`      | `Backlog` |
+| F-21  | CRUD Work Order / Antrean (penerimaan kendaraan masuk)     | Antrean      | BE + FE | `Done`      | `Done`    |
+| F-22  | Update status pengerjaan & penugasan mekanik + notif WA    | Antrean      | BE + FE | `Done`      | `Done`    |
 | F-23  | CRUD Katalog Jasa (nama, harga standar, kategori)          | Katalog Jasa | BE + FE | `Done`      | `Backlog` |
 
 ### 🟡 Priority 2 — Should Have
@@ -91,7 +91,7 @@ MVP (Minimum Viable Product) adalah versi paling sederhana dari sistem yang **su
 | Should Have (P2)  | 5 fitur  | **FE: 4/5 Done** · 1 In Progress            |
 | Nice to Have (P3) | 7 fitur  | Post-MVP                                    |
 
-> ⚠️ **Disclaimer Internal:** FE sudah selesai 100% dengan mock data. Saat BE sudah siap, tinggal ganti fetching dari mock → API call sesuai `API_SPEC.md`.
+> ⚠️ **Disclaimer Internal:** FE sudah selesai 100% dengan mock data. BE sudah implementasi WA Web.js (F-10, F-21, F-22 Done). Saat BE module lain siap, tinggal ganti fetching dari mock → API call sesuai `API_SPEC.md`.
 
 ---
 

@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { MOCK_VEHICLES, Vehicle } from "@/mock/vehicles";
+import { Vehicle } from "@/mock/vehicles";
+import { useVehicles } from "@/hooks/useVehicles";
 import { Icons } from "@/components/Icons";
 import { ActionButton, ExcelButtons } from "@/components/Bengkel/shared";
 import { ServiceHistoryModal } from "@/components/Bengkel/shared";
@@ -11,6 +12,7 @@ import { VehicleFormModal } from "@/components/Bengkel/Kendaraan";
 import { kendaraanToExcelRows } from "@/lib/excel";
 
 export function VehicleTable() {
+  const { data: vehicles, loading } = useVehicles();
   const [historyVehicle, setHistoryVehicle] = useState<Vehicle | null>(null);
   const [showRegModal, setShowRegModal] = useState(false);
   const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
@@ -114,7 +116,7 @@ export function VehicleTable() {
     <>
       <DataTable
         columns={columns}
-        data={MOCK_VEHICLES}
+        data={loading ? [] : vehicles}
         searchable={["plateNumber", "brand", "model"]}
         searchPlaceholder="Cari plat nomor atau merk..."
         title="Data Kendaraan & Service Book"
@@ -127,7 +129,7 @@ export function VehicleTable() {
         extraActions={
           <ExcelButtons
             moduleKey="kendaraan"
-            exportData={kendaraanToExcelRows(MOCK_VEHICLES) as any}
+            exportData={kendaraanToExcelRows(vehicles) as any}
             onImport={(rows) => console.log("Import kendaraan:", rows)}
           />
         }

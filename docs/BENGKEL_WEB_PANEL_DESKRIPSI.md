@@ -37,11 +37,14 @@ Pengelolaan katalog dan stok sparepart — **fitur utama aplikasi**.
 
 ### 3. Notifikasi WhatsApp (Stok & Progress Servis)
 
-Sistem notifikasi otomatis via WhatsApp Gateway.
+Sistem notifikasi otomatis via **WhatsApp Web.js** (whatsapp-web.js) — terhubung langsung ke akun WhatsApp tanpa gateway pihak ketiga. **Dijalankan hanya di lokal** (`npm run dev`), tidak perlu server eksternal.
 
-- **Alert Stok**: Notifikasi dikirim ke nomor WA owner/admin saat stok mendekati batas minimum.
-- **Progress Servis Pelanggan**: Notifikasi otomatis ke nomor HP pelanggan saat status kendaraan berubah (misal: "Sedang Dikerjakan" atau "Selesai & Bisa Diambil").
-- **Riwayat Notif**: Log notifikasi yang sudah terkirim (stok dan pelanggan).
+- **Koneksi via QR Code**: Scan QR dari panel untuk menghubungkan akun WhatsApp
+- **Session Persistent**: Sesi disimpan ke disk (`/.wwebjs_auth`) — tidak perlu scan ulang tiap restart
+- **Alert Stok**: Notifikasi dikirim ke nomor WA owner/admin saat stok mendekati batas minimum
+- **Progress Servis Pelanggan**: Notifikasi otomatis ke nomor HP pelanggan saat status Work Order berubah ke `dikerjakan` atau `selesai`
+- **Riwayat Notif**: Log notifikasi yang sudah terkirim (stok dan pelanggan) — beserta status `sent/failed/pending` dan tombol retry
+- **Nomor Target Owner**: Dikonfigurasi di Settings (`wa_target_number`) — untuk notif stok menipis
 
 ### 4. Manajemen Pelanggan, Kendaraan & Work Order (Penerimaan)
 
@@ -75,7 +78,7 @@ Menggantikan pencatatan omset manual di komputer.
 - **Profil Bengkel**: Nama, alamat, logo, kontak WA.
 - **Manajemen User & Role**: Owner, Admin, Kasir (3 Role Sistem). Tambah / edit akun oleh Owner atau Admin. Akun Owner tidak bisa dibuat atau dihapus via panel.
 - **Permission Editor** _(Owner only)_: Owner dapat mengatur halaman mana yang boleh diakses oleh Admin dan Kasir. Perubahan disimpan di local storage dan diterapkan ke sidebar + route guard secara langsung.
-- **Konfigurasi WA Gateway**: Setup nomor & token API gateway (untuk notif stok & pelanggan).
+- **Konfigurasi WA**: Setup nomor tujuan notif stok (`wa_target_number`). Koneksi WA menggunakan WhatsApp Web.js — tidak memerlukan token gateway eksternal.
 
 ---
 

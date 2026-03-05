@@ -9,8 +9,9 @@ import { ItemCard } from "@/components/Bengkel/POS/ItemCard";
 import { CartItemRow } from "@/components/Bengkel/POS/CartItem";
 import { OrderSummary } from "@/components/Bengkel/POS/OrderSummary";
 import { InvoiceModal } from "@/components/Bengkel/Kasir";
-import { MOCK_ITEMS, Item } from "@/mock/inventory";
+import { Item } from "@/mock/inventory";
 import { Transaction } from "@/mock/transactions";
+import { useInventory } from "@/hooks/useInventory";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";
@@ -24,20 +25,23 @@ interface CartState {
 
 export default function KasirPage() {
   const [activeTab, setActiveTab] = useState<Tab>("riwayat");
+  const { data: allItems } = useInventory();
 
   // POS State
   const [cart, setCart] = useState<CartState[]>([]);
   const [search, setSearch] = useState("");
   const [showReceipt, setShowReceipt] = useState(false);
-  const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
+  const [lastTransaction, setLastTransaction] = useState<Transaction | null>(
+    null,
+  );
 
   // Create Transaction State
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  const filteredItems = MOCK_ITEMS.filter(
+  const filteredItems = allItems.filter(
     (item) =>
       item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.sku.toLowerCase().includes(search.toLowerCase())
+      item.sku.toLowerCase().includes(search.toLowerCase()),
   );
 
   const addToCart = (item: Item) => {
@@ -45,7 +49,7 @@ export default function KasirPage() {
       const existing = prev.find((i) => i.item.id === item.id);
       if (existing) {
         return prev.map((i) =>
-          i.item.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.item.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
         );
       }
       return [...prev, { item, quantity: 1 }];
@@ -55,8 +59,10 @@ export default function KasirPage() {
   const updateQty = (id: string, delta: number) => {
     setCart((prev) =>
       prev.map((i) =>
-        i.item.id === id ? { ...i, quantity: Math.max(1, i.quantity + delta) } : i
-      )
+        i.item.id === id
+          ? { ...i, quantity: Math.max(1, i.quantity + delta) }
+          : i,
+      ),
     );
   };
 
@@ -66,7 +72,7 @@ export default function KasirPage() {
 
   const subtotal = cart.reduce(
     (acc, current) => acc + current.item.price * current.quantity,
-    0
+    0,
   );
   const tax = subtotal * 0.11;
   const total = subtotal + tax;
@@ -87,7 +93,9 @@ export default function KasirPage() {
       tax,
       total,
       paymentMethod: "Cash",
-      type: cart.some((c) => c.item.category === "Service") ? "Service" : "Sparepart Only",
+      type: cart.some((c) => c.item.category === "Service")
+        ? "Service"
+        : "Sparepart Only",
       paymentStatus: "Lunas",
     };
     setLastTransaction(newTx);
@@ -106,7 +114,7 @@ export default function KasirPage() {
       <Breadcrumb pageName="Kasir & Transaksi" />
 
       {/* Tab Navigation */}
-      <div className="mb-6 flex gap-1 rounded-xl border border-stroke bg-white p-1 dark:border-dark-3 dark:bg-gray-dark w-fit">
+      <div className="mb-6 flex w-fit gap-1 rounded-xl border border-stroke bg-white p-1 dark:border-dark-3 dark:bg-gray-dark">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -115,7 +123,7 @@ export default function KasirPage() {
               "flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold",
               activeTab === id
                 ? "bg-secondary text-white"
-                : "text-dark-5 hover:text-dark dark:hover:text-white"
+                : "text-dark-5 hover:text-dark dark:hover:text-white",
             )}
           >
             <Icon size={16} />
@@ -136,10 +144,15 @@ export default function KasirPage() {
       {activeTab === "buat" && (
         <div className="flex flex-col gap-6">
           <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <div>
-                <h4 className="text-xl font-bold text-dark dark:text-white">Buat Nota Servis Baru</h4>
-                <p className="text-sm text-dark-5">Catat transaksi servis lengkap dengan data customer & kendaraan</p>
+                <h4 className="text-xl font-bold text-dark dark:text-white">
+                  Buat Nota Servis Baru
+                </h4>
+                <p className="text-sm text-dark-5">
+                  Catat transaksi servis lengkap dengan data customer &
+                  kendaraan
+                </p>
               </div>
               <button
                 onClick={() => setShowCreateForm(true)}
@@ -151,9 +164,16 @@ export default function KasirPage() {
             </div>
 
             <div className="rounded-xl border-2 border-dashed border-stroke bg-gray-1 py-20 text-center dark:border-dark-3 dark:bg-dark-2">
-              <Icons.Print size={48} className="mx-auto mb-3 text-dark-5 opacity-20" />
-              <p className="font-bold text-dark-5">Klik tombol di atas untuk mulai membuat nota baru</p>
-              <p className="mt-1 text-sm text-dark-5">Stok sparepart akan otomatis berkurang saat transaksi disimpan</p>
+              <Icons.Print
+                size={48}
+                className="mx-auto mb-3 text-dark-5 opacity-20"
+              />
+              <p className="font-bold text-dark-5">
+                Klik tombol di atas untuk mulai membuat nota baru
+              </p>
+              <p className="mt-1 text-sm text-dark-5">
+                Stok sparepart akan otomatis berkurang saat transaksi disimpan
+              </p>
             </div>
           </div>
 
@@ -196,19 +216,21 @@ export default function KasirPage() {
 
               {filteredItems.length === 0 && (
                 <div className="py-20 text-center">
-                  <p className="text-dark-5 dark:text-dark-6">Item tidak ditemukan.</p>
+                  <p className="text-dark-5 dark:text-dark-6">
+                    Item tidak ditemukan.
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Kanan: Keranjang */}
-          <div className="col-span-12 xl:col-span-4 rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5 h-fit sticky top-25">
+          <div className="sticky top-25 col-span-12 h-fit rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5 xl:col-span-4">
             <h4 className="mb-6 text-xl font-bold text-dark dark:text-white">
               Detail Pesanan
             </h4>
 
-            <div className="mb-10 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="custom-scrollbar mb-10 max-h-[400px] overflow-y-auto pr-2">
               {cart.length > 0 ? (
                 cart.map((cartItem) => (
                   <CartItemRow
@@ -220,7 +242,9 @@ export default function KasirPage() {
                 ))
               ) : (
                 <div className="py-10 text-center">
-                  <p className="text-sm text-dark-5 italic">Belum ada item dipilih.</p>
+                  <p className="text-sm italic text-dark-5">
+                    Belum ada item dipilih.
+                  </p>
                 </div>
               )}
             </div>

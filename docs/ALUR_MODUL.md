@@ -428,8 +428,36 @@ Pilih Tab:
 
 ### Aktor
 
-- **Trigger otomatis** (sistem/BE)
-- **Konfigurasi** oleh Owner/Admin di Pengaturan
+- **Trigger otomatis** (sistem/BE — dipicu stock movement & update status Work Order)
+- **Konfigurasi & manajemen** oleh Owner/Admin di panel
+
+> **Implementasi:** WhatsApp Web.js (`whatsapp-web.js`) — terhubung langsung ke WA tanpa gateway pihak ketiga. **Hanya dijalankan di local** (`npm run dev`), tidak di-deploy ke server/cloud. Session disimpan di `.wwebjs_auth/`.
+
+### Alur Koneksi WhatsApp (QR Scan)
+
+```
+Server start → initWaClient() dipanggil otomatis
+    │
+    ▼
+[GET] /notifications/wa/status → status: "initializing"
+    │
+    ▼
+ Tunggu QR tersedia (~3-5 detik)
+    │
+    ▼
+[GET] /notifications/wa/qr → { qr: "data:image/png;base64,..." }
+    │
+    ▼
+FE tampilkan gambar QR → Admin/Owner scan dengan HP WhatsApp
+    │
+    ▼
+[GET] /notifications/wa/status → status: "authenticated" → "ready"
+    │
+    ▼
+Kirim notif test via [POST] /notifications/wa/test
+```
+
+> Jika client disconnect atau token expired → restart via [POST] /notifications/wa/restart, lalu scan QR baru.
 
 ### Alur Notif Stok Menipis
 
@@ -439,14 +467,23 @@ Pilih Tab:
     ▼
 BE: cek current_stock vs minimum_stock item
     │
-    ├─ current_stock < minimum_stock?
+    ├─ current_stock <= minimum_stock?
     │       │
     │       ▼
-    │   Kirim WA ke nomor Owner/Admin via Gateway (Fonnte/WaBlas)
-    │   Pesan: "⚠️ Stok [nama item] tinggal [N] [unit], di bawah minimum [M] [unit]"
+    │   triggerWaNotificationIfNeeded(sparePartId, stock)
     │       │
     │       ▼
-    │   Catat log di tabel wa_notifications (status: sent / failed)
+    │   Buat log wa_notifications (status: pending)
+    │       │
+    │       ▼
+    │   sendWaMessage(wa_target_number, pesan) → WA Web.js
+    │   Pesan: "⚠️ Stok [nama item] tinggal [N] [unit]..."
+    │       │
+    │   ┌───┴───┐
+    │  OK      Error
+    │   │       │
+    │  status   status
+    │  "sent"   "failed" → retry via POST /notifications/wa/retry/:id
     │
     └─ stok masih aman → tidak ada aksi
 ```
@@ -454,18 +491,21 @@ BE: cek current_stock vs minimum_stock item
 ### Alur Notif Progress Servis ke Pelanggan
 
 ```
-Admin/Mekanik update status Work Order
+Admin/Mekanik update status Work Order via PATCH /work-orders/:id/status
     │
     ▼
-Status berubah ke "Proses" atau "Selesai"
+Status berubah ke "dikerjakan" atau "selesai"
     │
     ▼
 BE: ambil no. WA dari data customer work order
     │
     ▼
+sendServiceProgressNotification(phone, platNomor, status, woId)
+    │
+    ▼
 Kirim WA ke pelanggan:
-  - "Proses": "Kendaraan Anda [no.pol] sedang dikerjakan."
-  - "Selesai": "Kendaraan Anda [no.pol] sudah selesai dan siap diambil."
+  - "dikerjakan": "Kendaraan Anda [no.pol] sedang dikerjakan..."
+  - "selesai": "Kendaraan Anda [no.pol] sudah selesai dan siap diambil..."
     │
     ▼
 Log terkirim di tabel wa_notifications
@@ -475,7 +515,18 @@ Log terkirim di tabel wa_notifications
 
 - Tampil di tab **Reminder & Follow-up** (`/bengkel/reminder`)
 - Tabel: tanggal, tipe (stok/pelanggan), penerima, pesan, status (sent/failed/pending)
-- Retry manual untuk yang failed
+- Retry manual untuk yang failed via [POST] /notifications/wa/retry/:id
+
+### Endpoint API WA
+
+| Method | Endpoint                      | Deskripsi                                      |
+| ------ | ----------------------------- | ---------------------------------------------- |
+| GET    | `/notifications/wa`           | Log semua notifikasi WA                        |
+| GET    | `/notifications/wa/status`    | Status koneksi WA client                       |
+| GET    | `/notifications/wa/qr`        | Ambil QR code (base64) untuk scan              |
+| POST   | `/notifications/wa/restart`   | Restart WA client (scan QR baru)               |
+| POST   | `/notifications/wa/test`      | Kirim pesan test ke nomor wa_target_number     |
+| POST   | `/notifications/wa/retry/:id` | Retry kirim notifikasi yang gagal (status failed) |
 
 ---
 
@@ -557,18 +608,26 @@ Efek langsung:
 Tab "WA Gateway"
     │
     ▼
-Pilih provider: Fonnte / WaBlas / WA Business API / Custom
-Input nomor WA tujuan notif
-Input token API gateway
+Input nomor WA tujuan notif stok (wa_target_number)
     │
     ▼
-Klik "Test Koneksi" → kirim ping ke gateway
-    │
-    ├─ berhasil ──► notif "Koneksi OK"
-    └─ gagal ──► notif "Cek token/nomor"
+Simpan nomor target (BE: PUT /settings → wa_target_number)
     │
     ▼
-Simpan konfigurasi (BE: PUT /settings/wa-gateway)
+Scan QR WhatsApp Web.js:
+  [BE] GET /notifications/wa/status
+    ├─ status "ready" ──► WA sudah terhubung, tidak perlu scan
+    ├─ status "qr_ready" ──► GET /notifications/wa/qr → tampilkan QR ke UI
+    └─ status "disconnected" ──► POST /notifications/wa/restart → tunggu QR baru
+    │
+    ▼
+[Admin] Scan QR dengan WhatsApp di HP
+    │
+    ▼
+Status berubah → "authenticated" → "ready"
+    │
+    ▼
+Test kirim pesan: [POST] /notifications/wa/test → notif "Koneksi OK" jika terkirim
 ```
 
 ---

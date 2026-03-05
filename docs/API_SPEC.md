@@ -324,12 +324,49 @@ Ambil data user yang sedang login.
 
 ---
 
-## 11. WA Notifications
+## 11. WA Notifications (WhatsApp Web.js)
 
-| Method | Endpoint                 | Deskripsi                          |
-| ------ | ------------------------ | ---------------------------------- |
-| GET    | `/notifications/wa`      | Log semua notifikasi WA            |
-| POST   | `/notifications/wa/test` | Kirim notif WA test ke nomor owner |
+> **Implementasi:** whatsapp-web.js — terhubung langsung ke WA tanpa gateway pihak ketiga. **Local only** (dijalankan di local bersama server BE via `npm run dev`).
+
+### Log & Status
+
+| Method | Endpoint                      | Deskripsi                                         |
+| ------ | ----------------------------- | ------------------------------------------------- |
+| GET    | `/notifications/wa`           | Log semua notifikasi WA (paginated, filter status) |
+| GET    | `/notifications/wa/status`    | Status koneksi WA client saat ini                 |
+| GET    | `/notifications/wa/qr`        | Ambil QR code (base64 data URL) untuk di-scan     |
+| POST   | `/notifications/wa/restart`   | Restart WA client (scan QR baru)                  |
+| POST   | `/notifications/wa/test`      | Kirim pesan WA test ke nomor `wa_target_number`   |
+| POST   | `/notifications/wa/retry/:id` | Retry kirim notifikasi yang gagal (status failed)  |
+
+```json
+// GET /notifications/wa/status — Response
+{
+  "success": true,
+  "data": {
+    "status": "ready",
+    "qr_expires_at": null
+  }
+}
+// status: "initializing" | "qr_ready" | "authenticated" | "ready" | "disconnected"
+
+// GET /notifications/wa/qr — Response saat QR tersedia
+{
+  "success": true,
+  "data": {
+    "status": "qr_ready",
+    "qr": "data:image/png;base64,..."
+  },
+  "message": "QR tersedia, silakan scan dengan WhatsApp."
+}
+
+// POST /notifications/wa/retry/:id — Response
+{
+  "success": true,
+  "data": { "id": 5, "status": "sent", "sent_at": "2026-03-04T..." },
+  "message": "Notifikasi berhasil dikirim ulang"
+}
+```
 
 ---
 

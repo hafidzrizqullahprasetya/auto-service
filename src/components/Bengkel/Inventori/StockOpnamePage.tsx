@@ -16,8 +16,13 @@ import { ActionButton } from "@/components/Bengkel/shared";
 import { TableToolbar } from "@/components/Bengkel/shared";
 import { BaseModal } from "@/components/Bengkel/shared";
 import { Icons } from "@/components/Icons";
-import { MOCK_OPNAMES, MOCK_OPEN_OPNAME, StockOpname, OpnameItem } from "@/mock/opname";
-import { MOCK_ITEMS } from "@/mock/inventory";
+import {
+  MOCK_OPNAMES,
+  MOCK_OPEN_OPNAME,
+  StockOpname,
+  OpnameItem,
+} from "@/mock/opname";
+import { useInventory } from "@/hooks/useInventory";
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
 
@@ -38,14 +43,20 @@ function ActiveOpnameModal({
     setItems((prev) =>
       prev.map((item) =>
         item.id === itemId
-          ? { ...item, physicalCount: count, difference: count - item.systemStock }
-          : item
-      )
+          ? {
+              ...item,
+              physicalCount: count,
+              difference: count - item.systemStock,
+            }
+          : item,
+      ),
     );
   };
 
   const totalDiff = items.reduce((sum, i) => sum + i.difference, 0);
-  const allFilled = items.every((i) => i.physicalCount > 0 || i.systemStock === 0);
+  const allFilled = items.every(
+    (i) => i.physicalCount > 0 || i.systemStock === 0,
+  );
 
   return (
     <BaseModal
@@ -58,12 +69,26 @@ function ActiveOpnameModal({
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-dark-5">
             Total Selisih:{" "}
-            <span className={cn("font-bold", totalDiff < 0 ? "text-red-500" : totalDiff > 0 ? "text-green-600" : "text-secondary")}>
-              {totalDiff > 0 ? "+" : ""}{totalDiff} unit
+            <span
+              className={cn(
+                "font-bold",
+                totalDiff < 0
+                  ? "text-red-500"
+                  : totalDiff > 0
+                    ? "text-green-600"
+                    : "text-secondary",
+              )}
+            >
+              {totalDiff > 0 ? "+" : ""}
+              {totalDiff} unit
             </span>
           </p>
           <div className="flex gap-3">
-            <ActionButton variant="ghost" label="Simpan Sementara" onClick={onClose} />
+            <ActionButton
+              variant="ghost"
+              label="Simpan Sementara"
+              onClick={onClose}
+            />
             <ActionButton
               variant="primary"
               label="Tutup Sesi & Apply"
@@ -77,42 +102,51 @@ function ActiveOpnameModal({
       <div className="max-h-[60vh] overflow-y-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-xs [&>th]:text-dark-5 [&>th]:font-bold">
+            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-xs [&>th]:font-bold [&>th]:text-dark-5">
               <TableHead className="px-4">Item</TableHead>
-              <TableHead className="text-center px-4">Sistem</TableHead>
-              <TableHead className="text-center px-4">Aktual</TableHead>
-              <TableHead className="text-center px-4">Selisih</TableHead>
+              <TableHead className="px-4 text-center">Sistem</TableHead>
+              <TableHead className="px-4 text-center">Aktual</TableHead>
+              <TableHead className="px-4 text-center">Selisih</TableHead>
               <TableHead className="px-4">Catatan</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {items.map((item) => (
-              <tr key={item.id} className="border-b border-stroke dark:border-dark-3 h-16">
+              <tr
+                key={item.id}
+                className="h-16 border-b border-stroke dark:border-dark-3"
+              >
                 <td className="px-4">
-                  <p className="font-bold text-sm text-dark dark:text-white">{item.sparePartName}</p>
-                  <p className="font-mono text-[10px] text-dark-5">{item.sku}</p>
+                  <p className="text-sm font-bold text-dark dark:text-white">
+                    {item.sparePartName}
+                  </p>
+                  <p className="font-mono text-[10px] text-dark-5">
+                    {item.sku}
+                  </p>
                 </td>
-                <td className="text-center px-4 font-bold text-dark dark:text-white">
+                <td className="px-4 text-center font-bold text-dark dark:text-white">
                   {item.systemStock}
                 </td>
-                <td className="text-center px-4">
+                <td className="px-4 text-center">
                   <input
                     type="number"
                     min={0}
                     value={item.physicalCount}
-                    onChange={(e) => updateCount(item.id, Number(e.target.value))}
-                    className="w-20 rounded-lg border border-stroke bg-transparent text-center text-sm font-bold text-secondary outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 py-1.5"
+                    onChange={(e) =>
+                      updateCount(item.id, Number(e.target.value))
+                    }
+                    className="w-20 rounded-lg border border-stroke bg-transparent py-1.5 text-center text-sm font-bold text-secondary outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2"
                   />
                 </td>
-                <td className="text-center px-4">
+                <td className="px-4 text-center">
                   <span
                     className={cn(
                       "text-sm font-bold",
                       item.difference < 0
                         ? "text-red-500"
                         : item.difference > 0
-                        ? "text-green-600"
-                        : "text-dark-5"
+                          ? "text-green-600"
+                          : "text-dark-5",
                     )}
                   >
                     {item.difference > 0 ? "+" : ""}
@@ -136,7 +170,13 @@ function ActiveOpnameModal({
 }
 
 // ---- Modal Detail Opname (Read-only) ----
-function DetailOpnameModal({ opname, onClose }: { opname: StockOpname; onClose: () => void }) {
+function DetailOpnameModal({
+  opname,
+  onClose,
+}: {
+  opname: StockOpname;
+  onClose: () => void;
+}) {
   return (
     <BaseModal
       title={`Detail Opname: ${opname.sessionName}`}
@@ -148,43 +188,50 @@ function DetailOpnameModal({ opname, onClose }: { opname: StockOpname; onClose: 
       <div className="max-h-[60vh] overflow-y-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-xs [&>th]:text-dark-5 [&>th]:font-bold">
+            <TableRow className="bg-gray-2/30 dark:bg-dark-3 [&>th]:py-4 [&>th]:text-xs [&>th]:font-bold [&>th]:text-dark-5">
               <TableHead className="px-4">Item</TableHead>
-              <TableHead className="text-center px-4">Sistem</TableHead>
-              <TableHead className="text-center px-4">Aktual</TableHead>
-              <TableHead className="text-center px-4">Selisih</TableHead>
+              <TableHead className="px-4 text-center">Sistem</TableHead>
+              <TableHead className="px-4 text-center">Aktual</TableHead>
+              <TableHead className="px-4 text-center">Selisih</TableHead>
               <TableHead className="px-4">Catatan</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {opname.items.map((item) => (
-              <tr key={item.id} className="border-b border-stroke dark:border-dark-3 h-16">
+              <tr
+                key={item.id}
+                className="h-16 border-b border-stroke dark:border-dark-3"
+              >
                 <td className="px-4">
-                  <p className="font-bold text-sm text-dark dark:text-white">{item.sparePartName}</p>
-                  <p className="font-mono text-[10px] text-dark-5">{item.sku}</p>
+                  <p className="text-sm font-bold text-dark dark:text-white">
+                    {item.sparePartName}
+                  </p>
+                  <p className="font-mono text-[10px] text-dark-5">
+                    {item.sku}
+                  </p>
                 </td>
-                <td className="text-center px-4 font-bold text-dark dark:text-white">
+                <td className="px-4 text-center font-bold text-dark dark:text-white">
                   {item.systemStock}
                 </td>
-                <td className="text-center px-4 font-bold text-secondary">
+                <td className="px-4 text-center font-bold text-secondary">
                   {item.physicalCount}
                 </td>
-                <td className="text-center px-4">
+                <td className="px-4 text-center">
                   <span
                     className={cn(
                       "text-sm font-bold",
                       item.difference < 0
                         ? "text-red-500"
                         : item.difference > 0
-                        ? "text-green-600"
-                        : "text-dark-5"
+                          ? "text-green-600"
+                          : "text-dark-5",
                     )}
                   >
                     {item.difference > 0 ? "+" : ""}
                     {item.difference}
                   </span>
                 </td>
-                <td className="px-4 text-xs text-dark-5 max-w-[200px] truncate">
+                <td className="max-w-[200px] truncate px-4 text-xs text-dark-5">
                   {item.note || "—"}
                 </td>
               </tr>
@@ -196,10 +243,13 @@ function DetailOpnameModal({ opname, onClose }: { opname: StockOpname; onClose: 
   );
 }
 export function StockOpnamePage() {
+  const { data: inventoryItems } = useInventory();
   const [opnames] = useState<StockOpname[]>(MOCK_OPNAMES);
   const [showActiveModal, setShowActiveModal] = useState(false);
   const [showStartConfirm, setShowStartConfirm] = useState(false);
-  const [selectedOpname, setSelectedOpname] = useState<StockOpname | null>(null);
+  const [selectedOpname, setSelectedOpname] = useState<StockOpname | null>(
+    null,
+  );
 
   const hasOpenSession = MOCK_OPEN_OPNAME.status === "open";
 
@@ -210,7 +260,9 @@ export function StockOpnamePage() {
         accessorKey: "sessionName",
         header: "Nama Sesi",
         cell: ({ row }) => (
-          <span className="font-bold text-dark dark:text-white">{row.original.sessionName}</span>
+          <span className="font-bold text-dark dark:text-white">
+            {row.original.sessionName}
+          </span>
         ),
       },
       {
@@ -241,7 +293,9 @@ export function StockOpnamePage() {
         header: "Ditutup",
         cell: ({ row }) => (
           <span className="text-sm text-dark-5">
-            {row.original.closedAt ? dayjs(row.original.closedAt).format("DD/MM/YYYY HH:mm") : "—"}
+            {row.original.closedAt
+              ? dayjs(row.original.closedAt).format("DD/MM/YYYY HH:mm")
+              : "—"}
           </span>
         ),
       },
@@ -260,11 +314,18 @@ export function StockOpnamePage() {
         cell: ({ row }) => {
           const diff = row.original.totalDifference;
           return (
-            <div className={cn(
-              "flex w-full justify-center font-bold text-sm",
-              diff < 0 ? "text-red-500" : diff > 0 ? "text-green-600" : "text-dark-5"
-            )}>
-              {diff > 0 ? "+" : ""}{diff}
+            <div
+              className={cn(
+                "flex w-full justify-center text-sm font-bold",
+                diff < 0
+                  ? "text-red-500"
+                  : diff > 0
+                    ? "text-green-600"
+                    : "text-dark-5",
+              )}
+            >
+              {diff > 0 ? "+" : ""}
+              {diff}
             </div>
           );
         },
@@ -281,36 +342,44 @@ export function StockOpnamePage() {
         header: () => <div className="w-full text-center">Aksi</div>,
         cell: ({ row }) => (
           <div className="flex w-full justify-center">
-            <ActionButton 
-              variant="view" 
+            <ActionButton
+              variant="view"
               icon={<Icons.Eye size={16} />}
-              title="Lihat Detail" 
+              title="Lihat Detail"
               onClick={() => setSelectedOpname(row.original)}
             />
           </div>
         ),
       },
     ],
-    []
+    [],
   );
 
   return (
     <div className="flex flex-col gap-6">
       {/* Panel Sesi Aktif */}
       {hasOpenSession && (
-        <div className="rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark border-l-4 border-l-secondary">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="rounded-[10px] border border-l-4 border-stroke border-l-secondary bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
                 <Icons.Inventory size={22} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-base font-bold text-dark dark:text-white tracking-tight">{MOCK_OPEN_OPNAME.sessionName}</h4>
-                  <Badge variant="warning" className="text-[9px] py-0">Aktif</Badge>
+                  <h4 className="text-base font-bold tracking-tight text-dark dark:text-white">
+                    {MOCK_OPEN_OPNAME.sessionName}
+                  </h4>
+                  <Badge variant="warning" className="py-0 text-[9px]">
+                    Aktif
+                  </Badge>
                 </div>
                 <p className="mt-0.5 text-xs font-medium text-dark-5">
-                  Oleh: <span className="text-dark dark:text-gray-400">{MOCK_OPEN_OPNAME.openedBy}</span> ·{" "}
+                  Oleh:{" "}
+                  <span className="text-dark dark:text-gray-400">
+                    {MOCK_OPEN_OPNAME.openedBy}
+                  </span>{" "}
+                  ·{" "}
                   {dayjs(MOCK_OPEN_OPNAME.openedAt).format("DD/MM/YYYY HH:mm")}
                 </p>
               </div>
@@ -355,7 +424,11 @@ export function StockOpnamePage() {
           maxWidth="sm"
           footer={
             <div className="flex justify-end gap-3">
-              <ActionButton variant="ghost" label="Batal" onClick={() => setShowStartConfirm(false)} />
+              <ActionButton
+                variant="ghost"
+                label="Batal"
+                onClick={() => setShowStartConfirm(false)}
+              />
               <ActionButton
                 variant="primary"
                 label="Mulai Sekarang"
@@ -369,8 +442,13 @@ export function StockOpnamePage() {
         >
           <div className="rounded-lg border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
             <p className="text-sm text-dark-5">
-              Total <strong className="text-secondary">{MOCK_ITEMS.filter(i => i.category !== "Service").length} item</strong> akan masuk dalam sesi opname ini.
-              Pastikan semua item fisik sudah siap untuk dihitung.
+              Total{" "}
+              <strong className="text-secondary">
+                {inventoryItems.filter((i) => i.category !== "Service").length}{" "}
+                item
+              </strong>{" "}
+              akan masuk dalam sesi opname ini. Pastikan semua item fisik sudah
+              siap untuk dihitung.
             </p>
           </div>
         </BaseModal>

@@ -1,10 +1,11 @@
 "use client";
 
-import { MOCK_TRANSACTIONS } from "@/mock/transactions";
 import { MOCK_SERVICE_HISTORY } from "@/mock/service-history";
+import { useTransactions } from "@/hooks/useTransactions";
 import { formatNumber } from "@/lib/format-number";
 import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
+import { Transaction } from "@/mock/transactions";
 
 // --- Compute top services from service history ---
 function getTopServices() {
@@ -20,20 +21,18 @@ function getTopServices() {
     .slice(0, 6);
 }
 
-// --- Compute top spareparts from all item lists ---
-function getTopSpareparts() {
+// --- Compute top spareparts from real transactions ---
+function getTopSpareparts(transactions: Transaction[]) {
   const counter: Record<string, { qty: number; revenue: number }> = {};
-  // From transactions
-  MOCK_TRANSACTIONS.forEach((tx) => {
+  transactions.forEach((tx) => {
     tx.items.forEach((item) => {
-      // Skip pure service items (no "Jasa" prefix)
       if (item.name.toLowerCase().startsWith("jasa")) return;
       if (!counter[item.name]) counter[item.name] = { qty: 0, revenue: 0 };
       counter[item.name].qty += item.qty;
       counter[item.name].revenue += item.price * item.qty;
     });
   });
-  // From service history
+  // Also include service history data
   MOCK_SERVICE_HISTORY.forEach((rec) => {
     rec.items.forEach((item) => {
       if (item.nama.toLowerCase().startsWith("jasa")) return;
@@ -57,26 +56,35 @@ interface RankBarProps {
   color: string;
 }
 
-function RankBar({ rank, name, primaryStat, secondaryStat, pct, color }: RankBarProps) {
+function RankBar({
+  rank,
+  name,
+  primaryStat,
+  secondaryStat,
+  pct,
+  color,
+}: RankBarProps) {
   return (
     <div className="flex items-center gap-3">
       <span
         className={cn(
-          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold border border-stroke",
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-stroke text-xs font-bold",
           rank === 1
-            ? "bg-dark text-white dark:bg-white dark:text-dark border-dark dark:border-white"
+            ? "border-dark bg-dark text-white dark:border-white dark:bg-white dark:text-dark"
             : rank === 2
-            ? "bg-gray-3 dark:bg-dark-3 text-dark dark:text-white"
-            : rank === 3
-            ? "bg-gray-2 dark:bg-dark-3 text-dark-2 dark:text-white/80"
-            : "bg-gray-1 dark:bg-dark-2 text-dark-5"
+              ? "bg-gray-3 text-dark dark:bg-dark-3 dark:text-white"
+              : rank === 3
+                ? "bg-gray-2 text-dark-2 dark:bg-dark-3 dark:text-white/80"
+                : "bg-gray-1 text-dark-5 dark:bg-dark-2",
         )}
       >
         {rank}
       </span>
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center justify-between gap-2">
-          <p className="text-sm font-bold text-dark dark:text-white truncate leading-tight">{name}</p>
+          <p className="truncate text-sm font-bold leading-tight text-dark dark:text-white">
+            {name}
+          </p>
           <p className="text-xs font-bold text-secondary">{primaryStat}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -86,7 +94,9 @@ function RankBar({ rank, name, primaryStat, secondaryStat, pct, color }: RankBar
               style={{ width: `${pct}%` }}
             />
           </div>
-          <p className="text-[10px] font-medium text-dark-5 shrink-0 tabular-nums">{secondaryStat}</p>
+          <p className="shrink-0 text-[10px] font-medium tabular-nums text-dark-5">
+            {secondaryStat}
+          </p>
         </div>
       </div>
     </div>
@@ -94,8 +104,9 @@ function RankBar({ rank, name, primaryStat, secondaryStat, pct, color }: RankBar
 }
 
 export function LaporanAnalitik() {
+  const { data: transactions } = useTransactions();
   const topServices = getTopServices();
-  const topSpareparts = getTopSpareparts();
+  const topSpareparts = getTopSpareparts(transactions);
 
   const maxServiceCount = topServices[0]?.count ?? 1;
   const maxPartQty = topSpareparts[0]?.qty ?? 1;
@@ -103,13 +114,17 @@ export function LaporanAnalitik() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Top Layanan */}
-      <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark shadow-none">
+      <div className="rounded-lg border border-stroke bg-white p-6 shadow-none dark:border-dark-3 dark:bg-gray-dark">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-dark dark:text-white">Layanan Terpopuler</h3>
-            <p className="mt-1 text-[11px] font-medium text-dark-5">Frekuensi permintaan servis</p>
+            <h3 className="text-sm font-bold text-dark dark:text-white">
+              Layanan Terpopuler
+            </h3>
+            <p className="mt-1 text-[11px] font-medium text-dark-5">
+              Frekuensi permintaan servis
+            </p>
           </div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-3 text-dark dark:text-white border border-stroke dark:border-dark-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-stroke bg-gray-2 text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white">
             <Icons.Repair size={20} />
           </div>
         </div>
@@ -127,19 +142,25 @@ export function LaporanAnalitik() {
               />
             ))
           ) : (
-            <p className="text-center text-sm text-dark-5 py-8">Belum ada data</p>
+            <p className="py-8 text-center text-sm text-dark-5">
+              Belum ada data
+            </p>
           )}
         </div>
       </div>
 
       {/* Top Sparepart */}
-      <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark shadow-none">
+      <div className="rounded-lg border border-stroke bg-white p-6 shadow-none dark:border-dark-3 dark:bg-gray-dark">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-dark dark:text-white">Sparepart Terlaris</h3>
-            <p className="mt-1 text-[11px] font-medium text-dark-5">Jumlah unit terjual</p>
+            <h3 className="text-sm font-bold text-dark dark:text-white">
+              Sparepart Terlaris
+            </h3>
+            <p className="mt-1 text-[11px] font-medium text-dark-5">
+              Jumlah unit terjual
+            </p>
           </div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-3 text-dark dark:text-white border border-stroke dark:border-dark-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-stroke bg-gray-2 text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white">
             <Icons.Inventory size={20} />
           </div>
         </div>
@@ -157,7 +178,9 @@ export function LaporanAnalitik() {
               />
             ))
           ) : (
-            <p className="text-center text-sm font-medium text-dark-5 py-8 italic">Belum ada data</p>
+            <p className="py-8 text-center text-sm font-medium italic text-dark-5">
+              Belum ada data
+            </p>
           )}
         </div>
       </div>

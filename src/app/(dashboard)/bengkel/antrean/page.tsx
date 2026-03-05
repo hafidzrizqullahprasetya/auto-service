@@ -2,30 +2,49 @@
 
 import { useState } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { AntreanTable, KanbanBoard, AntreanFormModal } from "@/components/Bengkel/Antrean";
-import { MOCK_ANTREAN, Antrean } from "@/mock/antrean";
+import {
+  AntreanTable,
+  KanbanBoard,
+  AntreanFormModal,
+} from "@/components/Bengkel/Antrean";
+import { Antrean } from "@/mock/antrean";
+import { useAntrean } from "@/hooks/useAntrean";
 import { LayoutGrid, LayoutList, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
-import dayjs from "dayjs";
 
 type ViewType = "kanban" | "table";
 
 export default function AntreanPage() {
   const [activeView, setActiveView] = useState<ViewType>("kanban");
-  const [items, setItems] = useState<Antrean[]>(MOCK_ANTREAN);
   const [showModal, setShowModal] = useState(false);
 
-  const handleStatusChange = (id: string, newStatus: Antrean["status"]) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
-    );
+  const {
+    data: items,
+    loading,
+    error,
+    updateStatus,
+    assignMechanic,
+    refetch,
+  } = useAntrean();
+
+  const handleStatusChange = async (
+    id: string,
+    newStatus: Antrean["status"],
+  ) => {
+    try {
+      await updateStatus(id, newStatus);
+    } catch {
+      // optimistic update already reverted by hook error path
+    }
   };
 
-  const handleMechanicAssign = (id: string, mekanik: string) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, mekanik } : item))
-    );
+  const handleMechanicAssign = async (id: string, mekanik: string) => {
+    try {
+      await assignMechanic(id, mekanik);
+    } catch {
+      // ignore
+    }
   };
 
   const TABS = [
@@ -37,20 +56,51 @@ export default function AntreanPage() {
     <div className="mx-auto max-w-7xl">
       <Breadcrumb pageName="Manajemen Antrean" />
 
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-600 dark:border-red-900 dark:bg-red-900/20 dark:text-red-400">
+          ⚠ {error}{" "}
+          <button onClick={refetch} className="underline">
+            Coba Lagi
+          </button>
+        </div>
+      )}
+
       {/* Grid Summary - Mengikuti style dashboard/kasir */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Menunggu", count: items.filter(i => i.status === "Menunggu").length, icon: Icons.Pending },
-          { label: "Dikerjakan", count: items.filter(i => i.status === "Dikerjakan").length, icon: Icons.Repair },
-          { label: "Sparepart", count: items.filter(i => i.status === "Menunggu Sparepart").length, icon: Icons.Inventory },
-          { label: "Selesai", count: items.filter(i => i.status === "Selesai").length, icon: Icons.Success },
+          {
+            label: "Menunggu",
+            count: items.filter((i) => i.status === "Menunggu").length,
+            icon: Icons.Pending,
+          },
+          {
+            label: "Dikerjakan",
+            count: items.filter((i) => i.status === "Dikerjakan").length,
+            icon: Icons.Repair,
+          },
+          {
+            label: "Sparepart",
+            count: items.filter((i) => i.status === "Menunggu Sparepart")
+              .length,
+            icon: Icons.Inventory,
+          },
+          {
+            label: "Selesai",
+            count: items.filter((i) => i.status === "Selesai").length,
+            icon: Icons.Success,
+          },
         ].map((s, i) => (
-          <div key={i} className="flex items-center gap-4 rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark lg:gap-6">
+          <div
+            key={i}
+            className="flex items-center gap-4 rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark lg:gap-6"
+          >
             <div className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-2 dark:text-blue-400">
               <s.icon size={22} />
             </div>
             <div>
-              <p className="text-2xl font-bold tracking-tight text-dark dark:text-white leading-none">{s.count}</p>
+              <p className="text-2xl font-bold leading-none tracking-tight text-dark dark:text-white">
+                {s.count}
+              </p>
               <p className="mt-1 text-sm font-medium text-dark-5">{s.label}</p>
             </div>
           </div>
@@ -59,7 +109,7 @@ export default function AntreanPage() {
 
       {/* Navigation & Action */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-1 rounded-xl border border-stroke bg-white p-1 dark:border-dark-3 dark:bg-gray-dark w-fit">
+        <div className="flex w-fit gap-1 rounded-xl border border-stroke bg-white p-1 dark:border-dark-3 dark:bg-gray-dark">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -68,7 +118,7 @@ export default function AntreanPage() {
                 "flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold",
                 activeView === id
                   ? "bg-secondary text-white"
-                  : "text-dark-5 hover:text-dark dark:hover:text-white"
+                  : "text-dark-5 hover:text-dark dark:hover:text-white",
               )}
             >
               <Icon size={16} />

@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { MOCK_EMPLOYEES, Employee } from "@/mock/employees";
+import { Employee } from "@/mock/employees";
+import { useEmployees } from "@/hooks/useEmployees";
 import { Badge } from "@/components/Bengkel/shared";
 import { Icons } from "@/components/Icons";
 import { ActionButton, ExcelButtons } from "@/components/Bengkel/shared";
@@ -24,6 +25,7 @@ const getStatusVariant = (status: Employee["status"]) => {
 };
 
 export function EmployeeTable() {
+  const { data: employees, loading } = useEmployees();
   const [showModal, setShowModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null,
@@ -148,7 +150,7 @@ export function EmployeeTable() {
     <>
       <DataTable
         columns={columns}
-        data={MOCK_EMPLOYEES}
+        data={loading ? [] : employees}
         searchable={["name", "role", "phone"]}
         searchPlaceholder="Cari nama atau jabatan..."
         title="Tim & Sumber Daya"
@@ -161,7 +163,7 @@ export function EmployeeTable() {
         extraActions={
           <ExcelButtons
             moduleKey="karyawan"
-            exportData={karyawanToExcelRows(MOCK_EMPLOYEES) as any}
+            exportData={karyawanToExcelRows(employees) as any}
             onImport={(rows) => console.log("Import karyawan:", rows)}
           />
         }

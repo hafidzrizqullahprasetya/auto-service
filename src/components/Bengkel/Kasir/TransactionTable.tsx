@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { MOCK_TRANSACTIONS, Transaction } from "@/mock/transactions";
+import { Transaction } from "@/mock/transactions";
+import { useTransactions } from "@/hooks/useTransactions";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
 import { Icons } from "@/components/Icons";
@@ -12,6 +13,7 @@ import { InvoiceModal } from "@/components/Bengkel/Kasir";
 import { ActionButton } from "@/components/Bengkel/shared";
 
 export function TransactionTable() {
+  const { data: transactions, loading } = useTransactions();
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
@@ -20,7 +22,7 @@ export function TransactionTable() {
         accessorKey: "invoiceNo",
         header: "No. Invoice",
         cell: ({ row }) => (
-          <span className="font-bold text-dark dark:text-white text-sm">
+          <span className="text-sm font-bold text-dark dark:text-white">
             {row.original.invoiceNo}
           </span>
         ),
@@ -41,7 +43,9 @@ export function TransactionTable() {
           const tx = row.original;
           return (
             <div className="flex flex-col">
-              <p className="font-bold text-dark dark:text-white">{tx.customerName}</p>
+              <p className="font-bold text-dark dark:text-white">
+                {tx.customerName}
+              </p>
               <span className="text-[10px] font-medium text-dark-5">
                 {tx.vehiclePlate}
               </span>
@@ -93,8 +97,8 @@ export function TransactionTable() {
                 row.original.paymentStatus === "Lunas"
                   ? "success"
                   : row.original.paymentStatus === "DP"
-                  ? "warning"
-                  : "danger"
+                    ? "warning"
+                    : "danger"
               }
               className="text-[10px]"
             >
@@ -134,14 +138,14 @@ export function TransactionTable() {
         ),
       },
     ],
-    []
+    [],
   );
 
   return (
     <>
       <DataTable
         columns={columns}
-        data={MOCK_TRANSACTIONS}
+        data={loading ? [] : transactions}
         searchable={["invoiceNo", "customerName", "vehiclePlate"]}
         searchPlaceholder="Cari invoice atau pelanggan..."
         title="Riwayat Transaksi Keuangan"

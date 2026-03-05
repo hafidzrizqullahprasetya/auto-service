@@ -5,22 +5,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { Checkbox } from "../FormElements/checkbox";
-
-const MOCK_USERS = [
-  {
-    username: "owner",
-    password: "owner123",
-    role: "Owner",
-    name: "Suryo Atmojo",
-  },
-  { username: "admin", password: "admin123", role: "Admin", name: "Larasati" },
-  {
-    username: "kasir",
-    password: "kasir123",
-    role: "Kasir",
-    name: "Budi Setiadi",
-  },
-];
+import { authService, normalizeRole } from "@/services/auth.service";
 
 export default function SigninWithPassword() {
   const router = useRouter();
@@ -37,30 +22,33 @@ export default function SigninWithPassword() {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      const user = MOCK_USERS.find(
-        (u) => u.username === data.username && u.password === data.password,
+    try {
+      const result = await authService.login(data.username, data.password);
+      const role = normalizeRole(result.user.role);
+
+      localStorage.setItem("auth_token", result.token);
+      localStorage.setItem(
+        "auth_user",
+        JSON.stringify({
+          name: result.user.name,
+          role,
+          username: result.user.username,
+        }),
       );
-      if (user) {
-        localStorage.setItem(
-          "auth_user",
-          JSON.stringify({
-            name: user.name,
-            role: user.role,
-            username: user.username,
-          }),
-        );
-        router.push(user.role === "Kasir" ? "/bengkel/antrean" : "/");
-      } else {
-        setError("Username atau password salah.");
-      }
+
+      router.push(role === "Kasir" ? "/bengkel/antrean" : "/");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Username atau password salah.",
+      );
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (

@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MOCK_ITEMS, Item } from "@/mock/inventory";
+import { Item } from "@/mock/inventory";
+import { useInventory } from "@/hooks/useInventory";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/components/Bengkel/shared";
 import { Icons } from "@/components/Icons";
@@ -54,6 +55,7 @@ const isLowStock = (item: Item) =>
   item.stock <= item.minimumStock;
 
 export function InventoryTable() {
+  const { data: allItems, loading, error, refetch } = useInventory();
   const [barcodeItem, setBarcodeItem] = useState<Item | null>(null);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -68,13 +70,13 @@ export function InventoryTable() {
   // Apply extra filters (tipe & kategori) sebelum masuk TanStack
   const filteredData = useMemo(
     () =>
-      MOCK_ITEMS.filter((item) => {
+      allItems.filter((item) => {
         const matchType = filterType === "all" || item.type === filterType;
         const matchCat =
           filterCategory === "all" || item.category === filterCategory;
         return matchType && matchCat;
       }),
-    [filterType, filterCategory],
+    [allItems, filterType, filterCategory],
   );
 
   const columns = useMemo<ColumnDef<Item>[]>(
@@ -253,6 +255,17 @@ export function InventoryTable() {
     initialState: { pagination: { pageSize: 5 } },
   });
 
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-sm font-bold text-red-600 dark:border-red-900 dark:bg-red-900/20 dark:text-red-400">
+        ⚠ Gagal memuat inventori: {error}
+        <button onClick={refetch} className="ml-3 underline">
+          Coba Lagi
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 md:gap-6">
       <InventorySummary />
@@ -349,7 +362,16 @@ export function InventoryTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows.length > 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[200px] text-center text-sm text-dark-5"
+                  >
+                    <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
@@ -410,7 +432,7 @@ export function InventoryTable() {
                 {table.getFilteredRowModel().rows.length}
               </span>{" "}
               dari{" "}
-              <span className="font-bold text-dark">{MOCK_ITEMS.length}</span>{" "}
+              <span className="font-bold text-dark">{allItems.length}</span>{" "}
               data
             </p>
 

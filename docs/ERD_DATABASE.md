@@ -416,5 +416,7 @@ CREATE TABLE wa_notifications (
 1. **SKU Auto-Generate**: Format `AS-[CATEGORY_PREFIX]-[SEQUENCE]` (contoh: `AS-MOB-0001`)
 2. **Invoice Number**: Format `INV-[YYYYMMDD]-[SEQUENCE]` (contoh: `INV-20260302-001`)
 3. **Stock Guard**: Sebelum insert `stock_movements` dengan type `keluar`, selalu validasi `current_stock >= quantity_change`
-4. **WA Trigger**: Setiap ada perubahan stok, BE wajib cek apakah `current_stock <= minimum_stock`. Jika ya, insert ke `wa_notifications` dan trigger pengiriman
-5. **Soft Delete**: Implementasikan `deleted_at` (soft delete) untuk `customers`, `spare_parts`, dan `users` agar data historis tidak hilang
+4. **WA Trigger (WA Web.js)**: Setiap ada perubahan stok, BE wajib cek apakah `current_stock <= minimum_stock`. Jika ya, panggil `triggerWaNotificationIfNeeded()` dari `waClientService.ts` (bukan Fonnte/Wablas). Saat status Work Order berubah ke `dikerjakan`/`selesai`, panggil `sendServiceProgressNotification()` ke nomor pelanggan.
+5. **Soft Delete**: Implementasikan `deleted_at` (soft delete) untuk `customers`, `spare_parts`, `users`, dan `work_orders` agar data historis tidak hilang
+6. **WA Session**: Session WA Web.js disimpan di `.wwebjs_auth/` — pastikan folder ini **tidak** di-commit ke Git (tambahkan ke `.gitignore`)
+7. **Arsitektur Hybrid WA**: REST API di-deploy ke Vercel (semua endpoint). WA Worker berjalan di **lokal** secara terpisah (`npm run wa:worker`). Vercel insert `pending` ke tabel `wa_notifications` → WA Worker polling DB setiap 15 detik → kirim via WA Web.js → update status `sent/failed`. Tidak perlu server dedicated.

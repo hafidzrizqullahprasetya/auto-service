@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { KatalogJasa } from "@/components/Bengkel/Kasir/KatalogJasa";
 
 import { MOCK_WA_NOTIFICATIONS } from "@/mock/wa-notifications";
-import { MOCK_EMPLOYEES } from "@/mock/employees";
+import { useEmployees } from "@/hooks/useEmployees";
 import { Badge } from "@/components/Bengkel/shared";
 import dayjs from "dayjs";
 import {
@@ -304,6 +304,7 @@ function PermissionEditor() {
 
 function ManajemenAkunTab({ userRole }: { userRole: Role }) {
   const [showForm, setShowForm] = useState(false);
+  const { data: employees } = useEmployees();
 
   return (
     <div className="flex flex-col gap-6">
@@ -370,7 +371,7 @@ function ManajemenAkunTab({ userRole }: { userRole: Role }) {
         )}
 
         <div className="flex flex-col gap-2">
-          {MOCK_EMPLOYEES.map((emp) => (
+          {employees.map((emp) => (
             <div
               key={emp.id}
               className="flex items-center justify-between rounded-lg border border-stroke px-4 py-3 dark:border-dark-3"
