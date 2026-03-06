@@ -16,6 +16,7 @@ export interface ApiEnvelopeRaw<T> {
 async function request<T>(
   path: string,
   options: RequestInit = {},
+  skipAuthRedirect = false,
 ): Promise<ApiEnvelopeRaw<T>> {
   const token = getToken();
 
@@ -27,7 +28,7 @@ async function request<T>(
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
-  if (res.status === 401) {
+  if (res.status === 401 && !skipAuthRedirect) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_user");
@@ -62,11 +63,11 @@ async function request<T>(
 
 export const api = {
   get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, body?: unknown) =>
+  post: <T>(path: string, body?: unknown, skipAuthRedirect = false) =>
     request<T>(path, {
       method: "POST",
       body: body !== undefined ? JSON.stringify(body) : undefined,
-    }),
+    }, skipAuthRedirect),
   put: <T>(path: string, body?: unknown) =>
     request<T>(path, {
       method: "PUT",

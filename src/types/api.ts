@@ -4,6 +4,7 @@ export interface ApiUser {
   name: string;
   username: string;
   role: "owner" | "admin" | "kasir";
+  phone?: string | null;
   is_active?: boolean;
 }
 

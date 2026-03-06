@@ -10,6 +10,8 @@ export interface ApiStockMovement {
   spare_part_id: number;
   spare_part_name?: string;
   sku?: string;
+  /** Nested join from BE include({ spare_parts: { select: { name, sku } } }) */
+  spare_parts?: { name?: string; sku?: string };
   type: "masuk" | "keluar" | "opname_adjustment";
   quantity_change: number;
   stock_before: number;
@@ -26,8 +28,8 @@ export function mapStockMovement(m: ApiStockMovement): StockMovement {
   return {
     id: m.id.toString(),
     sparePartId: m.spare_part_id.toString(),
-    sparePartName: m.spare_part_name || "Unknown",
-    sku: m.sku || "—",
+    sparePartName: m.spare_parts?.name || m.spare_part_name || "Unknown",
+    sku: m.spare_parts?.sku || m.sku || "—",
     type: m.type,
     quantityChange: m.quantity_change,
     stockBefore: m.stock_before,
@@ -41,6 +43,22 @@ export function mapStockMovement(m: ApiStockMovement): StockMovement {
 }
 
 export const stockMovementService = {
+  async stockIn(body: {
+    spare_part_id: number;
+    quantity: number;
+    note?: string;
+  }): Promise<void> {
+    await api.post("/api/v1/stock/in", body);
+  },
+
+  async stockOut(body: {
+    spare_part_id: number;
+    quantity: number;
+    note?: string;
+  }): Promise<void> {
+    await api.post("/api/v1/stock/out", body);
+  },
+
   async getAll(params?: {
     sparePart_id?: string;
     type?: string;

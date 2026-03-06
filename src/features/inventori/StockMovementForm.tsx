@@ -17,6 +17,7 @@ interface StockMovementFormProps {
   onClose: () => void;
   onSave: (data: { itemId: string; quantity: number; note: string }) => void;
   preselectedItem?: Item | null;
+  isLoading?: boolean;
 }
 
 export function StockMovementForm({
@@ -24,6 +25,7 @@ export function StockMovementForm({
   onClose,
   onSave,
   preselectedItem,
+  isLoading = false,
 }: StockMovementFormProps) {
   const { data: inventoryItems, loading } = useInventory();
   const [selectedItemId, setSelectedItemId] = useState(
@@ -45,7 +47,7 @@ export function StockMovementForm({
   const handleSave = () => {
     if (!selectedItemId || quantity <= 0) return;
     onSave({ itemId: selectedItemId, quantity, note });
-    onClose();
+    // onClose is called by parent after API succeeds
   };
 
   const isKeluar = type === "keluar";
@@ -74,12 +76,27 @@ export function StockMovementForm({
             </p>
           )}
           <div className="ml-auto flex gap-3">
-            <ActionButton variant="ghost" label="Batal" onClick={onClose} />
+            <ActionButton
+              variant="ghost"
+              label="Batal"
+              onClick={onClose}
+              disabled={isLoading}
+            />
             <ActionButton
               variant={isKeluar ? "danger" : "primary"}
-              label={isKeluar ? "Kurangi Stok" : "Tambah Stok"}
+              label={
+                isLoading
+                  ? isKeluar
+                    ? "Mengurangi Stok..."
+                    : "Menambah Stok..."
+                  : isKeluar
+                    ? "Kurangi Stok"
+                    : "Tambah Stok"
+              }
               onClick={handleSave}
-              disabled={!selectedItemId || quantity <= 0 || !hasEnoughStock}
+              disabled={
+                !selectedItemId || quantity <= 0 || !hasEnoughStock || isLoading
+              }
             />
           </div>
         </div>

@@ -110,7 +110,7 @@ export function CustomerTable() {
             <p className="text-sm font-bold leading-tight text-dark dark:text-white">
               {row.original.name}
             </p>
-            <div className="mt-1 flex items-center gap-1 text-[11px] font-medium text-dark-5">
+            <div className="mt-1 flex items-center gap-1 text-xs font-medium text-dark-5">
               <Icons.Whatsapp size={10} className="text-primary" />
               {row.original.phone}
             </div>
@@ -164,7 +164,9 @@ export function CustomerTable() {
         cell: ({ row }) => (
           <div className="flex w-full justify-center">
             <span className="text-xs font-medium text-dark-5">
-              {dayjs(row.original.lastVisit).format("DD MMM YYYY")}
+              {row.original.lastVisit
+                ? dayjs(row.original.lastVisit).format("DD MMM YYYY")
+                : "—"}
             </span>
           </div>
         ),

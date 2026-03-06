@@ -13,11 +13,33 @@ export function normalizeRole(role: string): FrontendRole {
 
 export const authService = {
   async login(username: string, password: string): Promise<LoginResponse> {
-    const res = await api.post<LoginResponse>("/api/v1/auth/login", {
-      username,
-      password,
-    });
-    return res.data;
+    try {
+      const res = await api.post<LoginResponse>("/api/v1/auth/login", {
+        username,
+        password,
+      }, true); // skip auth redirect on login failures
+      return res.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+        if (message.includes("username") || message.includes("password")) {
+          throw new Error(error.message);
+        }
+        if (message.includes("401") || message.includes("unauthenticated")) {
+          throw new Error("Username atau password salah. Silakan coba lagi.");
+        }
+        if (message.includes("403") || message.includes("forbidden")) {
+          throw new Error("Akun Anda tidak memiliki akses. Hubungi admin.");
+        }
+        if (message.includes("404") || message.includes("not found")) {
+          throw new Error("Username tidak ditemukan.");
+        }
+        if (message.includes("429") || message.includes("too many requests")) {
+          throw new Error("Terlalu banyak percobaan. Silakan tunggu beberapa saat.");
+        }
+      }
+      throw new Error("Username atau password salah. Silakan coba lagi.");
+    }
   },
 
   async logout(): Promise<void> {

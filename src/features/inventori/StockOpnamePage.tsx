@@ -62,6 +62,7 @@ function ActiveOpnameModal({
       onClose={onClose}
       maxWidth="3xl"
       footer={
+
         <div className="flex items-center justify-between">
           <p className="text-sm font-bold text-dark-5">
             Total Selisih:{" "}

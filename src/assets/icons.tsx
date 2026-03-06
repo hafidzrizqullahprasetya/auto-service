@@ -1,5 +1,24 @@
 import type { IconProps } from "@/types/icon-props";
 
+export function HomeIcon(props: IconProps) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="currentColor"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1.5 7.5L9 1.5L16.5 7.5V15.75C16.5 16.1642 16.1642 16.5 15.75 16.5H12.375C12.0643 16.5 11.8125 16.2482 11.8125 15.9375V11.25C11.8125 10.9393 11.5607 10.6875 11.25 10.6875H6.75C6.43934 10.6875 6.1875 10.9393 6.1875 11.25V15.9375C6.1875 16.2482 5.93566 16.5 5.625 16.5H2.25C1.83579 16.5 1.5 16.1642 1.5 15.75V7.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export function SearchIcon(props: IconProps) {
   return (
     <svg

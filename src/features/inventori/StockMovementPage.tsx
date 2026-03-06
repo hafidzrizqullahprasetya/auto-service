@@ -10,7 +10,9 @@ import { Icons } from "@/components/Icons";
 import { StockMovementForm } from "./StockMovementForm";
 import { useStockMovements } from "@/hooks/useStockMovements";
 import { useInventory } from "@/hooks/useInventory";
+import { stockMovementService } from "@/services/stock-movements.service";
 import dayjs from "dayjs";
+import toast from "react-hot-toast";
 
 // ─── Summary mini-cards ────────────────────────────────────────────────────────
 function StockSummary({ movements }: { movements: StockMovement[] }) {
@@ -22,7 +24,7 @@ function StockSummary({ movements }: { movements: StockMovement[] }) {
     .reduce((s, m) => s + Math.abs(m.quantityChange), 0);
 
   return (
-    <div className="mb-4 grid grid-cols-3 gap-4">
+    <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
       {[
         {
           label: "Total Masuk",
@@ -70,6 +72,55 @@ export function StockMovementPage() {
   const { data: allItems } = useInventory();
   const [showMasukForm, setShowMasukForm] = useState(false);
   const [showKeluarForm, setShowKeluarForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleStockIn = async (d: {
+    itemId: string;
+    quantity: number;
+    note: string;
+  }) => {
+    setIsSaving(true);
+    try {
+      await stockMovementService.stockIn({
+        spare_part_id: Number(d.itemId),
+        quantity: d.quantity,
+        note: d.note || undefined,
+      });
+      toast.success("Stok masuk berhasil dicatat!");
+      setShowMasukForm(false);
+      refetch();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Gagal mencatat stok masuk",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleStockOut = async (d: {
+    itemId: string;
+    quantity: number;
+    note: string;
+  }) => {
+    setIsSaving(true);
+    try {
+      await stockMovementService.stockOut({
+        spare_part_id: Number(d.itemId),
+        quantity: d.quantity,
+        note: d.note || undefined,
+      });
+      toast.success("Stok keluar berhasil dicatat!");
+      setShowKeluarForm(false);
+      refetch();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Gagal mencatat stok keluar",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const columns = useMemo<ColumnDef<StockMovement>[]>(
     () => [
@@ -207,20 +258,16 @@ export function StockMovementPage() {
         <StockMovementForm
           type="masuk"
           onClose={() => setShowMasukForm(false)}
-          onSave={(d) => {
-            console.log("Stok Masuk:", d);
-            setShowMasukForm(false);
-          }}
+          onSave={handleStockIn}
+          isLoading={isSaving}
         />
       )}
       {showKeluarForm && (
         <StockMovementForm
           type="keluar"
           onClose={() => setShowKeluarForm(false)}
-          onSave={(d) => {
-            console.log("Stok Keluar:", d);
-            setShowKeluarForm(false);
-          }}
+          onSave={handleStockOut}
+          isLoading={isSaving}
         />
       )}
     </div>

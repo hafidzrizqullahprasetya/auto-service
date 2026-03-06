@@ -14,14 +14,14 @@ export interface VehicleBody {
 export const vehiclesService = {
   async getByCustomer(customerId: string): Promise<ApiVehicle[]> {
     const res = await api.get<ApiVehicle[]>(
-      `/customers/${customerId}/vehicles`,
+      `/api/v1/customers/${customerId}/vehicles`,
     );
     return res.data ?? [];
   },
 
   async create(customerId: string, body: VehicleBody): Promise<ApiVehicle> {
     const res = await api.post<ApiVehicle>(
-      `/customers/${customerId}/vehicles`,
+      `/api/v1/customers/${customerId}/vehicles`,
       body,
     );
     return res.data;
@@ -31,7 +31,10 @@ export const vehiclesService = {
     vehicleId: string,
     body: Partial<VehicleBody>,
   ): Promise<ApiVehicle> {
-    const res = await api.put<ApiVehicle>(`/vehicles/${vehicleId}`, body);
+    const res = await api.put<ApiVehicle>(
+      `/api/v1/vehicles/${vehicleId}`,
+      body,
+    );
     return res.data;
   },
 };

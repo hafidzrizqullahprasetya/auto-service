@@ -18,6 +18,7 @@ export interface Vehicle {
   year: number;
   color: string;
   ownerId: string;
+  ownerName?: string;
   lastServiceKm: number;
   serviceHistory: ServiceRecord[];
 }
@@ -42,7 +43,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
         items: ["Oli Mesin", "Filter Oli", "Cek Rem", "Rotasi Ban"],
         cost: 1250000,
         mechanic: "Suryo",
-        notes: "Kondisi rem masih bagus 80%"
+        notes: "Kondisi rem masih bagus 80%",
       },
       {
         id: "s2",
@@ -52,9 +53,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
         items: ["Oli Mesin", "Filter Oli"],
         cost: 650000,
         mechanic: "Budi",
-        notes: "Saran ganti ban depan 5000km lagi"
-      }
-    ]
+        notes: "Saran ganti ban depan 5000km lagi",
+      },
+    ],
   },
   {
     id: "v2",
@@ -74,9 +75,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
         serviceType: "Servis Berkala 10k",
         items: ["Oli Mesin", "Filter Oli", "Busi"],
         cost: 850000,
-        mechanic: "Suryo"
-      }
-    ]
+        mechanic: "Suryo",
+      },
+    ],
   },
   {
     id: "v3",
@@ -96,8 +97,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
         serviceType: "Servis Besar",
         items: ["Oli", "Filter Udara", "Radiator Coolant", "Rantai"],
         cost: 450000,
-        mechanic: "Agus"
-      }
-    ]
-  }
+        mechanic: "Agus",
+      },
+    ],
+  },
 ];

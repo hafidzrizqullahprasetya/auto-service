@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Icons } from "@/components/Icons";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
@@ -72,17 +72,27 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     state: {
+      globalFilter: debouncedFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, _columnId, filterValue: string) => {
+      if (!filterValue || filterValue.trim() === "") return true;
+      const search = filterValue.toLowerCase().trim();
+      return row.getAllCells().some((cell) => {
+        const val = cell.getValue();
+        if (val == null) return false;
+        return String(val).toLowerCase().includes(search);
+      });
     },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     initialState: { pagination: { pageSize } },
   });
 
-  const totalRows = useMemo(
-    () => table.getRowModel().rows.length, 
-    [table],
-  );
+  const rows = table.getRowModel().rows;
+  const totalRows = rows.length;
   const currentPage = table.getState().pagination.pageIndex + 1;
   const totalPages = table.getPageCount();
 
@@ -101,10 +111,10 @@ export function DataTable<TData, TValue>({
         primaryAction ||
         secondaryAction ||
         extraActions) && (
-        <div className="flex flex-col gap-4 border-b border-stroke px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-stroke p-4 sm:px-8 sm:py-6">
           <div className="space-y-1">
             {title && (
-              <h3 className="text-lg font-bold tracking-tight text-dark">
+              <h3 className="text-base font-bold tracking-tight text-dark sm:text-lg">
                 {title}
               </h3>
             )}
@@ -113,10 +123,10 @@ export function DataTable<TData, TValue>({
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {/* Search */}
             {searchable && (
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <Icons.Search
                   size={16}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-dark-5"
@@ -126,16 +136,16 @@ export function DataTable<TData, TValue>({
                   placeholder={searchPlaceholder}
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
-                  className="h-11 w-full min-w-[280px] rounded-xl border border-stroke bg-gray-1/50 pl-11 pr-4 text-sm text-dark outline-none placeholder:text-dark-5 focus:border-dark focus:bg-white"
+                  className="h-11 w-full rounded-xl border border-stroke bg-gray-1/50 pl-11 pr-4 text-sm text-dark outline-none placeholder:text-dark-5 focus:border-dark focus:bg-white sm:min-w-[280px]"
                 />
               </div>
             )}
 
-            {/* Extra actions slot (e.g. ExcelButtons) */}
-            {extraActions}
+            {/* Actions & Extra actions */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Extra actions slot (e.g. ExcelButtons) */}
+              {extraActions}
 
-            {/* Actions */}
-            <div className="flex items-center gap-2">
               {secondaryAction && (
                 <button
                   onClick={secondaryAction.onClick}
@@ -172,12 +182,12 @@ export function DataTable<TData, TValue>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className="border-b border-stroke bg-gray-2/30 [&>th]:px-8 [&>th]:py-5"
+                  className="border-b border-stroke bg-gray-2/30 [&>th]:px-4 [&>th]:py-4 sm:[&>th]:px-8 sm:[&>th]:py-5"
                 >
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="group/th text-xs font-bold text-dark-5"
+                      className="hidden text-xs font-bold text-dark-5 sm:table-cell"
                     >
                       <div className="relative flex min-h-[14px] items-center">
                         <div className="w-full">
@@ -201,7 +211,10 @@ export function DataTable<TData, TValue>({
                   className="h-[84px] border-b border-stroke bg-white"
                 >
                   {columns.map((_, colIndex) => (
-                    <TableCell key={`col-${colIndex}`} className="px-8 py-0">
+                    <TableCell
+                      key={`col-${colIndex}`}
+                      className="hidden px-4 py-0 sm:table-cell sm:px-8"
+                    >
                       <Skeleton
                         height={20}
                         className="w-full max-w-[80%] rounded-md"
@@ -213,120 +226,189 @@ export function DataTable<TData, TValue>({
             </TableBody>
           </Table>
         ) : (
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className="border-b border-stroke bg-gray-2/30 [&>th]:px-8 [&>th]:py-5"
-                >
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className={cn(
-                        "group/th text-xs font-bold text-dark-5 transition-colors",
-                        header.column.getCanSort() &&
-                          "cursor-pointer select-none hover:text-dark",
-                      )}
-                      onClick={header.column.getToggleSortingHandler?.()}
+          <>
+            {/* Desktop Table */}
+            <div className="hidden sm:block">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow
+                      key={headerGroup.id}
+                      className="border-b border-stroke bg-gray-2/30 [&>th]:px-8 [&>th]:py-5"
                     >
-                      <div className="relative flex min-h-[14px] items-center">
-                        <div className="w-full">
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
+                      {headerGroup.headers.map((header) => (
+                        <TableHead
+                          key={header.id}
+                          className={cn(
+                            "group/th text-xs font-bold text-dark-5 transition-colors",
+                            header.column.getCanSort() &&
+                              "cursor-pointer select-none hover:text-dark",
+                          )}
+                          onClick={header.column.getToggleSortingHandler?.()}
+                        >
+                          <div className="relative flex min-h-[14px] items-center">
+                            <div className="w-full">
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                            </div>
+                            {header.column.getCanSort() &&
+                              !header.column.id.includes("actions") &&
+                              !header.column.id.includes("no") && (
+                                <div className="absolute -right-4 top-1/2 flex -translate-y-1/2 items-center justify-center">
+                                  {{
+                                    asc: (
+                                      <Icons.ArrowUp
+                                        size={12}
+                                        className="text-dark"
+                                      />
+                                    ),
+                                    desc: (
+                                      <Icons.ArrowDown
+                                        size={12}
+                                        className="text-dark"
+                                      />
+                                    ),
+                                  }[header.column.getIsSorted() as string] ?? (
+                                    <Icons.ChevronDown
+                                      size={12}
+                                      className="opacity-30 group-hover/th:opacity-100"
+                                    />
+                                  )}
+                                </div>
                               )}
-                        </div>
-                        {header.column.getCanSort() &&
-                          !header.column.id.includes("actions") &&
-                          !header.column.id.includes("no") && (
-                            <div className="absolute -right-4 top-1/2 flex -translate-y-1/2 items-center justify-center">
-                              {{
-                                asc: (
-                                  <Icons.ArrowUp
-                                    size={12}
-                                    className="text-dark"
-                                  />
-                                ),
-                                desc: (
-                                  <Icons.ArrowDown
-                                    size={12}
-                                    className="text-dark"
-                                  />
-                                ),
-                              }[header.column.getIsSorted() as string] ?? (
-                                <Icons.ChevronDown
-                                  size={12}
-                                  className="opacity-30 group-hover/th:opacity-100"
-                                />
+                          </div>
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+
+                <TableBody>
+                  {totalRows > 0 ? (
+                    rows.map((row, i) => (
+                      <TableRow
+                        key={row.id}
+                        className={cn(
+                          "group h-[84px] border-b border-stroke hover:bg-gray-2/50",
+                          i % 2 === 0 ? "bg-white" : "bg-gray-2/20",
+                        )}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell
+                            key={cell.id}
+                            className="px-8 py-0 max-sm:hidden"
+                          >
+                            <div className="flex h-full items-center">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
                               )}
                             </div>
-                          )}
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-
-            <TableBody>
-              {totalRows > 0 ? (
-                table.getRowModel().rows.map((row, i) => (
-                  <TableRow
-                    key={row.id}
-                    className={cn(
-                      "group h-[84px] border-b border-stroke hover:bg-gray-2/50",
-                      i % 2 === 0 ? "bg-white" : "bg-gray-2/20",
-                    )}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="px-8 py-0">
-                        <div className="flex h-full items-center">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-[300px] text-center"
+                      >
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-1">
+                            <Icons.Search
+                              size={32}
+                              className="text-dark-5 opacity-20"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="font-bold text-dark">
+                              Data Tidak Ditemukan
+                            </p>
+                            <p className="text-xs text-dark-5">
+                              Coba sesuaikan kata kunci atau filter pencarian
+                              Anda
+                            </p>
+                          </div>
                         </div>
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-[300px] text-center"
-                  >
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-1">
-                        <Icons.Search
-                          size={32}
-                          className="text-dark-5 opacity-20"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="font-bold text-dark">
-                          Data Tidak Ditemukan
-                        </p>
-                        <p className="text-xs text-dark-5">
-                          Coba sesuaikan kata kunci atau filter pencarian Anda
-                        </p>
-                      </div>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="sm:hidden">
+              {totalRows > 0 ? (
+                <div className="divide-y divide-stroke">
+                  {rows.map((row, i) => (
+                    <div
+                      key={row.id}
+                      className={cn(
+                        "group flex flex-col gap-3 p-4 hover:bg-gray-2/50",
+                        i % 2 === 0 ? "bg-white" : "bg-gray-2/20",
+                      )}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const header = cell.column.columnDef.header;
+                        const headerText =
+                          typeof header === "string"
+                            ? header
+                            : header && "accessorKey" in cell.column.columnDef
+                              ? String(cell.column.columnDef.accessorKey || "")
+                              : "";
+                        return (
+                          <div
+                            key={cell.id}
+                            className="flex items-center justify-between border-b border-stroke pb-2 last:border-0 last:pb-0"
+                          >
+                            <div className="flex items-center gap-3">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </div>
+                            {headerText && (
+                              <span className="text-[10px] font-medium text-dark-5">
+                                {headerText}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  </TableCell>
-                </TableRow>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-[300px] flex-col items-center justify-center gap-3 p-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-1">
+                    <Icons.Search
+                      size={32}
+                      className="text-dark-5 opacity-20"
+                    />
+                  </div>
+                  <div className="space-y-1 text-center">
+                    <p className="font-bold text-dark">Data Tidak Ditemukan</p>
+                    <p className="text-xs text-dark-5">
+                      Coba sesuaikan kata kunci atau filter pencarian Anda
+                    </p>
+                  </div>
+                </div>
               )}
-            </TableBody>
-          </Table>
+            </div>
+          </>
         )}
       </div>
 
       {/* ── Pagination ──────────────────────────────────────────────── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-stroke px-8 py-5">
-          <p className="text-xs font-medium text-dark-5">
+        <div className="flex flex-col items-center gap-3 border-t border-stroke px-4 py-4 sm:flex-row sm:justify-between sm:px-8 sm:py-5">
+          <p className="hidden text-xs font-medium text-dark-5 sm:block">
             Menampilkan <span className="font-bold text-dark">{totalRows}</span>{" "}
             dari <span className="font-bold text-dark">{data.length}</span> data
           </p>

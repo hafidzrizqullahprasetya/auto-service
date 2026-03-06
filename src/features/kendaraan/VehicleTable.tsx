@@ -13,7 +13,14 @@ import { VehicleFormModal } from "@/features/kendaraan";
 import { kendaraanToExcelRows } from "@/lib/excel";
 
 export function VehicleTable() {
-  const { data: vehicles, loading, error, refetch } = useVehicles();
+  const {
+    data: vehicles,
+    loading,
+    error,
+    refetch,
+    addVehicle,
+    updateVehicle,
+  } = useVehicles();
   const [historyVehicle, setHistoryVehicle] = useState<Vehicle | null>(null);
   const [showRegModal, setShowRegModal] = useState(false);
   const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
@@ -29,16 +36,35 @@ export function VehicleTable() {
   const handleSave = async (data: any) => {
     setIsSaving(true);
     try {
-      await new Promise((res) => setTimeout(res, 800)); // mock API call
-      toast.success(
-        editVehicle
-          ? "Kendaraan berhasil diperbarui!"
-          : "Kendaraan berhasil didaftarkan!",
-      );
+      if (editVehicle) {
+        await updateVehicle(editVehicle.id, {
+          plate_number: data.plate_number,
+          type: data.type,
+          brand: data.brand,
+          model: data.model,
+          year: data.year,
+        });
+        toast.success("Kendaraan berhasil diperbarui!");
+      } else {
+        if (!data.customer_id) {
+          toast.error("Pilih pemilik kendaraan terlebih dahulu!");
+          return;
+        }
+        await addVehicle(data.customer_id, {
+          plate_number: data.plate_number,
+          type: data.type,
+          brand: data.brand,
+          model: data.model,
+          year: data.year,
+        });
+        toast.success("Kendaraan berhasil didaftarkan!");
+      }
       setShowRegModal(false);
       setEditVehicle(null);
     } catch (err) {
-      toast.error("Gagal menyimpan kendaraan.");
+      toast.error(
+        err instanceof Error ? err.message : "Gagal menyimpan kendaraan.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -77,23 +103,27 @@ export function VehicleTable() {
               <p className="text-sm font-bold leading-tight text-dark dark:text-white">
                 {v.brand} {v.model}
               </p>
-              <span className="text-[11px] font-medium text-dark-5">
-                {v.color}
-              </span>
+              <span className="text-xs font-medium text-dark-5">{v.color}</span>
             </div>
           );
         },
       },
       {
         accessorKey: "ownerId",
-        header: () => <div className="w-full text-center">Pemilik</div>,
-        cell: ({ row }) => (
-          <div className="flex w-full items-center justify-center gap-2">
-            <span className="rounded border border-stroke bg-gray-2 px-2 py-0.5 text-[11px] font-medium text-dark-5 dark:bg-dark-3">
-              ID: {row.original.ownerId}
-            </span>
-          </div>
-        ),
+        header: "Pemilik",
+        cell: ({ row }) => {
+          const v = row.original;
+          return (
+            <div className="flex flex-col">
+              <p className="text-sm font-bold leading-tight text-dark dark:text-white">
+                {v.ownerName || "—"}
+              </p>
+              <span className="text-xs font-medium text-dark-5">
+                ID: {v.ownerId}
+              </span>
+            </div>
+          );
+        },
       },
       {
         accessorKey: "year",

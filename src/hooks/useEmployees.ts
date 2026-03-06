@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { usersService } from "@/services/users.service";
+import { usersService, UserBody } from "@/services/users.service";
 import { Employee } from "@/mock/employees";
 
 export function useEmployees() {
@@ -27,5 +27,31 @@ export function useEmployees() {
     fetchAll();
   }, [fetchAll]);
 
-  return { data, loading, error, refetch: fetchAll };
+  async function addEmployee(body: UserBody) {
+    await usersService.create(body);
+    await fetchAll();
+  }
+
+  async function updateEmployee(
+    id: string,
+    body: Partial<Omit<UserBody, "password"> & { password?: string }>,
+  ) {
+    await usersService.update(id, body);
+    await fetchAll();
+  }
+
+  async function deleteEmployee(id: string) {
+    await usersService.delete(id);
+    await fetchAll();
+  }
+
+  return {
+    data,
+    loading,
+    error,
+    refetch: fetchAll,
+    addEmployee,
+    updateEmployee,
+    deleteEmployee,
+  };
 }

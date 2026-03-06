@@ -27,7 +27,13 @@ const getStatusVariant = (status: Employee["status"]) => {
 };
 
 export function EmployeeTable() {
-  const { data: employees, loading, error } = useEmployees();
+  const {
+    data: employees,
+    loading,
+    error,
+    addEmployee,
+    updateEmployee,
+  } = useEmployees();
   const [showModal, setShowModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null,
@@ -44,12 +50,19 @@ export function EmployeeTable() {
   const handleSave = async (data: any) => {
     setIsSaving(true);
     try {
-      await new Promise((res) => setTimeout(res, 800));
-      toast.success("Karyawan berhasil disimpan!");
+      if (selectedEmployee) {
+        await updateEmployee(String(selectedEmployee.id), data);
+        toast.success("Karyawan berhasil diperbarui!");
+      } else {
+        await addEmployee(data);
+        toast.success("Karyawan berhasil ditambahkan!");
+      }
       setShowModal(false);
       setSelectedEmployee(null);
     } catch (err) {
-      toast.error("Gagal menyimpan data karyawan.");
+      toast.error(
+        err instanceof Error ? err.message : "Gagal menyimpan data karyawan.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -71,7 +84,7 @@ export function EmployeeTable() {
                 <span className="text-sm font-bold leading-none text-dark dark:text-white">
                   {e.name}
                 </span>
-                <span className="text-[11px] font-medium text-dark-5">
+                <span className="text-xs font-medium text-dark-5">
                   {e.role}
                 </span>
               </div>
@@ -133,12 +146,25 @@ export function EmployeeTable() {
       {
         accessorKey: "phone",
         header: () => <div className="w-full text-center">WhatsApp</div>,
-        cell: ({ row }) => (
-          <div className="flex w-full items-center justify-center gap-2 text-xs font-medium text-dark-5">
-            <Icons.Whatsapp size={12} />
-            +62{row.original.phone}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const raw = row.original.phone ?? "";
+          // Normalise: strip leading 0, then prepend +62
+          const normalised = raw.startsWith("0")
+            ? "+62" + raw.slice(1)
+            : raw.startsWith("62")
+              ? "+" + raw
+              : raw.startsWith("+62")
+                ? raw
+                : raw
+                  ? "+62" + raw
+                  : null;
+          return (
+            <div className="flex w-full items-center justify-center gap-2 text-xs font-medium text-dark-5">
+              <Icons.Whatsapp size={12} />
+              {normalised ?? <span className="italic">—</span>}
+            </div>
+          );
+        },
       },
       {
         id: "actions",

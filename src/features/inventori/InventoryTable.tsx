@@ -3,7 +3,7 @@
 import Skeleton from "react-loading-skeleton";
 import toast from "react-hot-toast";
 import React, { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ScanBarcode } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { BarcodeLabelModal, ConfirmDeleteModal } from "@/features/shared";
 import { ActionButton, ExcelButtons } from "@/features/shared";
 import { InventoryFormModal } from "@/features/inventori";
+import { BarcodeExportModal } from "./BarcodeExportModal";
 import { InventorySummary } from "./InventorySummary";
 import { inventoriToExcelRows } from "@/lib/excel";
 
@@ -74,6 +75,7 @@ export function InventoryTable() {
   const [isSaving, setIsSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [showBarcodeExport, setShowBarcodeExport] = useState(false);
   const [filterType, setFilterType] = useState<
     "all" | "Mobil" | "Motor" | "Umum"
   >("all");
@@ -384,6 +386,14 @@ export function InventoryTable() {
                 className="w-full sm:w-auto"
               />
               <button
+                onClick={() => setShowBarcodeExport(true)}
+                title="Export semua barcode ke PDF"
+                className="flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-stroke bg-white px-3 text-xs font-bold text-dark-5 transition-colors hover:border-purple-400 hover:text-purple-600 dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:hover:border-purple-400 dark:hover:text-purple-400"
+              >
+                <ScanBarcode size={14} />
+                <span className="hidden sm:inline">Barcode PDF</span>
+              </button>
+              <button
                 onClick={() => {
                   setEditItem(null);
                   setShowAddModal(true);
@@ -560,6 +570,13 @@ export function InventoryTable() {
         <BarcodeLabelModal
           item={barcodeItem}
           onClose={() => setBarcodeItem(null)}
+        />
+      )}
+
+      {showBarcodeExport && (
+        <BarcodeExportModal
+          items={filteredData}
+          onClose={() => setShowBarcodeExport(false)}
         />
       )}
       {showAddModal && (

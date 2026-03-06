@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { customersService } from "@/services/customers.service";
+import { vehiclesService, VehicleBody } from "@/services/vehicles.service";
 import { Vehicle } from "@/mock/vehicles";
+import { ApiVehicle } from "@/types/api";
 
 /** Flattens all vehicles from all customers into the FE Vehicle shape.
- *  Since /customers returns vehicles[] on each customer, we map them. */
+ *  Since /customers returns vehicles[] (full ApiVehicle objects) on each customer, we map them. */
 export function useVehicles() {
   const [data, setData] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,19 +16,20 @@ export function useVehicles() {
     try {
       setLoading(true);
       setError(null);
-      const customers = await customersService.getAll();
-      // Build vehicle list from customer.vehicles (plate_number array)
-      // Full vehicle info requires per-customer fetch; use customer.vehicles plates
+      const customers = await customersService.getAllRaw();
       const vehicles: Vehicle[] = customers.flatMap((c) =>
-        (c.vehicles ?? []).map((plate, idx) => ({
-          id: `${c.id}-v${idx}`,
-          plateNumber: plate,
-          brand: "",
-          model: "",
-          type: "Mobil" as const,
-          year: 0,
+        (c.vehicles ?? []).map((v: ApiVehicle) => ({
+          id: String(v.id),
+          plateNumber: v.plate_number,
+          brand: v.brand ?? "",
+          model: v.model ?? "",
+          type: ((v.type as string) === "Motor" ? "Motor" : "Mobil") as
+            | "Mobil"
+            | "Motor",
+          year: v.year ?? 0,
           color: "",
-          ownerId: c.id,
+          ownerId: String(c.id),
+          ownerName: c.name,
           lastServiceKm: 0,
           serviceHistory: [],
         })),
@@ -45,5 +48,15 @@ export function useVehicles() {
     fetchAll();
   }, [fetchAll]);
 
-  return { data, loading, error, refetch: fetchAll };
+  async function addVehicle(customerId: string, body: VehicleBody) {
+    await vehiclesService.create(customerId, body);
+    await fetchAll();
+  }
+
+  async function updateVehicle(vehicleId: string, body: Partial<VehicleBody>) {
+    await vehiclesService.update(vehicleId, body);
+    await fetchAll();
+  }
+
+  return { data, loading, error, refetch: fetchAll, addVehicle, updateVehicle };
 }

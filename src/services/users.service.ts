@@ -13,7 +13,7 @@ export function mapUser(u: ApiUser): Employee {
     joinDate: "",
     totalTasks: 0,
     rating: 0,
-    phone: "",
+    phone: u.phone ?? "",
   };
 }
 
@@ -22,6 +22,7 @@ export interface UserBody {
   username: string;
   password: string;
   role: "admin" | "kasir";
+  phone?: string;
 }
 
 export const usersService = {

@@ -30,6 +30,12 @@ export const customersService = {
     return (res.data ?? []).map(mapCustomer);
   },
 
+  /** Returns raw ApiCustomer[] with full vehicle objects (for useVehicles) */
+  async getAllRaw(): Promise<ApiCustomer[]> {
+    const res = await api.get<ApiCustomer[]>("/api/v1/customers");
+    return res.data ?? [];
+  },
+
   async getById(id: string): Promise<Customer> {
     const res = await api.get<ApiCustomer>(`/api/v1/customers/${id}`);
     return mapCustomer(res.data);

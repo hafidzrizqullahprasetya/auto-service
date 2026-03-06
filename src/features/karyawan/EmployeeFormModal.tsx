@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { BaseModal } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/features/shared";
@@ -10,80 +13,164 @@ interface EmployeeFormModalProps {
   isLoading?: boolean;
 }
 
-export function EmployeeFormModal({ onClose, onSave, initialData, mode = "create", isLoading = false }: EmployeeFormModalProps) {
+export function EmployeeFormModal({
+  onClose,
+  onSave,
+  initialData,
+  mode = "create",
+  isLoading = false,
+}: EmployeeFormModalProps) {
   const isEdit = mode === "edit";
+
+  const [name, setName] = useState(initialData?.name ?? "");
+  const [username, setUsername] = useState(initialData?.username ?? "");
+  const [role, setRole] = useState<"admin" | "kasir">(
+    (initialData?.role?.toLowerCase() === "owner"
+      ? "admin"
+      : initialData?.role?.toLowerCase()) ?? "kasir",
+  );
+  const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const [password, setPassword] = useState("");
+
+  const handleSave = () => {
+    if (!name.trim()) {
+      return;
+    }
+    if (!isEdit && !username.trim()) {
+      return;
+    }
+    if (!isEdit && !password.trim()) {
+      return;
+    }
+
+    const payload: any = { name, role, phone: phone.trim() || null };
+    if (!isEdit) {
+      payload.username = username;
+      payload.password = password;
+    } else if (password.trim()) {
+      payload.password = password;
+    }
+    onSave(payload);
+  };
+
+  const inputCls =
+    "w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white";
 
   return (
     <BaseModal
       title={isEdit ? "Edit Profil Karyawan" : "Tambah Karyawan Baru"}
-      description={isEdit ? `Ubah informasi untuk staf ${initialData?.name}` : "Daftarkan mekanik atau staf administrasi baru"}
+      description={
+        isEdit
+          ? `Ubah informasi untuk staf ${initialData?.name}`
+          : "Daftarkan staf atau admin baru ke sistem"
+      }
       icon={<Icons.Karyawan size={20} />}
       onClose={onClose}
       maxWidth="lg"
       hideFooter
     >
       <div className="space-y-4">
+        {/* Nama */}
         <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">Nama Lengkap</label>
-          <input 
-            type="text" 
+          <label className="text-sm font-bold text-dark dark:text-white">
+            Nama Lengkap <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
             placeholder="Contoh: Budi Sudarsono"
-            defaultValue={initialData?.name}
-            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark dark:text-white outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className={inputCls}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* Username — hanya saat create */}
+        {!isEdit && (
           <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">Jabatan / Role</label>
-            <select 
-              defaultValue={initialData?.role}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark dark:text-white outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-            >
-              <option value="Owner">Owner</option>
-              <option value="Admin">Admin</option>
-              <option value="Kasir">Kasir</option>
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">Status Kerja</label>
-            <select 
-              defaultValue={initialData?.status || "Aktif"}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark dark:text-white outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-            >
-              <option value="Aktif">Aktif Working</option>
-              <option value="Cuti">Cuti</option>
-              <option value="Off">Off / Libur</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">Nomor WhatsApp / HP</label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-dark-5">+62</span>
-            <input 
-              type="text" 
-              placeholder="8123456789"
-              defaultValue={initialData?.phone}
-              className="w-full rounded-lg border border-stroke bg-transparent pl-14 pr-4 py-2.5 text-sm font-bold text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+            <label className="text-sm font-bold text-dark dark:text-white">
+              Username <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: budi123"
+              value={username}
+              onChange={(e) =>
+                setUsername(e.target.value.toLowerCase().replace(/\s/g, ""))
+              }
+              className={inputCls}
             />
           </div>
+        )}
+
+        {/* Role */}
+        <div className="space-y-1.5">
+          <label className="text-sm font-bold text-dark dark:text-white">
+            Jabatan / Role
+          </label>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as "admin" | "kasir")}
+            className={inputCls}
+          >
+            <option value="admin">Admin</option>
+            <option value="kasir">Kasir</option>
+          </select>
         </div>
 
+        {/* Password */}
         <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">Alamat (Opsional)</label>
-          <textarea 
-            placeholder="Alamat lengkap tempat tinggal"
-            defaultValue={initialData?.address}
-            rows={3}
-            className="w-full resize-none rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark dark:text-white outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+          <label className="text-sm font-bold text-dark dark:text-white">
+            Nomor WhatsApp
+          </label>
+          <input
+            type="tel"
+            placeholder="Contoh: 08123456789"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className={inputCls}
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t border-stroke dark:border-dark-3 mt-4">
-          <ActionButton variant="ghost" label="Batal" onClick={onClose} disabled={isLoading} />
-          <ActionButton variant="primary" label={isLoading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Simpan Karyawan"} onClick={() => onSave({})} disabled={isLoading} />
+        {/* Password */}
+        <div className="space-y-1.5">
+          <label className="text-sm font-bold text-dark dark:text-white">
+            {isEdit
+              ? "Password Baru (kosongkan jika tidak diubah)"
+              : "Password"}{" "}
+            {!isEdit && <span className="text-red-500">*</span>}
+          </label>
+          <input
+            type="password"
+            placeholder={
+              isEdit
+                ? "Biarkan kosong jika tidak ingin mengubah"
+                : "Minimal 6 karakter"
+            }
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={inputCls}
+          />
+        </div>
+
+        <div className="mt-4 flex justify-end gap-3 border-t border-stroke pt-4 dark:border-dark-3">
+          <ActionButton
+            variant="ghost"
+            label="Batal"
+            onClick={onClose}
+            disabled={isLoading}
+          />
+          <ActionButton
+            variant="primary"
+            label={
+              isLoading
+                ? "Menyimpan..."
+                : isEdit
+                  ? "Simpan Perubahan"
+                  : "Simpan Karyawan"
+            }
+            onClick={handleSave}
+            disabled={isLoading}
+          />
         </div>
       </div>
     </BaseModal>
