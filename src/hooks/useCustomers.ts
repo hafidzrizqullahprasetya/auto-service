@@ -15,9 +15,9 @@ export function useCustomers() {
       const customers = await customersService.getAll();
       setData(customers);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Gagal memuat data pelanggan",
-      );
+      const errMsg =
+        err instanceof Error ? err.message : "Gagal memuat data pelanggan";
+      setError(errMsg);
     } finally {
       setLoading(false);
     }

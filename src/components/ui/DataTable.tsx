@@ -71,16 +71,16 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    state: { globalFilter: debouncedFilter },
+    state: {
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     initialState: { pagination: { pageSize } },
   });
 
   const totalRows = useMemo(
-    () => table.getFilteredRowModel().rows.length,
+    () => table.getRowModel().rows.length, 
     [table],
   );
   const currentPage = table.getState().pagination.pageIndex + 1;
@@ -175,12 +175,18 @@ export function DataTable<TData, TValue>({
                   className="border-b border-stroke bg-gray-2/30 [&>th]:px-8 [&>th]:py-5"
                 >
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="group/th text-xs font-bold text-dark-5">
+                    <TableHead
+                      key={header.id}
+                      className="group/th text-xs font-bold text-dark-5"
+                    >
                       <div className="relative flex min-h-[14px] items-center">
                         <div className="w-full">
                           {header.isPlaceholder
                             ? null
-                            : flexRender(header.column.columnDef.header, header.getContext())}
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
                         </div>
                       </div>
                     </TableHead>
@@ -196,7 +202,10 @@ export function DataTable<TData, TValue>({
                 >
                   {columns.map((_, colIndex) => (
                     <TableCell key={`col-${colIndex}`} className="px-8 py-0">
-                      <Skeleton height={20} className="w-full max-w-[80%] rounded-md" />
+                      <Skeleton
+                        height={20}
+                        className="w-full max-w-[80%] rounded-md"
+                      />
                     </TableCell>
                   ))}
                 </TableRow>
