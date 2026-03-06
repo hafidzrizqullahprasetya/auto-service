@@ -27,12 +27,15 @@ export function useCustomers() {
     fetchAll();
   }, [fetchAll]);
 
-  const addCustomer = useCallback(async (body: CustomerBody) => {
-    const customer = await customersService.create(body);
-    // Refetch data untuk ensure kita get complete customer data dengan relasi
-    await fetchAll();
-    return customer;
-  }, [fetchAll]);
+  const addCustomer = useCallback(
+    async (body: CustomerBody) => {
+      const customer = await customersService.create(body);
+      // Refetch data untuk ensure kita get complete customer data dengan relasi
+      await fetchAll();
+      return customer;
+    },
+    [fetchAll],
+  );
 
   const updateCustomer = useCallback(
     async (id: string, body: Partial<CustomerBody>) => {

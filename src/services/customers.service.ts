@@ -46,6 +46,6 @@ export const customersService = {
   },
 
   async delete(id: string): Promise<void> {
-    await api.delete(`/customers/${id}`);
+    await api.delete(`/api/v1/customers/${id}`);
   },
 };
