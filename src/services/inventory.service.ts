@@ -59,28 +59,28 @@ export const inventoryService = {
     if (params?.low_stock) q.set("low_stock", "true");
     const qs = q.toString();
     const res = await api.get<ApiSparePart[]>(
-      `/spare-parts${qs ? "?" + qs : ""}`,
+      `/api/v1/spare-parts${qs ? "?" + qs : ""}`,
     );
     return (res.data ?? []).map(mapSparePart);
   },
 
   async create(body: SparePartBody): Promise<Item> {
-    const res = await api.post<ApiSparePart>("/spare-parts", body);
+    const res = await api.post<ApiSparePart>("/api/v1/spare-parts", body);
     return mapSparePart(res.data);
   },
 
   async update(id: string, body: Partial<SparePartBody>): Promise<Item> {
-    const res = await api.put<ApiSparePart>(`/spare-parts/${id}`, body);
+    const res = await api.put<ApiSparePart>(`/api/v1/spare-parts/${id}`, body);
     return mapSparePart(res.data);
   },
 
   async delete(id: string): Promise<void> {
-    await api.delete(`/spare-parts/${id}`);
+    await api.delete(`/api/v1/spare-parts/${id}`);
   },
 
   /** Get raw spare part by id (with stock history) */
   async getById(id: string): Promise<ApiSparePart> {
-    const res = await api.get<ApiSparePart>(`/spare-parts/${id}`);
+    const res = await api.get<ApiSparePart>(`/api/v1/spare-parts/${id}`);
     return res.data;
   },
 
@@ -90,7 +90,7 @@ export const inventoryService = {
   },
 
   async createCategory(name: string): Promise<ApiCategory> {
-    const res = await api.post<ApiCategory>("/categories", { name });
+    const res = await api.post<ApiCategory>("/api/v1/categories", { name });
     return res.data;
   },
 };
