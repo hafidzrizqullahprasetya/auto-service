@@ -1,5 +1,7 @@
 "use client";
 
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import {
   useReactTable,
   getCoreRowModel,
@@ -165,9 +167,42 @@ export function DataTable<TData, TValue>({
       {/* ── Table ───────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-x-auto">
         {isLoading ? (
-          <div className="flex items-center justify-center py-24">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-dark border-t-transparent" />
-          </div>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow
+                  key={headerGroup.id}
+                  className="border-b border-stroke bg-gray-2/30 [&>th]:px-8 [&>th]:py-5"
+                >
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="group/th text-xs font-bold text-dark-5">
+                      <div className="relative flex min-h-[14px] items-center">
+                        <div className="w-full">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </div>
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: pageSize }).map((_, index) => (
+                <TableRow
+                  key={`skeleton-${index}`}
+                  className="h-[84px] border-b border-stroke bg-white"
+                >
+                  {columns.map((_, colIndex) => (
+                    <TableCell key={`col-${colIndex}`} className="px-8 py-0">
+                      <Skeleton height={20} className="w-full max-w-[80%] rounded-md" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         ) : (
           <Table>
             <TableHeader>

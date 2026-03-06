@@ -2,11 +2,11 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { OverviewCardsGroup } from "./_components/overview-cards";
 import { OverviewCardsSkeleton } from "./_components/overview-cards/skeleton";
-import { LowStockAlert } from "@/components/Bengkel/Dashboard/LowStockAlert";
-import { TopServices } from "@/components/Bengkel/Dashboard/TopServices";
-import { RecentActivity } from "@/components/Bengkel/Dashboard/RecentActivity";
-import { RevenueAnalysis } from "@/components/Bengkel/Dashboard/RevenueAnalysis";
-import { VehicleTypeRatio } from "@/components/Bengkel/Dashboard/VehicleTypeRatio";
+import { LowStockAlert } from "@/features/dashboard/LowStockAlert";
+import { TopServices } from "@/features/dashboard/TopServices";
+import { RecentActivity } from "@/features/dashboard/RecentActivity";
+import { RevenueAnalysis } from "@/features/dashboard/RevenueAnalysis";
+import { VehicleTypeRatio } from "@/features/dashboard/VehicleTypeRatio";
 import { createTimeFrameExtractor } from "@/lib/timeframe-extractor";
 
 export const metadata: Metadata = {

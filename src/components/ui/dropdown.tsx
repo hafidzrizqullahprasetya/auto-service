@@ -46,9 +46,10 @@ export function Dropdown({ children, isOpen, setIsOpen }: DropdownProps) {
     if (isOpen) {
       triggerRef.current = document.activeElement as HTMLElement;
 
-      document.body.style.pointerEvents = "none";
+      // Prevent scroll on mobile when dropdown is open
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.removeProperty("pointer-events");
+      document.body.style.removeProperty("overflow");
 
       setTimeout(() => {
         triggerRef.current?.focus();

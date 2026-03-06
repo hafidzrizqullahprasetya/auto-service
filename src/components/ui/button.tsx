@@ -1,46 +1,60 @@
-import { cn } from "@/lib/utils";
-import * as React from "react";
+import { cva, VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "react";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  size?: "default" | "sm" | "lg" | "icon";
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", ...props }, ref) => {
-    return (
-      <button
-        className={cn(
-          "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
-          {
-            "bg-primary text-primary-foreground shadow hover:bg-primary/90":
-              variant === "default",
-            "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90":
-              variant === "destructive",
-            "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground":
-              variant === "outline",
-            "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80":
-              variant === "secondary",
-            "hover:bg-accent hover:text-accent-foreground":
-              variant === "ghost",
-            "text-primary underline-offset-4 hover:underline":
-              variant === "link",
-          },
-          {
-            "h-9 px-4 py-2": size === "default",
-            "h-8 rounded-md px-3 text-xs": size === "sm",
-            "h-10 rounded-md px-8": size === "lg",
-            "h-9 w-9": size === "icon",
-          },
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2.5 text-center font-medium hover:bg-opacity-90 font-medium transition focus:outline-none",
+  {
+    variants: {
+      variant: {
+        primary: "bg-primary text-white",
+        green: "bg-green text-white",
+        dark: "bg-dark text-white dark:bg-white/10",
+        outlinePrimary:
+          "border border-primary hover:bg-primary/10 text-primary",
+        outlineGreen: "border border-green hover:bg-green/10 text-green",
+        outlineDark:
+          "border border-dark hover:bg-dark/10 text-dark dark:hover:bg-white/10 dark:border-white/25 dark:text-white",
+      },
+      shape: {
+        default: "",
+        rounded: "rounded-[5px]",
+        full: "rounded-full",
+      },
+      size: {
+        default: "py-3.5 px-10 py-3.5 lg:px-8 xl:px-10",
+        small: "py-[11px] px-6",
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      shape: "default",
+      size: "default",
+    },
+  },
 );
-Button.displayName = "Button";
 
-export { Button };
+type ButtonProps = HTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof buttonVariants> & {
+    label: string;
+    icon?: React.ReactNode;
+  };
+
+export function Button({
+  label,
+  icon,
+  variant,
+  shape,
+  size,
+  className,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      className={buttonVariants({ variant, shape, size, className })}
+      {...props}
+    >
+      {icon && <span>{icon}</span>}
+      {label}
+    </button>
+  );
+}

@@ -1,8 +1,5 @@
-import Signin from "@/components/Auth/Signin";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import Signin from "@/features/auth/Signin";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -29,16 +26,6 @@ export default function SignIn() {
                 <p className="mx-auto w-full max-w-[300px] text-sm font-medium leading-relaxed text-gray-400">
                   Manajemen Inventori, Stok Opname & Real-Time Queue System.
                 </p>
-              </div>
-
-              <div className="absolute bottom-0 left-0 right-0 z-0 flex justify-center opacity-20 grayscale pointer-events-none">
-                <Image
-                  src={"/images/grids/grid-02.svg"}
-                  alt="Logo"
-                  width={405}
-                  height={325}
-                  className="mx-auto"
-                />
               </div>
             </div>
           </div>

@@ -36,7 +36,22 @@ async function request<T>(
     throw new Error("Sesi habis, silakan login ulang.");
   }
 
-  const json: ApiEnvelopeRaw<T> = await res.json();
+  let json: ApiEnvelopeRaw<T>;
+  const text = await res.text();
+
+  try {
+    json = JSON.parse(text);
+  } catch (err) {
+    console.error("FAILED TO PARSE JSON FROM API:", {
+      status: res.status,
+      statusText: res.statusText,
+      url: res.url,
+      body: text,
+    });
+    throw new Error(
+      `Format respon server tidak valid (bukan JSON). Status: ${res.status}. Lihat konsol untuk detail.`,
+    );
+  }
 
   if (!res.ok) {
     throw new Error(json.message ?? `HTTP ${res.status}`);

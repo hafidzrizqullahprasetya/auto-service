@@ -1,6 +1,6 @@
 // ===== Auth =====
 export interface ApiUser {
-  id: string;
+  id: number;
   name: string;
   username: string;
   role: "owner" | "admin" | "kasir";
@@ -15,7 +15,7 @@ export interface LoginResponse {
 
 // ===== Customers =====
 export interface ApiCustomer {
-  id: string;
+  id: number;
   name: string;
   phone: string;
   email?: string;
@@ -29,8 +29,8 @@ export interface ApiCustomer {
 
 // ===== Vehicles =====
 export interface ApiVehicle {
-  id: string;
-  customer_id: string;
+  id: number;
+  customer_id: number;
   plate_number: string;
   type: string;
   brand: string;
@@ -40,20 +40,20 @@ export interface ApiVehicle {
 
 // ===== Categories =====
 export interface ApiCategory {
-  id: string;
+  id: number;
   name: string;
   description?: string;
 }
 
 // ===== Spare Parts =====
 export interface ApiSparePart {
-  id: string;
+  id: number;
   sku: string;
   name: string;
-  category_id: string;
+  category_id: number | null;
   category?: ApiCategory;
-  cost_price: number;
-  sell_price: number;
+  cost_price: number | string;
+  sell_price: number | string;
   current_stock: number;
   minimum_stock: number;
   unit: string;
@@ -63,8 +63,8 @@ export interface ApiSparePart {
 
 // ===== Stock Movements =====
 export interface ApiStockMovement {
-  id: string;
-  spare_part_id: string;
+  id: number;
+  spare_part_id: number;
   spare_part?: ApiSparePart;
   type: "in" | "out";
   quantity: number;
@@ -75,7 +75,7 @@ export interface ApiStockMovement {
 
 // ===== Opname =====
 export interface ApiOpname {
-  id: string;
+  id: number;
   session_name: string;
   status: "open" | "closed";
   created_at: string;
@@ -84,9 +84,9 @@ export interface ApiOpname {
 }
 
 export interface ApiOpnameItem {
-  id: string;
-  opname_id: string;
-  spare_part_id: string;
+  id: number;
+  opname_id: number;
+  spare_part_id: number;
   spare_part?: ApiSparePart;
   system_stock: number;
   physical_count: number;
@@ -95,43 +95,43 @@ export interface ApiOpnameItem {
 
 // ===== Transactions =====
 export interface ApiTransaction {
-  id: string;
+  id: number;
   invoice_number: string;
   transaction_date: string;
-  customer_id: string;
-  vehicle_id: string;
-  customer?: ApiCustomer;
-  vehicle?: ApiVehicle;
-  items: ApiTransactionItem[];
-  subtotal: number;
-  tax: number;
-  grand_total: number;
+  customer_id: number | null;
+  vehicle_id: number | null;
+  customers?: ApiCustomer;
+  vehicles?: ApiVehicle;
+  transaction_items: ApiTransactionItem[];
+  total_amount: number | string;
+  paid_amount: number | string;
   payment_method: "cash" | "transfer" | "e_wallet" | "card";
   payment_status: "lunas" | "dp" | "piutang";
-  dp_amount?: number;
   notes?: string;
+  created_at: string;
 }
 
 export interface ApiTransactionItem {
-  id: string;
+  id: number;
+  transaction_id: number;
   item_type: "spare_part" | "service";
-  spare_part_id?: string;
+  spare_part_id?: number;
   item_name: string;
   quantity: number;
-  unit_price: number;
-  total_price: number;
+  unit_price: number | string;
+  subtotal: number | string;
 }
 
 // ===== Work Orders (Antrean) =====
 export interface ApiWorkOrder {
-  id: string;
-  customer_id: string;
-  vehicle_id: string;
-  customer?: ApiCustomer;
-  vehicle?: ApiVehicle;
+  id: number;
+  customer_id: number | null;
+  vehicle_id: number | null;
+  customers?: ApiCustomer;
+  vehicles?: ApiVehicle;
   layanan: string;
   keluhan?: string;
-  estimasi_biaya?: number;
+  estimasi_biaya?: number | string;
   estimasi_selesai?: string;
   menginap?: boolean;
   status: "menunggu" | "dikerjakan" | "menunggu_sparepart" | "selesai";

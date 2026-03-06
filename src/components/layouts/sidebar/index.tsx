@@ -77,20 +77,20 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay */}
-      {isMobile && isOpen && (
+      {/* Mobile overlay - hanya muncul di mobile saat sidebar terbuka */}
+      {isMobile && isOpen ? (
         <div
           className="fixed inset-0 z-40 bg-black/40"
           onClick={() => setIsOpen(false)}
-          aria-hidden
+          aria-hidden="true"
         />
-      )}
+      ) : null}
 
       <aside
         style={{
           width: isMobile ? (isOpen ? 280 : 0) : isOpen ? 260 : 68,
         }}
-        className="overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear"
+        className="relative z-50 overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear"
         aria-label="Main navigation"
       >
         <div

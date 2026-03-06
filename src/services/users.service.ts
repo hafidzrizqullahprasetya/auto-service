@@ -26,12 +26,12 @@ export interface UserBody {
 
 export const usersService = {
   async getAll(): Promise<Employee[]> {
-    const res = await api.get<ApiUser[]>("/users");
+    const res = await api.get<ApiUser[]>("/api/v1/users");
     return (res.data ?? []).map(mapUser);
   },
 
   async create(body: UserBody): Promise<Employee> {
-    const res = await api.post<ApiUser>("/users", body);
+    const res = await api.post<ApiUser>("/api/v1/users", body);
     return mapUser(res.data);
   },
 
@@ -39,11 +39,11 @@ export const usersService = {
     id: string,
     body: Partial<Omit<UserBody, "password"> & { password?: string }>,
   ): Promise<Employee> {
-    const res = await api.put<ApiUser>(`/users/${id}`, body);
+    const res = await api.put<ApiUser>(`/api/v1/users/${id}`, body);
     return mapUser(res.data);
   },
 
   async delete(id: string): Promise<void> {
-    await api.delete(`/users/${id}`);
+    await api.delete(`/api/v1/users/${id}`);
   },
 };

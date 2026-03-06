@@ -1,5 +1,5 @@
 import { getWorkshopOverview } from "@/mock/dashboard-fetcher";
-import { StatCard } from "@/components/Bengkel/Dashboard/StatCard";
+import { StatCard } from "@/features/dashboard/StatCard";
 import { Icons } from "@/components/Icons";
 
 export async function OverviewCardsGroup() {

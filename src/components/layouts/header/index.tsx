@@ -11,19 +11,19 @@ import { UserInfo } from "./user-info";
 const getPageTitle = (pathname: string) => {
   const paths: Record<string, { title: string; subtitle: string }> = {
     "/": { title: "Dashboard", subtitle: "Ringkasan aktivitas bengkel hari ini" },
-    "/bengkel/antrean": { title: "Antrean", subtitle: "Manajemen antrean & status servis" },
-    "/bengkel/inventori": { title: "Inventori", subtitle: "Manajemen stok sparepart" },
-    "/bengkel/karyawan": { title: "Karyawan", subtitle: "Data mekanik & staff bengkel" },
-    "/bengkel/kasir": { title: "Kasir", subtitle: "Point of sale & pembayaran" },
-    "/bengkel/kendaraan": { title: "Kendaraan", subtitle: "Data kendaraan pelanggan" },
-    "/bengkel/laporan": { title: "Laporan", subtitle: "Analitik & ringkasan bisnis" },
-    "/bengkel/pelanggan": { title: "Pelanggan", subtitle: "Database pelanggan setia" },
-    "/bengkel/pengaturan": { title: "Pengaturan", subtitle: "Konfigurasi sistem & profil bengkel" },
-    "/bengkel/purchase-order": { title: "Purchase Order", subtitle: "Pemesanan & pembelian stok" },
-    "/bengkel/reminder": { title: "Reminder", subtitle: "Pengingat jadwal servis pelanggan" },
+    "/antrean": { title: "Antrean", subtitle: "Manajemen antrean & status servis" },
+    "/inventori": { title: "Inventori", subtitle: "Manajemen stok sparepart" },
+    "/karyawan": { title: "Karyawan", subtitle: "Data mekanik & staff bengkel" },
+    "/kasir": { title: "Kasir", subtitle: "Point of sale & pembayaran" },
+    "/kendaraan": { title: "Kendaraan", subtitle: "Data kendaraan pelanggan" },
+    "/laporan": { title: "Laporan", subtitle: "Analitik & ringkasan bisnis" },
+    "/pelanggan": { title: "Pelanggan", subtitle: "Database pelanggan setia" },
+    "/pengaturan": { title: "Pengaturan", subtitle: "Konfigurasi sistem & profil bengkel" },
+    "/purchase-order": { title: "Purchase Order", subtitle: "Pemesanan & pembelian stok" },
+    "/reminder": { title: "Reminder", subtitle: "Pengingat jadwal servis pelanggan" },
   };
 
-  const path = pathname.split("/").slice(0, 4).join("/");
+  const path = pathname.split("/").slice(0, 3).join("/");
   return paths[path] || { title: "Dashboard", subtitle: "Auto Service" };
 };
 
@@ -33,7 +33,7 @@ export function Header() {
   const { title, subtitle } = getPageTitle(pathname);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-4 shadow-1 md:px-5 2xl:px-10">
+    <header className="sticky top-0 z-50 flex items-center justify-between border-b border-stroke bg-white px-4 py-4 shadow-1 md:px-5 2xl:px-10">
       {/* Kiri: hamburger (mobile) + judul halaman */}
       <div className="flex items-center gap-3">
         {isMobile && (

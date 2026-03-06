@@ -13,7 +13,7 @@ export function normalizeRole(role: string): FrontendRole {
 
 export const authService = {
   async login(username: string, password: string): Promise<LoginResponse> {
-    const res = await api.post<LoginResponse>("/auth/login", {
+    const res = await api.post<LoginResponse>("/api/v1/auth/login", {
       username,
       password,
     });
@@ -22,7 +22,7 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
-      await api.post("/auth/logout");
+      await api.post("/api/v1/auth/logout");
     } catch {
       // ignore network errors on logout
     } finally {
@@ -32,7 +32,7 @@ export const authService = {
   },
 
   async me(): Promise<ApiUser> {
-    const res = await api.get<ApiUser>("/auth/me");
+    const res = await api.get<ApiUser>("/api/v1/auth/me");
     return res.data;
   },
 };

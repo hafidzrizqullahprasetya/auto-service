@@ -11,18 +11,18 @@ export const reportsService = {
     if (params?.date) q.set("date", params.date);
     const qs = q.toString();
     const res = await api.get<ApiRevenueReport>(
-      `/reports/revenue${qs ? "?" + qs : ""}`,
+      `/api/v1/reports/revenue${qs ? "?" + qs : ""}`,
     );
     return res.data;
   },
 
   async getTopProducts(): Promise<ApiTopProduct[]> {
-    const res = await api.get<ApiTopProduct[]>("/reports/top-products");
+    const res = await api.get<ApiTopProduct[]>("/api/v1/reports/top-products");
     return res.data ?? [];
   },
 
   async getLowStock(): Promise<ApiLowStockItem[]> {
-    const res = await api.get<ApiLowStockItem[]>("/reports/low-stock");
+    const res = await api.get<ApiLowStockItem[]>("/api/v1/reports/low-stock");
     return res.data ?? [];
   },
 };

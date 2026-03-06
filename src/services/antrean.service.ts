@@ -16,12 +16,11 @@ const STATUS_MAP_REVERSE: Record<Antrean["status"], ApiWorkOrder["status"]> = {
   Selesai: "selesai",
 };
 
-/** Map BE WorkOrder → FE Antrean */
 export function mapWorkOrder(wo: ApiWorkOrder): Antrean {
-  const vehicle = wo.vehicle;
-  const customer = wo.customer;
+  const vehicle = wo.vehicles;
+  const customer = wo.customers;
   return {
-    id: wo.id,
+    id: wo.id.toString(),
     noPolisi: vehicle?.plate_number ?? "",
     kendaraan: vehicle ? `${vehicle.brand} ${vehicle.model}`.trim() : "",
     tipe: (vehicle?.type === "Motor" ? "Motor" : "Mobil") as "Mobil" | "Motor",
@@ -32,15 +31,15 @@ export function mapWorkOrder(wo: ApiWorkOrder): Antrean {
     mekanik: wo.mekanik,
     estimasiSelesai: wo.estimasi_selesai,
     keluhan: wo.keluhan,
-    estimasiBiaya: wo.estimasi_biaya,
+    estimasiBiaya: Number(wo.estimasi_biaya ?? 0),
     waPelanggan: customer?.phone,
     menginap: wo.menginap,
   };
 }
 
 export interface WorkOrderBody {
-  customer_id: string;
-  vehicle_id: string;
+  customer_id: number;
+  vehicle_id: number;
   layanan: string;
   keluhan?: string;
   estimasi_biaya?: number;

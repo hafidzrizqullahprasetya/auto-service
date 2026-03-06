@@ -8,15 +8,15 @@ export interface RoutePermission {
 /** Semua route yang bisa dikontrol aksesnya */
 export const PERMISSION_ROUTES: RoutePermission[] = [
   { route: "/", label: "Dashboard" },
-  { route: "/bengkel/antrean", label: "Antrean Masuk" },
-  { route: "/bengkel/kasir", label: "Kasir & Transaksi" },
-  { route: "/bengkel/inventori", label: "Inventori (+ sub-menu)" },
-  { route: "/bengkel/pelanggan", label: "Pelanggan" },
-  { route: "/bengkel/kendaraan", label: "Kendaraan" },
-  { route: "/bengkel/karyawan", label: "Karyawan" },
-  { route: "/bengkel/laporan", label: "Laporan" },
-  { route: "/bengkel/reminder", label: "Reminder & Follow-up" },
-  { route: "/bengkel/pengaturan", label: "Pengaturan" },
+  { route: "/antrean", label: "Antrean Masuk" },
+  { route: "/kasir", label: "Kasir & Transaksi" },
+  { route: "/inventori", label: "Inventori (+ sub-menu)" },
+  { route: "/pelanggan", label: "Pelanggan" },
+  { route: "/kendaraan", label: "Kendaraan" },
+  { route: "/karyawan", label: "Karyawan" },
+  { route: "/laporan", label: "Laporan" },
+  { route: "/reminder", label: "Reminder & Follow-up" },
+  { route: "/pengaturan", label: "Pengaturan" },
 ];
 
 /** Default permission matrix — dapat di-override oleh Owner */
@@ -24,23 +24,23 @@ export const DEFAULT_PERMISSIONS: Record<Role, string[]> = {
   Owner: PERMISSION_ROUTES.map((p) => p.route),
   Admin: [
     "/",
-    "/bengkel/antrean",
-    "/bengkel/kasir",
-    "/bengkel/inventori",
-    "/bengkel/pelanggan",
-    "/bengkel/kendaraan",
-    "/bengkel/karyawan",
-    "/bengkel/laporan",
-    "/bengkel/reminder",
+    "/antrean",
+    "/kasir",
+    "/inventori",
+    "/pelanggan",
+    "/kendaraan",
+    "/karyawan",
+    "/laporan",
+    "/reminder",
   ],
-  Kasir: ["/bengkel/antrean", "/bengkel/kasir"],
+  Kasir: ["/antrean", "/kasir"],
 };
 
 /** Halaman tujuan redirect setelah login / akses ditolak, per role */
 export const ROLE_HOME: Record<Role, string> = {
   Owner: "/",
   Admin: "/",
-  Kasir: "/bengkel/antrean",
+  Kasir: "/antrean",
 };
 
 const STORAGE_KEY = "role_permissions";
@@ -70,7 +70,7 @@ export function savePermissions(perms: Record<Role, string[]>) {
 
 /**
  * Cek apakah role tertentu boleh mengakses route.
- * Mendukung prefix-match untuk sub-route (e.g. /bengkel/inventori/stok).
+ * Mendukung prefix-match untuk sub-route (e.g. /inventori/stok).
  */
 export function canAccess(role: Role, route: string): boolean {
   if (role === "Owner") return true;

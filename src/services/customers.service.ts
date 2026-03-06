@@ -5,13 +5,13 @@ import { Customer } from "@/mock/customers";
 /** Map BE ApiCustomer → FE Customer */
 export function mapCustomer(c: ApiCustomer): Customer {
   return {
-    id: c.id,
+    id: c.id.toString(),
     name: c.name,
     phone: c.phone,
     email: c.email,
     address: c.address,
-    totalVisits: c.total_visits ?? 0,
-    totalSpent: c.total_spent ?? 0,
+    totalVisits: Number(c.total_visits ?? 0),
+    totalSpent: Number(c.total_spent ?? 0),
     lastVisit: c.last_visit ?? "",
     vehicles: c.vehicles?.map((v) => v.plate_number) ?? [],
   };
@@ -26,22 +26,22 @@ export interface CustomerBody {
 
 export const customersService = {
   async getAll(): Promise<Customer[]> {
-    const res = await api.get<ApiCustomer[]>("/customers");
+    const res = await api.get<ApiCustomer[]>("/api/v1/customers");
     return (res.data ?? []).map(mapCustomer);
   },
 
   async getById(id: string): Promise<Customer> {
-    const res = await api.get<ApiCustomer>(`/customers/${id}`);
+    const res = await api.get<ApiCustomer>(`/api/v1/customers/${id}`);
     return mapCustomer(res.data);
   },
 
   async create(body: CustomerBody): Promise<Customer> {
-    const res = await api.post<ApiCustomer>("/customers", body);
+    const res = await api.post<ApiCustomer>("/api/v1/customers", body);
     return mapCustomer(res.data);
   },
 
   async update(id: string, body: Partial<CustomerBody>): Promise<Customer> {
-    const res = await api.put<ApiCustomer>(`/customers/${id}`, body);
+    const res = await api.put<ApiCustomer>(`/api/v1/customers/${id}`, body);
     return mapCustomer(res.data);
   },
 

@@ -2,6 +2,8 @@ export interface Item {
   id: string;
   sku: string;
   name: string;
+  categoryId?: number;
+  categoryName?: string;
   category: "Part" | "Service" | "Oil";
   costPrice: number;   // harga modal
   price: number;       // harga jual

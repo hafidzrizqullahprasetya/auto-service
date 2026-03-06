@@ -177,7 +177,7 @@ export function Notification() {
         {/* Footer */}
         <div className="border-t border-stroke p-2">
           <Link
-            href="/bengkel/reminder"
+            href="/reminder"
             onClick={() => setIsOpen(false)}
             className="block w-full rounded-lg py-2 text-center text-sm font-medium text-dark transition-colors hover:bg-gray-1"
           >

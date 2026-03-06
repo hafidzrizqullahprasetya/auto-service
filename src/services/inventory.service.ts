@@ -21,12 +21,14 @@ export function mapSparePart(sp: ApiSparePart): Item {
   }
 
   return {
-    id: sp.id,
+    id: sp.id.toString(),
     sku: sp.sku,
     name: sp.name,
+    categoryId: sp.category_id ?? undefined,
+    categoryName: sp.category?.name,
     category,
-    costPrice: sp.cost_price,
-    price: sp.sell_price,
+    costPrice: Number(sp.cost_price),
+    price: Number(sp.sell_price),
     stock: sp.current_stock,
     minimumStock: sp.minimum_stock,
     unit: sp.unit,
@@ -36,7 +38,7 @@ export function mapSparePart(sp: ApiSparePart): Item {
 
 /** Map FE Item → BE create body */
 export interface SparePartBody {
-  category_id: string;
+  category_id: number | null;
   name: string;
   cost_price: number;
   sell_price: number;
@@ -83,7 +85,7 @@ export const inventoryService = {
   },
 
   async getCategories(): Promise<ApiCategory[]> {
-    const res = await api.get<ApiCategory[]>("/categories");
+    const res = await api.get<ApiCategory[]>("/api/v1/categories");
     return res.data ?? [];
   },
 
