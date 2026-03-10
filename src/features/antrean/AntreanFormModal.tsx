@@ -174,6 +174,88 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
     >
       <div className="space-y-5 text-left py-2">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="relative" ref={customerRef}>
+            <InputGroup
+              label="Nama Pelanggan"
+              placeholder="Nama lengkap pemilik"
+              value={formData.pelanggan}
+              disabled={isEdit}
+              error={errors.pelanggan}
+              onChange={(e: any) => {
+                setFormData({ ...formData, pelanggan: e.target.value });
+                setShowCustomers(true);
+              }}
+              onFocus={() => setShowCustomers(true)}
+              required
+              leftIcon={<Icons.Pelanggan size={18} />}
+              rightIcon={formData.pelanggan && !isEdit && (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setFormData({ ...formData, pelanggan: "", waPelanggan: "" });
+                    setShowCustomers(false);
+                  }}
+                  className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
+                >
+                  <Icons.Plus size={16} className="rotate-45 text-dark-5" />
+                </button>
+              )}
+            />
+            {showCustomers && !isEdit && filteredCustomers.length > 0 && (
+              <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-xl border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-dark-2">
+                <div className="flex flex-col">
+                  {filteredCustomers.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className="flex w-full flex-col px-5 py-3 text-left hover:bg-gray-1 dark:hover:bg-dark-3"
+                      onClick={async () => {
+                        const lastVehicle = c.vehicles && c.vehicles.length > 0 ? c.vehicles[0] : null;
+                        setFormData({
+                          ...formData,
+                          pelanggan: c.name,
+                          waPelanggan: c.phone,
+                          noPolisi: lastVehicle ? lastVehicle.plate_number : formData.noPolisi,
+                          tipe: lastVehicle ? lastVehicle.type : formData.tipe,
+                          kendaraan: lastVehicle ? `${lastVehicle.brand} ${lastVehicle.model}` : formData.kendaraan,
+                        });
+                        setShowCustomers(false);
+                        if (lastVehicle) {
+                          Notify.toast(`Data ${c.name} & Unit ${lastVehicle.plate_number} dimuat`, "success", "top");
+                        } else {
+                          Notify.toast(`Data ${c.name} dimuat`, "success", "top");
+                        }
+                      }}
+                    >
+                      <span className="text-sm font-bold text-dark dark:text-white">{c.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-dark-5">{c.phone}</span>
+                        {c.vehicles && c.vehicles.length > 0 && (
+                          <span className="text-[10px] bg-gray-2 dark:bg-dark-3 px-1.5 py-0.5 rounded text-dark-5 font-bold">
+                            {c.vehicles[0].plate_number}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <InputGroup
+            label="Nomor WhatsApp"
+            placeholder="081xxx (Untuk notif)"
+            value={formData.waPelanggan}
+            disabled={isEdit}
+            error={errors.waPelanggan}
+            onChange={(e: any) => setFormData({ ...formData, waPelanggan: e.target.value })}
+            required
+            leftIcon={<Icons.Whatsapp size={18} />}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <InputGroup
             label="No. Polisi"
             placeholder="Contoh: B 1234 ABC"
@@ -264,7 +346,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                         setVehicleMasters([...vehicleMasters, newMaster]);
                         setFormData({ ...formData, kendaraan: `${newMaster.brand} ${newMaster.model}` });
                         setShowVehicles(false);
-                        Notify.toast("Merk/Model ditambahkan ke data master");
+                        Notify.toast("Merk/Model ditambahkan ke data master", "success", "top");
                       } catch (err) {
                         Notify.alert("Gagal", "Gagal menambahkan data master");
                       } finally {
@@ -291,87 +373,6 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="relative" ref={customerRef}>
-            <InputGroup
-              label="Nama Pelanggan"
-              placeholder="Nama lengkap pemilik"
-              value={formData.pelanggan}
-              disabled={isEdit}
-              error={errors.pelanggan}
-              onChange={(e: any) => {
-                setFormData({ ...formData, pelanggan: e.target.value });
-                setShowCustomers(true);
-              }}
-              onFocus={() => setShowCustomers(true)}
-              required
-              leftIcon={<Icons.Pelanggan size={18} />}
-              rightIcon={formData.pelanggan && !isEdit && (
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setFormData({ ...formData, pelanggan: "", waPelanggan: "" });
-                    setShowCustomers(false);
-                  }}
-                  className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
-                >
-                  <Icons.Plus size={16} className="rotate-45 text-dark-5" />
-                </button>
-              )}
-            />
-            {showCustomers && !isEdit && filteredCustomers.length > 0 && (
-              <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-xl border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-dark-2">
-                <div className="flex flex-col">
-                  {filteredCustomers.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      className="flex w-full flex-col px-5 py-3 text-left hover:bg-gray-1 dark:hover:bg-dark-3"
-                      onClick={async () => {
-                        const lastVehicle = c.vehicles && c.vehicles.length > 0 ? c.vehicles[0] : null;
-                        setFormData({
-                          ...formData,
-                          pelanggan: c.name,
-                          waPelanggan: c.phone,
-                          noPolisi: lastVehicle ? lastVehicle.plate_number : formData.noPolisi,
-                          tipe: lastVehicle ? lastVehicle.type : formData.tipe,
-                          kendaraan: lastVehicle ? `${lastVehicle.brand} ${lastVehicle.model}` : formData.kendaraan,
-                        });
-                        setShowCustomers(false);
-                        if (lastVehicle) {
-                          Notify.toast(`Data ${c.name} & Unit ${lastVehicle.plate_number} dimuat`);
-                        } else {
-                          Notify.toast(`Data ${c.name} dimuat`);
-                        }
-                      }}
-                    >
-                      <span className="text-sm font-bold text-dark dark:text-white">{c.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-dark-5">{c.phone}</span>
-                        {c.vehicles && c.vehicles.length > 0 && (
-                          <span className="text-[10px] bg-gray-2 dark:bg-dark-3 px-1.5 py-0.5 rounded text-dark-5 font-bold">
-                            {c.vehicles[0].plate_number}
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <InputGroup
-            label="Nomor WhatsApp"
-            placeholder="081xxx (Untuk notif)"
-            value={formData.waPelanggan}
-            disabled={isEdit}
-            error={errors.waPelanggan}
-            onChange={(e: any) => setFormData({ ...formData, waPelanggan: e.target.value })}
-            required
-            leftIcon={<Icons.Whatsapp size={18} />}
-          />
-        </div>
 
         <div className="relative" ref={serviceRef}>
           <InputGroup

@@ -40,7 +40,7 @@ export default function AntreanPage() {
     Notify.loading("Sedang membuat antrean...");
     try {
       await create(data);
-      Notify.toast("Antrean baru berhasil dibuat!");
+      Notify.toast("Antrean baru berhasil dibuat!", "success", "top");
       setShowModal(false);
     } catch (err: any) {
       Notify.alert("Gagal!", err.message || "Gagal membuat antrean");
@@ -56,7 +56,7 @@ export default function AntreanPage() {
       const { antreanService } = await import("@/services/antrean.service");
       await antreanService.update(id, data);
       await refetch();
-      Notify.toast("Data antrean berhasil diperbarui!");
+      Notify.toast("Data antrean berhasil diperbarui!", "success", "top");
     } catch (err: any) {
       Notify.alert("Gagal!", err.message || "Gagal memperbarui antrean");
     } finally {

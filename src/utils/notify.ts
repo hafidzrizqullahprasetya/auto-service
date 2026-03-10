@@ -25,10 +25,10 @@ export const Notify = {
     });
   },
 
-  toast: (title: string, icon: SweetAlertIcon = "success") => {
+  toast: (title: string, icon: SweetAlertIcon = "success", position: any = "top-end") => {
     return MySwal.fire({
       toast: true,
-      position: "top-end",
+      position: position,
       icon,
       title,
       iconColor: "white",
@@ -51,7 +51,7 @@ export const Notify = {
         popup: "animate-fade-out", 
       },
       customClass: {
-        popup: "mt-24 mr-4 !rounded-lg shadow-lg !py-3 !px-4 !flex !items-center", 
+        popup: `${position === 'center' ? '' : position === 'top' ? 'mt-4' : 'mt-24 mr-4'} !rounded-lg shadow-lg !py-3 !px-4 !flex !items-center`, 
         icon: "!m-0 !mr-3 !ml-1 !border-none !flex-shrink-0",
         title: "!m-0 !p-0 text-sm font-medium", 
       },
