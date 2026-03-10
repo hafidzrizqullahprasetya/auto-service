@@ -458,6 +458,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
               withIcon="check"
               withBg
               radius="md"
+              disabled={isEdit && item?.status === "Selesai"}
             />
           </div>
         </div>

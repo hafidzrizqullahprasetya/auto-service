@@ -32,7 +32,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         <label
           htmlFor={id}
           className={cn(
-            "flex cursor-pointer select-none items-center",
+            "flex select-none items-center",
+            props.disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
             !minimal && "text-body-sm font-medium",
             className
           )}
@@ -56,6 +57,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                   : "peer-checked:bg-gray-1 dark:peer-checked:bg-dark-3",
                 minimal && "mr-3 border-stroke dark:border-dark-3",
                 radius === "md" && "rounded-lg",
+                props.disabled && "cursor-not-allowed bg-gray-2 border-gray-3 dark:bg-dark-3 dark:border-dark-4 opacity-70"
               )}
             >
               {!withIcon && (
