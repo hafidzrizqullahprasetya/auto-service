@@ -1,5 +1,6 @@
 "use client";
 
+import Skeleton from "react-loading-skeleton";
 import { useState, useMemo } from "react";
 import {
   Table,
@@ -358,40 +359,55 @@ export function StockOpnamePage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Panel Sesi Aktif */}
-      {hasOpenSession && (
-        <div className="rounded-[10px] border border-l-4 border-stroke border-l-secondary bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
+      {loading ? (
+        <div className="rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
-                <Icons.Inventory size={22} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-base font-bold tracking-tight text-dark dark:text-white">
-                    {activeOpname?.sessionName}
-                  </h4>
-                  <Badge variant="warning" className="py-0 text-[9px]">
-                    Aktif
-                  </Badge>
-                </div>
-                <p className="mt-0.5 text-xs font-medium text-dark-5">
-                  Oleh:{" "}
-                  <span className="text-dark dark:text-gray-400">
-                    {activeOpname?.openedBy}
-                  </span>{" "}
-                  · {dayjs(activeOpname?.openedAt).format("DD/MM/YYYY HH:mm")}
-                </p>
+            <div className="flex items-center gap-4 w-full">
+              <Skeleton circle height={48} width={48} />
+              <div className="flex-1">
+                <Skeleton height={20} width={200} className="mb-2" />
+                <Skeleton height={14} width={150} />
               </div>
             </div>
-            <ActionButton
-              variant="primary"
-              label="Lanjutkan Opname"
-              icon={<Icons.Inventory size={16} />}
-              onClick={() => setShowActiveModal(true)}
-              className="w-full sm:w-auto"
-            />
+            <Skeleton height={40} width={180} />
           </div>
         </div>
+      ) : (
+        hasOpenSession && (
+          <div className="rounded-[10px] border border-l-4 border-stroke border-l-secondary bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
+            <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+                  <Icons.Inventory size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-base font-bold tracking-tight text-dark dark:text-white">
+                      {activeOpname?.sessionName}
+                    </h4>
+                    <Badge variant="warning" className="py-0 text-[9px]">
+                      Aktif
+                    </Badge>
+                  </div>
+                  <p className="mt-0.5 text-xs font-medium text-dark-5">
+                    Oleh:{" "}
+                    <span className="text-dark dark:text-gray-400">
+                      {activeOpname?.openedBy}
+                    </span>{" "}
+                    · {dayjs(activeOpname?.openedAt).format("DD/MM/YYYY HH:mm")}
+                  </p>
+                </div>
+              </div>
+              <ActionButton
+                variant="primary"
+                label="Lanjutkan Opname"
+                icon={<Icons.Inventory size={16} />}
+                onClick={() => setShowActiveModal(true)}
+                className="w-full sm:w-auto"
+              />
+            </div>
+          </div>
+        )
       )}
 
       {/* Riwayat Opname — TanStack DataTable */}
@@ -403,6 +419,7 @@ export function StockOpnamePage() {
         title="Riwayat Stok Opname"
         description="Rekap sesi rekonsiliasi stok fisik vs sistem"
         pageSize={5}
+        isLoading={loading}
         primaryAction={
           !hasOpenSession
             ? {
