@@ -15,6 +15,7 @@ import { useInventory } from "@/hooks/useInventory";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";
+import { Notify } from "@/utils/notify";
 
 type Tab = "riwayat" | "buat" | "pos";
 
@@ -77,30 +78,44 @@ export default function KasirPage() {
   const tax = subtotal * 0.11;
   const total = subtotal + tax;
 
-  const handleCheckout = () => {
-    const newTx: Transaction = {
-      id: "new-tx-" + Date.now(),
-      invoiceNo: `INV/${dayjs().format("YYYYMMDD")}/${Math.floor(100 + Math.random() * 900)}`,
-      date: new Date().toISOString(),
-      customerName: "Pelanggan Umum",
-      vehiclePlate: "—",
-      items: cart.map((c) => ({
-        name: c.item.name,
-        price: c.item.price,
-        qty: c.quantity,
-      })),
-      subtotal,
-      tax,
-      total,
-      paymentMethod: "Cash",
-      type: cart.some((c) => c.item.category === "Service")
-        ? "Service"
-        : "Sparepart Only",
-      paymentStatus: "Lunas",
-    };
-    setLastTransaction(newTx);
-    setShowReceipt(true);
-    setCart([]);
+  const handleCheckout = async () => {
+    try {
+      Notify.loading("Memproses pembayaran...");
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      if (cart.length === 0) {
+        throw new Error("Keranjang kosong!");
+      }
+
+      const newTx: Transaction = {
+        id: "new-tx-" + Date.now(),
+        invoiceNo: `INV/${dayjs().format("YYYYMMDD")}/${Math.floor(100 + Math.random() * 900)}`,
+        date: new Date().toISOString(),
+        customerName: "Pelanggan Umum",
+        vehiclePlate: "—",
+        items: cart.map((c) => ({
+          name: c.item.name,
+          price: c.item.price,
+          qty: c.quantity,
+        })),
+        subtotal,
+        tax,
+        total,
+        paymentMethod: "Cash",
+        type: cart.some((c) => c.item.category === "Service")
+          ? "Service"
+          : "Sparepart Only",
+        paymentStatus: "Lunas",
+      };
+      setLastTransaction(newTx);
+      setShowReceipt(true);
+      setCart([]);
+      Notify.toast("Transaksi berhasil diproses!", "success", "top");
+    } catch (err: any) {
+      const errorMsg = err instanceof Error ? err.message : "Gagal memproses pembayaran";
+      Notify.alert("Gagal!", errorMsg);
+    }
   };
 
   const TABS = [
@@ -264,9 +279,28 @@ export default function KasirPage() {
       {showCreateForm && (
         <CreateTransactionForm
           onClose={() => setShowCreateForm(false)}
-          onSave={(data) => {
-            console.log("Transaction saved:", data);
-            setShowCreateForm(false);
+          onSave={async (data) => {
+            try {
+              Notify.loading("Menyimpan transaksi...");
+              // Simulate API delay
+              await new Promise((resolve) => setTimeout(resolve, 800));
+              
+              if (!data.customerId) {
+                throw new Error("Pelanggan tidak boleh kosong!");
+              }
+              if (data.items.length === 0) {
+                throw new Error("Keranjang tidak boleh kosong!");
+              }
+
+              console.log("Transaction saved:", data);
+              Notify.toast("Transaksi berhasil disimpan!", "success", "top");
+              setShowCreateForm(false);
+            } catch (err: any) {
+              const errorMsg = err instanceof Error ? err.message : "Terjadi kesalahan sistem";
+              Notify.alert("Gagal!", errorMsg);
+            } finally {
+              // Close any dangling loading if needed, but Notify.alert or Notify.toast auto-close the loading state typically in Swal.
+            }
           }}
         />
       )}
