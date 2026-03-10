@@ -3,6 +3,7 @@ import { BaseModal } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/features/shared";
 import InputGroup from "@/components/ui/InputGroup";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Notify } from "@/utils/notify";
 import { vehicleMasterService, VehicleMaster } from "@/services/vehicle-master.service";
 import { customersService } from "@/services/customers.service";
@@ -449,19 +450,15 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
             onChange={(e: any) => setFormData({ ...formData, estimasiBiaya: Number(e.target.value) })}
             leftIcon={<span className="text-xs font-bold text-dark-5">Rp</span>}
           />
-          <div className="flex flex-col justify-center pt-6">
-            <label className="flex items-center gap-3 cursor-pointer group">
-              <div className="relative group">
-                <input 
-                  type="checkbox" 
-                  checked={formData.menginap}
-                  onChange={(e) => setFormData({ ...formData, menginap: e.target.checked })}
-                  className="peer h-6 w-6 cursor-pointer appearance-none rounded-md border-2 border-stroke bg-white transition-all checked:border-danger checked:bg-danger dark:border-dark-3 dark:bg-dark-3"
-                />
-                <Icons.Success size={14} className="pointer-events-none absolute left-1 top-1 text-white opacity-0 transition-opacity peer-checked:opacity-100" />
-              </div>
-              <span className="text-sm font-bold text-dark dark:text-white">Kendaraan Menginap</span>
-            </label>
+          <div className="flex flex-col flex-1 justify-center pt-6">
+            <Checkbox
+              label="Kendaraan Menginap"
+              checked={formData.menginap}
+              onChange={(e) => setFormData({ ...formData, menginap: e.target.checked })}
+              withIcon="check"
+              withBg
+              radius="md"
+            />
           </div>
         </div>
       </div>
