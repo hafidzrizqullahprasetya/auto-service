@@ -3,7 +3,7 @@ const API_BASE =
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("auth_token");
+  return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
 }
 
 export interface ApiEnvelopeRaw<T> {
@@ -32,6 +32,10 @@ async function request<T>(
     if (typeof window !== "undefined") {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_user");
+      localStorage.removeItem("auth_refresh_token");
+      sessionStorage.removeItem("auth_token");
+      sessionStorage.removeItem("auth_user");
+      sessionStorage.removeItem("auth_refresh_token");
       window.location.href = "/auth/sign-in";
     }
     throw new Error("Sesi habis, silakan login ulang.");

@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: PropsWithChildren) {
   const [allowed, setAllowed] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("auth_user");
+    const stored = localStorage.getItem("auth_user") || sessionStorage.getItem("auth_user");
     if (!stored) {
       router.replace("/auth/sign-in");
       return;

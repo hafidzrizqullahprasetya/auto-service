@@ -15,6 +15,7 @@ import { AntreanFormModal } from "./AntreanFormModal";
 import { SPKModal } from "./SPKModal";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
+import { antreanService } from "@/services/antrean.service";
 import { antreanToExcelRows } from "@/lib/excel";
 
 const getStatusVariant = (status: Antrean["status"]) => {
@@ -34,9 +35,12 @@ const getStatusVariant = (status: Antrean["status"]) => {
 
 interface AntreanTableProps {
   data: Antrean[];
+  onUpdate: (id: string, data: any) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  isLoading?: boolean;
 }
 
-export function AntreanTable({ data }: AntreanTableProps) {
+export function AntreanTable({ data, onUpdate, onDelete, isLoading = false }: AntreanTableProps) {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -206,6 +210,7 @@ export function AntreanTable({ data }: AntreanTableProps) {
         title="Daftar Penerimaan & Antrean"
         description="Pencatatan awal kendaraan masuk, keluhan, estimasi, dan daftar tunggu"
         pageSize={5}
+        isLoading={isLoading}
         extraActions={
           <ExcelButtons
             moduleKey="antrean"
@@ -223,15 +228,13 @@ export function AntreanTable({ data }: AntreanTableProps) {
             setShowModal(false);
             setSelectedItem(null);
           }}
-          onSave={async (data) => {
+          onSave={async (formData) => {
+            if (!selectedItem) return;
             setIsSaving(true);
             try {
-              await new Promise(res => setTimeout(res, 800));
-              toast.success("Data antrean berhasil disimpan!");
+              await onUpdate(selectedItem.id, formData);
               setShowModal(false);
               setSelectedItem(null);
-            } catch (err) {
-              toast.error("Gagal menyimpan data antrean.");
             } finally {
               setIsSaving(false);
             }
@@ -250,14 +253,12 @@ export function AntreanTable({ data }: AntreanTableProps) {
             setSelectedItem(null);
           }}
           onConfirm={async () => {
+            if (!selectedItem) return;
             setIsDeleting(true);
             try {
-              await new Promise(res => setTimeout(res, 800));
-              toast.success("Antrean berhasil dihapus!");
+              await onDelete(selectedItem.id);
               setShowDeleteModal(false);
               setSelectedItem(null);
-            } catch (err) {
-              toast.error("Gagal menghapus antrean.");
             } finally {
               setIsDeleting(false);
             }

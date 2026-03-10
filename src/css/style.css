@@ -532,3 +532,39 @@ input[type="search"]::-webkit-search-cancel-button {
   background-image: linear-gradient(145deg, #eef 0%, #fff8fc 100%);
 }
 
+@keyframes slideInFromRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutToRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
+}
+
+.animate-slide-in {
+  animation: slideInFromRight 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-slide-out {
+  animation: slideOutToRight 0.4s forwards ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s forwards ease-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.25s forwards ease-in;
+}
+

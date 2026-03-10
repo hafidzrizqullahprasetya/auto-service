@@ -681,7 +681,7 @@ export function PengaturanBengkel() {
   const [userRole, setUserRole] = useState<Role>("Kasir");
 
   useEffect(() => {
-    const stored = localStorage.getItem("auth_user");
+    const stored = localStorage.getItem("auth_user") || sessionStorage.getItem("auth_user");
     if (stored) {
       try {
         const u = JSON.parse(stored) as { role: Role };

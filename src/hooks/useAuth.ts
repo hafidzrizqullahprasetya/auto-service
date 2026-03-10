@@ -13,7 +13,7 @@ export function useAuth(): AuthUser | null {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("auth_user");
+    const stored = localStorage.getItem("auth_user") || sessionStorage.getItem("auth_user");
     if (stored) {
       try {
         setUser(JSON.parse(stored) as AuthUser);

@@ -25,6 +25,9 @@ const STATUS_COLORS: Record<Antrean["status"], string> = {
   Selesai: "text-green bg-green/10",
 };
 
+dayjs.locale("id");
+
+import { Skeleton } from "@/components/ui/skeleton";
 import { AntreanFormModal } from "./AntreanFormModal";
 import { SPKModal } from "./SPKModal";
 import { ConfirmDeleteModal } from "@/features/shared";
@@ -122,7 +125,9 @@ function KanbanCard({
             {STATUS_COLUMNS.filter((s) => s !== item.status).map((s) => (
               <button
                 key={s}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold text-dark transition-colors hover:bg-gray-2 dark:text-white"
+                className={cn(
+                  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold text-dark transition-colors hover:bg-gray-2 dark:text-white",
+                )}
                 onClick={() => {
                   onStatusChange(item.id, s);
                   setShowMenu(false);
@@ -178,7 +183,7 @@ function KanbanCard({
         </button>
 
         {showMechanicMenu && (
-          <div className="absolute bottom-full left-0 z-20 mb-1.5 w-full rounded-xl border border-stroke bg-white p-1.5 shadow-2xl dark:border-dark-3 dark:bg-dark-2">
+          <div className="absolute bottom-full left-0 z-20 mb-1.5 w-full rounded-xl border border-stroke bg-white p-1.5 shadow-2xl dark:border-dark-2 dark:bg-dark-2">
             {MECHANICS.map((m) => (
               <button
                 key={m}
@@ -207,17 +212,25 @@ interface KanbanBoardProps {
   items: Antrean[];
   onStatusChange: (id: string, status: Antrean["status"]) => void;
   onMechanicAssign: (id: string, mekanik: string) => void;
+  onUpdate: (id: string, data: any) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  isLoading?: boolean;
 }
 
 export function KanbanBoard({
   items,
   onStatusChange,
   onMechanicAssign,
+  onUpdate,
+  onDelete,
+  isLoading = false,
 }: KanbanBoardProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Antrean | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEdit = (item: Antrean) => {
     setSelectedItem(item);
@@ -259,23 +272,44 @@ export function KanbanBoard({
               </div>
 
               <div className="flex min-h-[500px] flex-col gap-4 py-2">
-                {colItems.map((item) => (
-                  <KanbanCard
-                    key={item.id}
-                    item={item}
-                    onStatusChange={onStatusChange}
-                    onMechanicAssign={onMechanicAssign}
-                    onEdit={() => handleEdit(item)}
-                    onDelete={() => handleDelete(item)}
-                    onPrint={() => handlePrint(item)}
-                  />
-                ))}
-                {colItems.length === 0 && (
-                  <div className="flex h-32 items-center justify-center rounded-xl border-2 border-dashed border-stroke dark:border-dark-3">
-                    <p className="text-[10px] font-bold italic text-dark-5/40">
-                      Kosong
-                    </p>
-                  </div>
+                {isLoading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="rounded-xl border border-stroke bg-white p-4 shadow-sm dark:border-dark-3 dark:bg-gray-dark">
+                      <div className="flex gap-3 mb-4">
+                        <Skeleton className="h-10 w-10 rounded-lg" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-1/2" />
+                          <Skeleton className="h-3 w-3/4" />
+                        </div>
+                      </div>
+                      <div className="space-y-2 border-y border-stroke py-3 dark:border-dark-3">
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-2/3" />
+                      </div>
+                      <Skeleton className="h-8 w-full mt-3 rounded-lg" />
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    {colItems.map((item) => (
+                      <KanbanCard
+                        key={item.id}
+                        item={item}
+                        onStatusChange={onStatusChange}
+                        onMechanicAssign={onMechanicAssign}
+                        onEdit={() => handleEdit(item)}
+                        onDelete={() => handleDelete(item)}
+                        onPrint={() => handlePrint(item)}
+                      />
+                    ))}
+                    {colItems.length === 0 && (
+                      <div className="flex h-32 items-center justify-center rounded-xl border-2 border-dashed border-stroke dark:border-dark-3">
+                        <p className="text-[10px] font-bold italic text-dark-5/40">
+                          Kosong
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -286,14 +320,21 @@ export function KanbanBoard({
       {showEditModal && (
         <AntreanFormModal
           item={selectedItem}
+          isLoading={isSaving}
           onClose={() => {
             setShowEditModal(false);
             setSelectedItem(null);
           }}
-          onSave={(data) => {
-            console.log("Saving edited item from kanban:", data);
-            setShowEditModal(false);
-            setSelectedItem(null);
+          onSave={async (data) => {
+            if (!selectedItem) return;
+            setIsSaving(true);
+            try {
+              await onUpdate(selectedItem.id, data);
+              setShowEditModal(false);
+              setSelectedItem(null);
+            } finally {
+              setIsSaving(false);
+            }
           }}
         />
       )}
@@ -303,14 +344,21 @@ export function KanbanBoard({
           title="Hapus Antrean"
           description="Anda akan menghapus data kendaraan ini dari papan antrean."
           itemDisplay={selectedItem?.noPolisi}
+          isLoading={isDeleting}
           onClose={() => {
             setShowDeleteModal(false);
             setSelectedItem(null);
           }}
-          onConfirm={() => {
-            console.log("Deleting item from kanban:", selectedItem?.id);
-            setShowDeleteModal(false);
-            setSelectedItem(null);
+          onConfirm={async () => {
+            if (!selectedItem) return;
+            setIsDeleting(true);
+            try {
+              await onDelete(selectedItem.id);
+              setShowDeleteModal(false);
+              setSelectedItem(null);
+            } finally {
+              setIsDeleting(false);
+            }
           }}
         />
       )}

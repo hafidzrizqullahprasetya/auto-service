@@ -22,7 +22,7 @@ export function Sidebar() {
   } | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("auth_user");
+    const stored = localStorage.getItem("auth_user") || sessionStorage.getItem("auth_user");
     if (stored) {
       try {
         setAuthUser(JSON.parse(stored));

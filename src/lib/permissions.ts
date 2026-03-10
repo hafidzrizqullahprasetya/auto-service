@@ -5,7 +5,6 @@ export interface RoutePermission {
   label: string;
 }
 
-/** Semua route yang bisa dikontrol aksesnya */
 export const PERMISSION_ROUTES: RoutePermission[] = [
   { route: "/", label: "Dashboard" },
   { route: "/antrean", label: "Antrean Masuk" },
@@ -19,7 +18,6 @@ export const PERMISSION_ROUTES: RoutePermission[] = [
   { route: "/pengaturan", label: "Pengaturan" },
 ];
 
-/** Default permission matrix — dapat di-override oleh Owner */
 export const DEFAULT_PERMISSIONS: Record<Role, string[]> = {
   Owner: PERMISSION_ROUTES.map((p) => p.route),
   Admin: [
@@ -36,7 +34,6 @@ export const DEFAULT_PERMISSIONS: Record<Role, string[]> = {
   Kasir: ["/antrean", "/kasir"],
 };
 
-/** Halaman tujuan redirect setelah login / akses ditolak, per role */
 export const ROLE_HOME: Record<Role, string> = {
   Owner: "/",
   Admin: "/",
@@ -44,17 +41,14 @@ export const ROLE_HOME: Record<Role, string> = {
 };
 
 const STORAGE_KEY = "role_permissions";
-
-/** Route yang selalu bisa diakses oleh semua role yang sudah login */
 const ALWAYS_ALLOWED = ["/profile"];
 
 export function getPermissions(): Record<Role, string[]> {
   if (typeof window === "undefined") return DEFAULT_PERMISSIONS;
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored) as Record<Role, string[]>;
-      // Owner selalu full access
       parsed.Owner = PERMISSION_ROUTES.map((p) => p.route);
       return parsed;
     }
@@ -63,18 +57,12 @@ export function getPermissions(): Record<Role, string[]> {
 }
 
 export function savePermissions(perms: Record<Role, string[]>) {
-  // Owner selalu full access, tidak bisa dikurangi
   perms.Owner = PERMISSION_ROUTES.map((p) => p.route);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(perms));
 }
 
-/**
- * Cek apakah role tertentu boleh mengakses route.
- * Mendukung prefix-match untuk sub-route (e.g. /inventori/stok).
- */
 export function canAccess(role: Role, route: string): boolean {
   if (role === "Owner") return true;
-  // Halaman yang selalu bisa diakses semua role
   if (ALWAYS_ALLOWED.some((r) => route === r || route.startsWith(r + "/")))
     return true;
   const perms = getPermissions();

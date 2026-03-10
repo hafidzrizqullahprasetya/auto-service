@@ -5,66 +5,80 @@ import InputGroup from "@/components/ui/InputGroup";
 import { Checkbox } from "@/components/ui/checkbox";
 import { authService, normalizeRole } from "@/services/auth.service";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
-import toast from "react-hot-toast";
+import { Notify } from "@/utils/notify";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const signinSchema = z.object({
+  username: z.string().min(1, "Username tidak boleh kosong!"),
+  password: z.string().min(1, "Password tidak boleh kosong!"),
+  remember: z.boolean(),
+});
+
+type SigninFormValues = z.infer<typeof signinSchema>;
 
 export default function SigninWithPassword() {
   const router = useRouter();
-  const [data, setData] = useState({
-    username: "",
-    password: "",
-    remember: false,
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<SigninFormValues>({
+    resolver: zodResolver(signinSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      remember: false,
+    },
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError("");
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
+  const onSubmit = async (data: SigninFormValues) => {
     try {
       const result = await authService.login(data.username, data.password);
       const role = normalizeRole(result.user.role);
 
-      localStorage.setItem("auth_token", result.token);
-      localStorage.setItem(
-        "auth_user",
-        JSON.stringify({
-          name: result.user.name,
-          role,
-          username: result.user.username,
-        }),
-      );
+      const userObject = {
+        name: result.user.name,
+        role,
+        username: result.user.username,
+      };
 
-      toast.success(`Selamat datang kembali, ${result.user.name}!`);
+      if (data.remember) {
+        localStorage.setItem("auth_token", result.token);
+        localStorage.setItem("auth_refresh_token", result.refresh_token || ""); 
+        localStorage.setItem("auth_user", JSON.stringify(userObject));
+      } else {
+        sessionStorage.setItem("auth_token", result.token);
+        sessionStorage.setItem("auth_refresh_token", result.refresh_token || ""); 
+        sessionStorage.setItem("auth_user", JSON.stringify(userObject));
+      }
+
+      Notify.toast(`Selamat datang kembali, ${result.user.name}!`);
       router.push(role === "Kasir" ? "/antrean" : "/");
     } catch (err) {
       const errorMsg =
         err instanceof Error ? err.message : "Username atau password salah.";
-      setError(errorMsg);
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
+        
+      setError("username", { type: "server", message: " " }); 
+      setError("password", { type: "server", message: "Kredensial tidak cocok" });
+        
+      Notify.alert("Gagal Masuk!", errorMsg);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <InputGroup
         type="text"
         label="Username"
         className="mb-4 [&_input]:py-[15px]"
         placeholder="owner / admin / kasir"
-        name="username"
-        handleChange={handleChange}
-        value={data.username}
         leftIcon={<User className="size-5" />}
+        {...register("username")} 
+        error={errors.username?.message} 
       />
 
       <InputGroup
@@ -72,9 +86,6 @@ export default function SigninWithPassword() {
         label="Password"
         className="mb-5 [&_input]:py-[15px]"
         placeholder="••••••••"
-        name="password"
-        handleChange={handleChange}
-        value={data.password}
         leftIcon={<Lock className="size-5" />}
         rightIcon={
           <button
@@ -89,34 +100,29 @@ export default function SigninWithPassword() {
             )}
           </button>
         }
+        {...register("password")}
+        error={errors.password?.message}
       />
-
-      {error && (
-        <p className="bg-danger/10 text-danger mb-4 rounded-lg px-4 py-2.5 text-sm font-bold">
-          {error}
-        </p>
-      )}
 
       <div className="mb-6 flex items-center justify-between gap-2 py-2">
         <Checkbox
           label="Ingat Sesi Saya"
-          name="remember"
           withIcon="check"
           minimal
           radius="md"
           className="text-xs font-medium text-dark-5"
-          onChange={(e) => setData({ ...data, remember: e.target.checked })}
+          {...register("remember")}
         />
       </div>
 
       <div className="mb-4.5">
         <button
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting}
           className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark p-4 text-sm font-bold text-white transition-none hover:bg-opacity-90 disabled:bg-opacity-50 dark:bg-white dark:text-dark dark:hover:bg-opacity-90"
         >
-          {loading ? "Proses Otentikasi..." : "Masuk ke Dashboard"}
-          {loading && (
+          {isSubmitting ? "Proses Otentikasi..." : "Masuk ke Dashboard"}
+          {isSubmitting && (
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent dark:border-dark dark:border-t-transparent" />
           )}
         </button>

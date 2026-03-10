@@ -10,6 +10,7 @@ export interface ApiUser {
 
 export interface LoginResponse {
   token: string;
+  refresh_token?: string;
   expires_in?: number;
   user: ApiUser;
 }

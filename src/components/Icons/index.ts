@@ -41,6 +41,7 @@ import {
   ArrowLeftRight,
   ClipboardCheck,
   Lock,
+  Tag,
 } from "lucide-react";
 
 export const Icons = {
@@ -86,4 +87,5 @@ export const Icons = {
   StockInOut: ArrowLeftRight,
   StockOpname: ClipboardCheck,
   Lock: Lock,
+  Tag: Tag,
 };

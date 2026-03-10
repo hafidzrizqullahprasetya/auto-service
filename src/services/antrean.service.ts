@@ -49,40 +49,40 @@ export interface WorkOrderBody {
 
 export const antreanService = {
   async getAll(): Promise<Antrean[]> {
-    const res = await api.get<ApiWorkOrder[]>("/work-orders");
+    const res = await api.get<ApiWorkOrder[]>("/api/v1/work-orders");
     return (res.data ?? []).map(mapWorkOrder);
   },
 
   async getById(id: string): Promise<Antrean> {
-    const res = await api.get<ApiWorkOrder>(`/work-orders/${id}`);
+    const res = await api.get<ApiWorkOrder>(`/api/v1/work-orders/${id}`);
     return mapWorkOrder(res.data);
   },
 
   async create(body: WorkOrderBody): Promise<Antrean> {
-    const res = await api.post<ApiWorkOrder>("/work-orders", body);
+    const res = await api.post<ApiWorkOrder>("/api/v1/work-orders", body);
     return mapWorkOrder(res.data);
   },
 
   async update(id: string, body: Partial<WorkOrderBody>): Promise<Antrean> {
-    const res = await api.put<ApiWorkOrder>(`/work-orders/${id}`, body);
+    const res = await api.put<ApiWorkOrder>(`/api/v1/work-orders/${id}`, body);
     return mapWorkOrder(res.data);
   },
 
   async updateStatus(id: string, status: Antrean["status"]): Promise<Antrean> {
-    const res = await api.patch<ApiWorkOrder>(`/work-orders/${id}/status`, {
+    const res = await api.patch<ApiWorkOrder>(`/api/v1/work-orders/${id}/status`, {
       status: STATUS_MAP_REVERSE[status],
     });
     return mapWorkOrder(res.data);
   },
 
   async assignMechanic(id: string, mekanik: string): Promise<Antrean> {
-    const res = await api.patch<ApiWorkOrder>(`/work-orders/${id}/mechanic`, {
+    const res = await api.patch<ApiWorkOrder>(`/api/v1/work-orders/${id}/mechanic`, {
       mekanik,
     });
     return mapWorkOrder(res.data);
   },
 
   async delete(id: string): Promise<void> {
-    await api.delete(`/work-orders/${id}`);
+    await api.delete(`/api/v1/work-orders/${id}`);
   },
 };
