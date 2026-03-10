@@ -1,7 +1,7 @@
 "use client";
 
 import Skeleton from "react-loading-skeleton";
-import toast from "react-hot-toast";
+import { Notify } from "@/utils/notify";
 import React, { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ScanBarcode } from "lucide-react";
 import {
@@ -83,18 +83,20 @@ export function InventoryTable() {
 
   const handleSave = async (formData: any) => {
     setIsSaving(true);
+    Notify.loading("Menyimpan data...");
     try {
       if (editItem) {
         await updateItem(editItem.id, formData);
-        toast.success("Item berhasil diperbarui!");
+        Notify.toast("Item berhasil diperbarui!", "success", "top");
       } else {
         await addItem(formData);
-        toast.success("Item berhasil ditambahkan!");
+        Notify.toast("Item berhasil ditambahkan!", "success", "top");
       }
       setShowAddModal(false);
       setEditItem(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal menyimpan data");
+    } catch (err: any) {
+      const errorMsg = err instanceof Error ? err.message : "Gagal menyimpan data";
+      Notify.alert("Gagal!", errorMsg);
     } finally {
       setIsSaving(false);
     }
@@ -104,11 +106,13 @@ export function InventoryTable() {
     if (!deleteId) return;
     try {
       setIsDeleting(true);
+      Notify.loading("Menghapus data...");
       await deleteItem(deleteId);
-      toast.success("Item berhasil dihapus!");
+      Notify.toast("Item berhasil dihapus!", "success", "top");
       setDeleteId(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal menghapus data");
+    } catch (err: any) {
+      const errorMsg = err instanceof Error ? err.message : "Gagal menghapus data";
+      Notify.alert("Gagal!", errorMsg);
     } finally {
       setIsDeleting(false);
     }

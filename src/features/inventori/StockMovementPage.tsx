@@ -12,7 +12,7 @@ import { useStockMovements } from "@/hooks/useStockMovements";
 import { useInventory } from "@/hooks/useInventory";
 import { stockMovementService } from "@/services/stock-movements.service";
 import dayjs from "dayjs";
-import toast from "react-hot-toast";
+import { Notify } from "@/utils/notify";
 
 // ─── Summary mini-cards ────────────────────────────────────────────────────────
 function StockSummary({ movements }: { movements: StockMovement[] }) {
@@ -80,19 +80,19 @@ export function StockMovementPage() {
     note: string;
   }) => {
     setIsSaving(true);
+    Notify.loading("Mencatat stok masuk...");
     try {
       await stockMovementService.stockIn({
         spare_part_id: Number(d.itemId),
         quantity: d.quantity,
         note: d.note || undefined,
       });
-      toast.success("Stok masuk berhasil dicatat!");
+      Notify.toast("Stok masuk berhasil dicatat!", "success", "top");
       setShowMasukForm(false);
       refetch();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Gagal mencatat stok masuk",
-      );
+    } catch (err: any) {
+      const errorMsg = err instanceof Error ? err.message : "Gagal mencatat stok masuk";
+      Notify.alert("Gagal!", errorMsg);
     } finally {
       setIsSaving(false);
     }
@@ -104,19 +104,19 @@ export function StockMovementPage() {
     note: string;
   }) => {
     setIsSaving(true);
+    Notify.loading("Mencatat stok keluar...");
     try {
       await stockMovementService.stockOut({
         spare_part_id: Number(d.itemId),
         quantity: d.quantity,
         note: d.note || undefined,
       });
-      toast.success("Stok keluar berhasil dicatat!");
+      Notify.toast("Stok keluar berhasil dicatat!", "success", "top");
       setShowKeluarForm(false);
       refetch();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Gagal mencatat stok keluar",
-      );
+    } catch (err: any) {
+      const errorMsg = err instanceof Error ? err.message : "Gagal mencatat stok keluar";
+      Notify.alert("Gagal!", errorMsg);
     } finally {
       setIsSaving(false);
     }

@@ -6,6 +6,7 @@ import { Icons } from "@/components/Icons";
 import { Item } from "@/mock/inventory";
 import { ApiCategory } from "@/types/api";
 import { formatNumber, stripFormatting } from "@/lib/format-number";
+import { Notify } from "@/utils/notify";
 
 interface InventoryFormModalProps {
   onClose: () => void;
@@ -70,7 +71,7 @@ export function InventoryFormModal({
   const handleSave = () => {
     // Validasi sederhana
     if (!form.name || !form.category_id) {
-      alert("Nama dan Kategori wajib diisi");
+      Notify.alert("Gagal!", "Nama dan Kategori wajib diisi");
       return;
     }
 

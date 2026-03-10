@@ -20,6 +20,7 @@ import { StockOpname, OpnameItem } from "@/mock/opname";
 import { useInventory } from "@/hooks/useInventory";
 import { useOpnames } from "@/hooks/useOpnames";
 import dayjs from "dayjs";
+import { Notify } from "@/utils/notify";
 import { cn } from "@/lib/utils";
 
 // ---- Modal Sesi Opname Aktif ----
@@ -459,7 +460,7 @@ export function StockOpnamePage() {
           onClose={() => setShowActiveModal(false)}
           onFinish={() => {
             setShowActiveModal(false);
-            alert("Sesi opname ditutup & stok diupdate!");
+            Notify.toast("Sesi opname ditutup & stok diupdate!", "success", "top");
           }}
         />
       )}
