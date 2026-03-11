@@ -1,11 +1,37 @@
 "use client";
 
-import { LOW_STOCK_ITEMS } from "@/mock/wa-notifications";
+import { useEffect, useState } from "react";
 import { Icons } from "@/components/Icons";
 import Link from "next/link";
+import { api } from "@/lib/api";
+
+interface LowStockItem {
+  id: number;
+  name: string;
+  sku: string;
+  current_stock: number;
+  minimum_stock: number;
+}
 
 export function LowStockAlert() {
-  if (LOW_STOCK_ITEMS.length === 0) return null;
+  const [items, setItems] = useState<LowStockItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLowStock() {
+      try {
+        const res = await api.get<LowStockItem[]>("/reports/low-stock");
+        setItems(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch low stock", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLowStock();
+  }, []);
+
+  if (!loading && items.length === 0) return null;
 
   return (
     <div className="rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark sm:p-6">
@@ -19,7 +45,7 @@ export function LowStockAlert() {
               Alert Stok Menipis
             </h4>
             <p className="text-sm font-medium text-dark-5">
-              {LOW_STOCK_ITEMS.length} item di bawah batas minimum
+              {loading ? "..." : items.length} item di bawah batas minimum
             </p>
           </div>
         </div>
@@ -32,8 +58,12 @@ export function LowStockAlert() {
       </div>
 
       <div className="flex flex-col gap-2">
-        {LOW_STOCK_ITEMS.map((item) => {
-          const percent = Math.round((item.stock / item.minimumStock) * 100);
+        {loading ? (
+           Array.from({ length: 2 }).map((_, i) => (
+             <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-2 dark:bg-dark-3" />
+           ))
+        ) : items.map((item) => {
+          const percent = Math.round((item.current_stock / (item.minimum_stock || 1)) * 100);
           return (
             <div
               key={item.id}
@@ -45,8 +75,8 @@ export function LowStockAlert() {
               </div>
               <div className="text-right">
                 <p className="text-sm font-black text-red-500">
-                  {item.stock}{" "}
-                  <span className="font-medium text-dark-5 text-xs">/ min {item.minimumStock}</span>
+                  {item.current_stock}{" "}
+                  <span className="font-medium text-dark-5 text-xs">/ min {item.minimum_stock}</span>
                 </p>
                 {/* Progress bar */}
                 <div className="mt-1 h-1 w-20 rounded-full bg-gray-3 dark:bg-dark-3">

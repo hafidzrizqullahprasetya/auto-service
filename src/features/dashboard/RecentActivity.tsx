@@ -1,56 +1,44 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/id";
+import { api } from "@/lib/api";
 
-const ACTIVITIES = [
-  {
-    id: 1,
-    type: "service",
-    title: "Servis Selesai",
-    description: "Toyota Avanza B 1234 ABC telah selesai dikerjakan oleh Suryo.",
-    time: "10 menit yang lalu",
-    icon: <Icons.Success size={16} />,
-    color: "bg-green/10 text-green",
-  },
-  {
-    id: 2,
-    type: "inventory",
-    title: "Stok Menipis",
-    description: "Stok Oli Shell Helix HX7 sisa 5 botol. Segera restock!",
-    time: "1 jam yang lalu",
-    icon: <Icons.Warning size={16} />,
-    color: "bg-red/10 text-red",
-  },
-  {
-    id: 3,
-    type: "customer",
-    title: "Pelanggan Baru",
-    description: "Siska Putri telah terdaftar sebagai pelanggan baru.",
-    time: "3 jam yang lalu",
-    icon: <Icons.Pelanggan size={16} />,
-    color: "bg-primary/10 text-primary",
-  },
-  {
-    id: 4,
-    type: "payment",
-    title: "Pembayaran Diterima",
-    description: "Invoice #INV/20240524/002 telah dibayar lunas via Transfer.",
-    time: "5 jam yang lalu",
-    icon: <Icons.Cash size={16} />,
-    color: "bg-secondary/10 text-secondary",
-  },
-  {
-    id: 5,
-    type: "queue",
-    title: "Antrean Masuk",
-    description: "Honda Vario F 2024 VIX baru saja masuk ke antrean.",
-    time: "Kemarin",
-    icon: <Icons.Antrean size={16} />,
-    color: "bg-blue/10 text-blue",
-  },
-];
+dayjs.extend(relativeTime);
+dayjs.locale("id");
+
+interface ActivityItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  time: string;
+  icon: string;
+  color: string;
+}
 
 export function RecentActivity({ className }: { className?: string }) {
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchActivities() {
+      try {
+        const res = await api.get<ActivityItem[]>("/reports/recent-activities");
+        setActivities(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch activities", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchActivities();
+  }, []);
+
   return (
     <div className={cn(
       "col-span-12 rounded-[10px] bg-white py-6 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-5",
@@ -62,29 +50,44 @@ export function RecentActivity({ className }: { className?: string }) {
 
       <div className="px-7.5">
         <div className="space-y-6">
-          {ACTIVITIES.map((activity) => (
-            <div key={activity.id} className="flex gap-4">
-              <div className={cn(
-                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                activity.color
-              )}>
-                {activity.icon}
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between gap-2">
-                  <h4 className="text-sm font-bold text-dark dark:text-white">
-                    {activity.title}
-                  </h4>
-                  <span className="text-[10px] font-medium text-dark-5 dark:text-dark-6">
-                    {activity.time}
-                  </span>
+          {loading ? (
+             Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex gap-4 animate-pulse">
+                   <div className="h-10 w-10 shrink-0 rounded-full bg-gray-2 dark:bg-dark-3" />
+                   <div className="flex-1 space-y-2">
+                       <div className="h-3 w-1/3 bg-gray-2 dark:bg-dark-3 rounded" />
+                       <div className="h-2 w-full bg-gray-2 dark:bg-dark-3 rounded" />
+                   </div>
                 </div>
-                <p className="mt-0.5 text-xs font-medium text-dark-4 dark:text-dark-6">
-                  {activity.description}
-                </p>
+             ))
+          ) : activities.length === 0 ? (
+             <p className="text-center py-8 text-sm text-dark-5">Belum ada aktivitas</p>
+          ) : activities.map((activity) => {
+            const IconComp = (Icons as any)[activity.icon] || Icons.Search;
+            return (
+              <div key={activity.id} className="flex gap-4">
+                <div className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                  activity.color
+                )}>
+                  <IconComp size={16} />
+                </div>
+                <div className="flex flex-col flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-sm font-bold text-dark dark:text-white">
+                      {activity.title}
+                    </h4>
+                    <span className="text-[10px] font-medium text-dark-5 dark:text-dark-6">
+                      {dayjs(activity.time).fromNow()}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs font-medium text-dark-4 dark:text-dark-6">
+                    {activity.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <button className="mt-8 flex w-full items-center justify-center rounded-md border border-stroke py-2 text-sm font-bold text-dark hover:bg-gray-2 dark:border-dark-3 dark:text-white transition-all">
