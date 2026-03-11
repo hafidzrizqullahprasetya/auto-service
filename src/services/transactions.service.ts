@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { ApiTransaction } from "@/types/api";
-import { Transaction } from "@/mock/transactions";
+import { Transaction } from "@/types/transaction";
 
 const PAYMENT_METHOD_MAP: Record<
   ApiTransaction["payment_method"],

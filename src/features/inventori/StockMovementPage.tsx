@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { StockMovement } from "@/mock/stock-movements";
+import { StockMovement } from "@/types/stock-movement";
 import { Badge } from "@/features/shared";
 import { ActionButton } from "@/features/shared";
 import { Icons } from "@/components/Icons";

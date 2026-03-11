@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { inventoryService, SparePartBody } from "@/services/inventory.service";
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 import { ApiCategory } from "@/types/api";
 
 export function useInventory() {

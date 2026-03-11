@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import type { AuthUser } from "@/hooks/useAuth";
+import { authService } from "@/services/auth.service";
+import { Notify } from "@/utils/notify";
 
 const ROLE_AVATARS: Record<string, string> = {
   owner: "/images/user/user-03.png",
@@ -40,10 +42,15 @@ export function UserInfo() {
     ? (ROLE_AVATARS[authUser.username] ?? "/images/user/user-03.png")
     : "/images/user/user-03.png";
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsOpen(false);
-    localStorage.removeItem("auth_user");
-    router.push("/auth/sign-in");
+    try {
+      await authService.logout();
+      Notify.toast("Logout berhasil!", "success", "top");
+      router.push("/auth/sign-in");
+    } catch (err) {
+      router.push("/auth/sign-in");
+    }
   };
 
   return (

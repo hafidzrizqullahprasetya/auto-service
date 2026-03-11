@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MOCK_PURCHASE_ORDERS, PurchaseOrder } from "@/mock/service-history";
+import { PurchaseOrder } from "@/types/purchase-order";
+import { purchaseOrdersService } from "@/services/purchase-orders.service";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
@@ -87,14 +88,14 @@ function ExpandedDetail({ row }: { row: Row<PurchaseOrder> }) {
 }
 
 // ─── Summary cards ─────────────────────────────────────────────────────────────
-function POSummary() {
-  const totalNilai = MOCK_PURCHASE_ORDERS.filter((po) => po.status !== "Dibatalkan").reduce((acc, po) => acc + po.totalNilai, 0);
-  const draft = MOCK_PURCHASE_ORDERS.filter((po) => po.status === "Draft").length;
-  const dikirim = MOCK_PURCHASE_ORDERS.filter((po) => po.status === "Dikirim").length;
+function POSummary({ data }: { data: PurchaseOrder[] }) {
+  const totalNilai = data.filter((po) => po.status !== "Dibatalkan").reduce((acc, po) => acc + po.totalNilai, 0);
+  const draft = data.filter((po) => po.status === "Draft").length;
+  const dikirim = data.filter((po) => po.status === "Dikirim").length;
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
       {[
-        { label: "Total PO Aktif", value: MOCK_PURCHASE_ORDERS.length, icon: Icons.Database },
+        { label: "Total PO Aktif", value: data.length, icon: Icons.Database },
         { label: "Draft", value: draft, icon: Icons.Pending },
         { label: "Dikirim", value: dikirim, icon: Icons.Antrean },
         { label: "Total Nilai PO", value: `Rp ${formatNumber(totalNilai)}`, icon: Icons.Cash },
@@ -115,6 +116,20 @@ function POSummary() {
 
 export function PurchaseOrderTable() {
   const [globalFilter, setGlobalFilter] = useState("");
+  const [data, setData] = useState<PurchaseOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await purchaseOrdersService.getAll();
+        setData(res);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const columns = useMemo<ColumnDef<PurchaseOrder>[]>(
     () => [
@@ -204,7 +219,7 @@ export function PurchaseOrderTable() {
   );
 
   const table = useReactTable({
-    data: MOCK_PURCHASE_ORDERS,
+    data,
     columns,
     state: { globalFilter },
     getCoreRowModel: getCoreRowModel(),
@@ -216,9 +231,22 @@ export function PurchaseOrderTable() {
     initialState: { pagination: { pageSize: 10 } },
   });
 
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-white dark:bg-gray-dark" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-[10px] bg-white dark:bg-gray-dark" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 md:gap-6">
-      <POSummary />
+      <POSummary data={data} />
 
       <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5">
         {/* Toolbar */}
@@ -291,7 +319,7 @@ export function PurchaseOrderTable() {
             <p className="text-xs font-medium text-dark-5">
               Menampilkan{" "}
               <span className="font-bold text-dark">{table.getFilteredRowModel().rows.length}</span>{" "}
-              dari <span className="font-bold text-dark">{MOCK_PURCHASE_ORDERS.length}</span> data
+              dari <span className="font-bold text-dark">{data.length}</span> data
             </p>
 
             <div className="flex items-center gap-1.5">

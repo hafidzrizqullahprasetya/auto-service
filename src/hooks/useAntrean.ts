@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { antreanService } from "@/services/antrean.service";
-import { Antrean } from "@/mock/antrean";
+import { Antrean } from "@/types/antrean";
 
 export function useAntrean() {
   const [data, setData] = useState<Antrean[]>([]);

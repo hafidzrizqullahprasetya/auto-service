@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { transactionsService } from "@/services/transactions.service";
-import { Transaction } from "@/mock/transactions";
+import { Transaction } from "@/types/transaction";
 
 export function useTransactions() {
   const [data, setData] = useState<Transaction[]>([]);

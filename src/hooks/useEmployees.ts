@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { usersService, UserBody } from "@/services/users.service";
-import { Employee } from "@/mock/employees";
+import { Employee } from "@/types/employee";
 
 export function useEmployees() {
   const [data, setData] = useState<Employee[]>([]);

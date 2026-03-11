@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Icons } from "@/components/Icons";
-import { Transaction } from "@/mock/transactions";
+import { Transaction } from "@/types/transaction";
 import { formatNumber } from "@/lib/format-number";
 import dayjs from "dayjs";
 

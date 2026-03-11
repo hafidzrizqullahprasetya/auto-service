@@ -1,5 +1,5 @@
 import { Icons } from "@/components/Icons";
-import { ServiceRecord } from "@/mock/vehicles";
+import { ServiceRecord } from "@/types/vehicle";
 import { formatNumber } from "@/lib/format-number";
 import dayjs from "dayjs";
 

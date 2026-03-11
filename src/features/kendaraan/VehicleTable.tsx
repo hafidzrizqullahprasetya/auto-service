@@ -1,10 +1,10 @@
 "use client";
 
-import toast from "react-hot-toast";
+import { Notify } from "@/utils/notify";
 import { useState, useMemo, useEffect } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { Vehicle } from "@/mock/vehicles";
+import { Vehicle } from "@/types/vehicle";
 import { useVehicles } from "@/hooks/useVehicles";
 import { Icons } from "@/components/Icons";
 import { ActionButton, ExcelButtons } from "@/features/shared";
@@ -29,7 +29,7 @@ export function VehicleTable() {
   // Show error toast when API fails
   useEffect(() => {
     if (error) {
-      toast.error(`Gagal memuat kendaraan: ${error}`);
+      Notify.alert("Gagal", `Gagal memuat kendaraan: ${error}`, "error");
     }
   }, [error]);
 
@@ -44,10 +44,10 @@ export function VehicleTable() {
           model: data.model,
           year: data.year,
         });
-        toast.success("Kendaraan berhasil diperbarui!");
+        Notify.toast("Kendaraan berhasil diperbarui!");
       } else {
         if (!data.customer_id) {
-          toast.error("Pilih pemilik kendaraan terlebih dahulu!");
+          Notify.alert("Gagal", "Pilih pemilik kendaraan terlebih dahulu!", "error");
           return;
         }
         await addVehicle(data.customer_id, {
@@ -57,14 +57,12 @@ export function VehicleTable() {
           model: data.model,
           year: data.year,
         });
-        toast.success("Kendaraan berhasil didaftarkan!");
+        Notify.toast("Kendaraan berhasil didaftarkan!");
       }
       setShowRegModal(false);
       setEditVehicle(null);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Gagal menyimpan kendaraan.",
-      );
+      Notify.alert("Gagal", err instanceof Error ? err.message : "Gagal menyimpan kendaraan.", "error");
     } finally {
       setIsSaving(false);
     }

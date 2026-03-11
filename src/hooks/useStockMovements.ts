@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { stockMovementService } from "@/services/stock-movements.service";
-import { StockMovement } from "@/mock/stock-movements";
+import { StockMovement } from "@/types/stock-movement";
 
 export function useStockMovements() {
   const [data, setData] = useState<StockMovement[]>([]);

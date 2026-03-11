@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { ApiUser } from "@/types/api";
-import { Employee } from "@/mock/employees";
+import { Employee } from "@/types/employee";
 import { normalizeRole } from "./auth.service";
 
 /** Map BE ApiUser → FE Employee */

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { StockOpname, OpnameItem } from "@/mock/opname";
+import { StockOpname, OpnameItem } from "@/types/opname";
 
 /**
  * API response types from backend

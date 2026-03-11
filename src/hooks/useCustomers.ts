@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { customersService, CustomerBody } from "@/services/customers.service";
-import { Customer } from "@/mock/customers";
+import { Customer } from "@/types/customer";
 
 export function useCustomers() {
   const [data, setData] = useState<Customer[]>([]);

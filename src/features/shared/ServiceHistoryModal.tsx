@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MOCK_SERVICE_HISTORY, ServiceRecord } from "@/mock/service-history";
+import { ServiceRecord } from "@/types/service-history";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";

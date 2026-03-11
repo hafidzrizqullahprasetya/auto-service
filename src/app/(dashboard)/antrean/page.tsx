@@ -7,7 +7,7 @@ import {
   KanbanBoard,
   AntreanFormModal,
 } from "@/features/antrean";
-import { Antrean } from "@/mock/antrean";
+import { Antrean } from "@/types/antrean";
 import { useAntrean } from "@/hooks/useAntrean";
 import { LayoutGrid, LayoutList, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";

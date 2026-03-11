@@ -1,30 +1,16 @@
 "use client";
 
+import { Notify } from "@/utils/notify";
 import { useState, useMemo, useEffect } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { Employee } from "@/mock/employees";
+import { Employee } from "@/types/employee";
 import { useEmployees } from "@/hooks/useEmployees";
 import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { ActionButton, ExcelButtons } from "@/features/shared";
 import { EmployeeFormModal } from "@/features/karyawan";
 import { karyawanToExcelRows } from "@/lib/excel";
-
-import toast from "react-hot-toast";
-
-const getStatusVariant = (status: Employee["status"]) => {
-  switch (status) {
-    case "Aktif":
-      return "success";
-    case "Cuti":
-      return "warning";
-    case "Off":
-      return "danger";
-    default:
-      return "primary";
-  }
-};
 
 export function EmployeeTable() {
   const {
@@ -40,10 +26,10 @@ export function EmployeeTable() {
   );
   const [isSaving, setIsSaving] = useState(false);
 
-  // Show error toast when API fails
+  // Show error alert when API fails
   useEffect(() => {
     if (error) {
-      toast.error(`Gagal memuat karyawan: ${error}`);
+       Notify.alert("Gagal", `Gagal memuat karyawan: ${error}`, "error");
     }
   }, [error]);
 
@@ -52,17 +38,15 @@ export function EmployeeTable() {
     try {
       if (selectedEmployee) {
         await updateEmployee(String(selectedEmployee.id), data);
-        toast.success("Karyawan berhasil diperbarui!");
+        Notify.toast("Karyawan berhasil diperbarui!");
       } else {
         await addEmployee(data);
-        toast.success("Karyawan berhasil ditambahkan!");
+        Notify.toast("Karyawan berhasil ditambahkan!");
       }
       setShowModal(false);
       setSelectedEmployee(null);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Gagal menyimpan data karyawan.",
-      );
+      Notify.alert("Gagal", err instanceof Error ? err.message : "Gagal menyimpan data karyawan.", "error");
     } finally {
       setIsSaving(false);
     }

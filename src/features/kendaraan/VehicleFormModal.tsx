@@ -1,13 +1,28 @@
 "use client";
 
-import { BaseModal } from "@/features/shared";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { BaseModal, ActionButton } from "@/features/shared";
 import { Icons } from "@/components/Icons";
-import { ActionButton } from "@/features/shared";
 import { useState, useEffect, useRef } from "react";
 import { customersService } from "@/services/customers.service";
-import { Customer } from "@/mock/customers";
+import { Customer } from "@/types/customer";
+import InputGroup from "@/components/ui/InputGroup";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+
+const vehicleSchema = z.object({
+  plate_number: z.string().min(3, "No. Polisi minimal 3 karakter"),
+  type: z.enum(["Mobil", "Motor"]),
+  year: z.coerce.number().optional().or(z.literal(0)),
+  brand: z.string().min(2, "Merk wajib diisi"),
+  model: z.string().min(2, "Model wajib diisi"),
+  color: z.string().optional(),
+  customer_id: z.string().min(1, "Pemilik wajib dipilih"),
+});
+
+type VehicleFormValues = z.infer<typeof vehicleSchema>;
 
 interface VehicleFormModalProps {
   onClose: () => void;
@@ -26,27 +41,33 @@ export function VehicleFormModal({
 }: VehicleFormModalProps) {
   const isEdit = mode === "edit";
 
-  // ── Form state ───────────────────────────────
-  const [plateNumber, setPlateNumber] = useState(
-    initialData?.plateNumber ?? "",
-  );
-  const [type, setType] = useState<"Mobil" | "Motor">(
-    initialData?.type ?? "Mobil",
-  );
-  const [year, setYear] = useState(
-    initialData?.year ? String(initialData.year) : "",
-  );
-  const [brand, setBrand] = useState(initialData?.brand ?? "");
-  const [model, setModel] = useState(initialData?.model ?? "");
-  const [color, setColor] = useState(initialData?.color ?? "");
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm<VehicleFormValues>({
+    resolver: zodResolver(vehicleSchema) as any,
+    defaultValues: {
+      plate_number: initialData?.plateNumber ?? "",
+      type: initialData?.type ?? "Mobil",
+      year: initialData?.year ?? undefined,
+      brand: initialData?.brand ?? "",
+      model: initialData?.model ?? "",
+      color: initialData?.color ?? "",
+      customer_id: initialData?.ownerId ?? "",
+    },
+  });
+
+  const customerId = watch("customer_id");
 
   // ── Customer search state ────────────────────
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customersLoading, setCustomersLoading] = useState(true);
   const [search, setSearch] = useState(initialData?.ownerName ?? "");
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null,
-  );
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -72,10 +93,7 @@ export function VehicleFormModal({
   // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
     };
@@ -92,18 +110,19 @@ export function VehicleFormModal({
   const handleSelectCustomer = (c: Customer) => {
     setSelectedCustomer(c);
     setSearch(c.name);
+    setValue("customer_id", c.id);
     setDropdownOpen(false);
   };
 
-  const handleSave = () => {
+  const onFormSubmit: SubmitHandler<VehicleFormValues> = (data) => {
     onSave({
-      plate_number: plateNumber,
-      type,
-      year: year ? Number(year) : undefined,
-      brand,
-      model,
-      color,
-      customer_id: selectedCustomer?.id,
+      plate_number: data.plate_number,
+      type: data.type,
+      year: data.year || undefined,
+      brand: data.brand,
+      model: data.model,
+      color: data.color,
+      customer_id: data.customer_id,
     });
   };
 
@@ -118,119 +137,74 @@ export function VehicleFormModal({
       icon={<Icons.KendaraanMobil size={20} />}
       onClose={onClose}
       maxWidth="lg"
-      footer={
-        <div className="flex justify-end gap-3">
-          <ActionButton
-            variant="ghost"
-            label="Batal"
-            onClick={onClose}
-            disabled={isLoading}
-          />
-          <ActionButton
-            variant="primary"
-            label={
-              isLoading
-                ? "Menyimpan..."
-                : isEdit
-                  ? "Simpan Perubahan"
-                  : "Daftarkan Unit"
-            }
-            onClick={handleSave}
-            disabled={isLoading}
-          />
-        </div>
-      }
+      hideFooter
     >
-      <div className="space-y-4">
+      <form onSubmit={handleSubmit(onFormSubmit) as any} className="space-y-4">
         {/* No. Polisi */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            No. Polisi (Plat Nomor)
-          </label>
-          <input
-            type="text"
-            placeholder="Contoh: B 1234 ABC"
-            value={plateNumber}
-            onChange={(e) => setPlateNumber(e.target.value.toUpperCase())}
-            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-bold uppercase text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-          />
-        </div>
+        <InputGroup
+          label="No. Polisi (Plat Nomor)"
+          placeholder="Contoh: B 1234 ABC"
+          className="uppercase font-bold"
+          {...register("plate_number")}
+          onChange={(e) => {
+              e.target.value = e.target.value.toUpperCase();
+          }}
+          error={errors.plate_number?.message}
+          required
+        />
 
         {/* Jenis + Tahun */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
               Jenis Unit
             </label>
             <select
-              value={type}
-              onChange={(e) => setType(e.target.value as "Mobil" | "Motor")}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+              {...register("type")}
+              className="w-full rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
             >
               <option value="Mobil">Mobil</option>
               <option value="Motor">Motor</option>
             </select>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
-              Tahun Produksi
-            </label>
-            <input
-              type="number"
-              placeholder="Contoh: 2022"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
-            />
-          </div>
+          <InputGroup
+            label="Tahun Produksi"
+            placeholder="Contoh: 2022"
+            type="number"
+            {...register("year")}
+            error={errors.year?.message}
+          />
         </div>
 
         {/* Merk + Model */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
-              Merk
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: Toyota"
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
-              Model / Tipe
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: Avanza"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
-            />
-          </div>
-        </div>
-
-        {/* Warna */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            Warna
-          </label>
-          <input
-            type="text"
-            placeholder="Contoh: Putih Metalik"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+          <InputGroup
+            label="Merk"
+            placeholder="Contoh: Toyota"
+            {...register("brand")}
+            error={errors.brand?.message}
+            required
+          />
+          <InputGroup
+            label="Model / Tipe"
+            placeholder="Contoh: Avanza"
+            {...register("model")}
+            error={errors.model?.message}
+            required
           />
         </div>
+
+        <InputGroup
+          label="Warna"
+          placeholder="Contoh: Putih Metalik"
+          {...register("color")}
+          error={errors.color?.message}
+        />
 
         {/* Pilih Pemilik */}
         <div className="space-y-1.5">
           <label className="text-sm font-bold text-dark dark:text-white">
-            Pilih Pemilik (Customer)
+            Pilih Pemilik (Customer) <span className="text-red">*</span>
           </label>
 
           {customersLoading ? (
@@ -251,8 +225,9 @@ export function VehicleFormModal({
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedCustomer(null);
-                      setSearch("");
+                        setSelectedCustomer(null);
+                        setSearch("");
+                        setValue("customer_id", "");
                     }}
                     className="text-dark-5 hover:text-dark dark:hover:text-white"
                   >
@@ -277,7 +252,7 @@ export function VehicleFormModal({
                       setDropdownOpen(true);
                     }}
                     onFocus={() => setDropdownOpen(true)}
-                    className="w-full rounded-lg border border-stroke bg-transparent py-2.5 pl-9 pr-4 text-sm font-medium text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+                    className="w-full rounded-lg border-2 border-stroke bg-white py-2.5 pl-9 pr-4 text-sm font-medium text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
                   />
                 </div>
               )}
@@ -313,8 +288,27 @@ export function VehicleFormModal({
               )}
             </div>
           )}
+          {errors.customer_id && (
+            <p className="mt-1 text-xs font-medium text-red-500">{errors.customer_id.message}</p>
+          )}
         </div>
-      </div>
+
+        <div className="flex justify-end gap-3 pt-6 border-t border-stroke dark:border-dark-3 mt-6">
+          <ActionButton
+            variant="ghost"
+            label="Batal"
+            onClick={onClose}
+            disabled={isLoading}
+            type="button"
+          />
+          <ActionButton
+            variant="primary"
+            label={isLoading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Daftarkan Unit"}
+            disabled={isLoading}
+            type="submit"
+          />
+        </div>
+      </form>
     </BaseModal>
   );
 }

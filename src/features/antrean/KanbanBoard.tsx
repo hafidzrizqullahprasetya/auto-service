@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Antrean } from "@/mock/antrean";
+import { Antrean } from "@/types/antrean";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
 import dayjs from "dayjs";

@@ -6,7 +6,7 @@ import {
   AddOpnameItemBody,
   UpdateOpnameItemBody,
 } from "@/services/opname.service";
-import { StockOpname } from "@/mock/opname";
+import { StockOpname } from "@/types/opname";
 
 export function useOpnames() {
   const [data, setData] = useState<StockOpname[]>([]);

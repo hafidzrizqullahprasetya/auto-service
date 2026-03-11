@@ -1,7 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import { Antrean } from "@/mock/antrean";
+import { Antrean } from "@/types/antrean";
 import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { ActionButton } from "@/features/shared";

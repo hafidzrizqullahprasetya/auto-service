@@ -17,7 +17,7 @@ import { ActionButton } from "@/features/shared";
 import { TableToolbar } from "@/features/shared";
 import { BaseModal } from "@/features/shared";
 import { Icons } from "@/components/Icons";
-import { StockOpname, OpnameItem } from "@/mock/opname";
+import { StockOpname, OpnameItem } from "@/types/opname";
 import { useInventory } from "@/hooks/useInventory";
 import { useOpnames } from "@/hooks/useOpnames";
 import dayjs from "dayjs";

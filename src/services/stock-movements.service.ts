@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { StockMovement } from "@/mock/stock-movements";
+import { StockMovement } from "@/types/stock-movement";
 
 /**
  * API response type from backend

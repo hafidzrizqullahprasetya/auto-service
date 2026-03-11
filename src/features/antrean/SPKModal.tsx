@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Icons } from "@/components/Icons";
-import { Antrean } from "@/mock/antrean";
+import { Antrean } from "@/types/antrean";
 import dayjs from "dayjs";
 import { BaseModal } from "../shared/BaseModal";
 import { ActionButton } from "../shared/ActionButton";

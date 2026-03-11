@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";

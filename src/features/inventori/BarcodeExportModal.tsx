@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import Barcode from "react-barcode";
 import { Printer, X, Package } from "lucide-react";
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 import { formatNumber } from "@/lib/format-number";
 
 interface BarcodeExportModalProps {

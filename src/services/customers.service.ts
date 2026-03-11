@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { ApiCustomer } from "@/types/api";
-import { Customer } from "@/mock/customers";
+import { Customer } from "@/types/customer";
 
 /** Map BE ApiCustomer → FE Customer */
 export function mapCustomer(c: ApiCustomer): Customer {

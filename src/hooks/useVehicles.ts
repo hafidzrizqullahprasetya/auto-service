@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { customersService } from "@/services/customers.service";
 import { vehiclesService, VehicleBody } from "@/services/vehicles.service";
-import { Vehicle } from "@/mock/vehicles";
+import { Vehicle } from "@/types/vehicle";
 import { ApiVehicle } from "@/types/api";
 
 /** Flattens all vehicles from all customers into the FE Vehicle shape.

@@ -1,17 +1,16 @@
 "use client";
 
-import toast from "react-hot-toast";
+import { Notify } from "@/utils/notify";
 import { ColumnDef } from "@tanstack/react-table";
-import { Customer } from "@/mock/customers";
+import { Customer } from "@/types/customer";
 import { formatNumber } from "@/lib/format-number";
 import { Icons } from "@/components/Icons";
-import { Badge, ActionButton, ExcelButtons } from "@/features/shared";
+import { Badge, ActionButton, ExcelButtons, ConfirmDeleteModal } from "@/features/shared";
 import dayjs from "dayjs";
 import { DataTable } from "@/components/ui/DataTable";
 import { pelangganToExcelRows } from "@/lib/excel";
 import { CustomerFormModal } from "./CustomerFormModal";
 import { CustomerDetailModal } from "./CustomerDetailModal";
-import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useCustomers } from "@/hooks/useCustomers";
 
@@ -26,10 +25,10 @@ export function CustomerTable() {
     deleteCustomer,
   } = useCustomers();
 
-  // Show error toast when API fails
+  // Show error alert when API fails
   useEffect(() => {
     if (error) {
-      toast.error(`Gagal memuat pelanggan: ${error}`);
+      Notify.alert("Gagal", `Gagal memuat pelanggan: ${error}`, "error");
     }
   }, [error]);
 
@@ -67,17 +66,15 @@ export function CustomerTable() {
       setIsSaving(true);
       if (selectedCustomer) {
         await updateCustomer(selectedCustomer.id, formData);
-        toast.success("Pelanggan berhasil diperbarui!");
+        Notify.toast("Pelanggan berhasil diperbarui!");
       } else {
         await addCustomer(formData);
-        toast.success("Pelanggan berhasil ditambahkan!");
+        Notify.toast("Pelanggan berhasil ditambahkan!");
       }
       setShowFormModal(false);
       setSelectedCustomer(null);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Gagal menyimpan pelanggan",
-      );
+      Notify.alert("Gagal", err instanceof Error ? err.message : "Gagal menyimpan pelanggan", "error");
     } finally {
       setIsSaving(false);
     }
@@ -88,13 +85,11 @@ export function CustomerTable() {
     try {
       setIsDeleting(true);
       await deleteCustomer(selectedCustomer.id);
-      toast.success("Pelanggan berhasil dihapus!");
+      Notify.toast("Pelanggan berhasil dihapus!");
       setShowDeleteModal(false);
       setSelectedCustomer(null);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Gagal menghapus pelanggan",
-      );
+      Notify.alert("Gagal", err instanceof Error ? err.message : "Gagal menghapus pelanggan", "error");
     } finally {
       setIsDeleting(false);
     }
@@ -258,8 +253,10 @@ export function CustomerTable() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedCustomer && (
-        <DeleteConfirmModal
-          customer={selectedCustomer}
+        <ConfirmDeleteModal
+          title="Hapus Pelanggan?"
+          description={`Apakah Anda yakin ingin menghapus profile ${selectedCustomer.name}? Tindakan ini permanen, namun riwayat transaksi tetap diarsipkan.`}
+          itemDisplay={selectedCustomer.name}
           onClose={() => {
             setShowDeleteModal(false);
             setSelectedCustomer(null);

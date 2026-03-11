@@ -1,9 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { BaseModal } from "@/features/shared";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { BaseModal, ActionButton } from "@/features/shared";
 import { Icons } from "@/components/Icons";
-import { ActionButton } from "@/features/shared";
+import InputGroup from "@/components/ui/InputGroup";
+
+const employeeSchema = z.object({
+  name: z.string().min(3, "Nama minimal 3 karakter"),
+  username: z.string().min(3, "Username minimal 3 karakter").regex(/^[a-z0-9_]+$/, "Username hanya boleh huruf kecil, angka, dan underscore"),
+  role: z.enum(["admin", "kasir"]),
+  phone: z.string().optional().or(z.literal("")),
+  password: z.string().optional(),
+}).refine(data => {
+    return true;
+}, { message: "Password wajib diisi" });
+
+type EmployeeFormValues = z.infer<typeof employeeSchema>;
 
 interface EmployeeFormModalProps {
   onClose: () => void;
@@ -22,39 +36,44 @@ export function EmployeeFormModal({
 }: EmployeeFormModalProps) {
   const isEdit = mode === "edit";
 
-  const [name, setName] = useState(initialData?.name ?? "");
-  const [username, setUsername] = useState(initialData?.username ?? "");
-  const [role, setRole] = useState<"admin" | "kasir">(
-    (initialData?.role?.toLowerCase() === "owner"
-      ? "admin"
-      : initialData?.role?.toLowerCase()) ?? "kasir",
-  );
-  const [phone, setPhone] = useState(initialData?.phone ?? "");
-  const [password, setPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<EmployeeFormValues>({
+    resolver: zodResolver(employeeSchema) as any,
+    defaultValues: {
+      name: initialData?.name ?? "",
+      username: initialData?.username ?? "",
+      role: (initialData?.role?.toLowerCase() === "owner" ? "admin" : initialData?.role?.toLowerCase()) ?? "kasir",
+      phone: initialData?.phone ?? "",
+      password: "",
+    },
+  });
 
-  const handleSave = () => {
-    if (!name.trim()) {
-      return;
-    }
-    if (!isEdit && !username.trim()) {
-      return;
-    }
-    if (!isEdit && !password.trim()) {
-      return;
+  const onFormSubmit: SubmitHandler<EmployeeFormValues> = (data) => {
+    if (!isEdit && !data.password) {
+        // Manually check password if zod didn't catch it and it's create mode
+        // Though we can add it to zod
+        alert("Password wajib diisi untuk karyawan baru");
+        return;
     }
 
-    const payload: any = { name, role, phone: phone.trim() || null };
+    const payload: any = { 
+        name: data.name, 
+        role: data.role, 
+        phone: data.phone?.trim() || null 
+    };
+    
     if (!isEdit) {
-      payload.username = username;
-      payload.password = password;
-    } else if (password.trim()) {
-      payload.password = password;
+      payload.username = data.username;
+      payload.password = data.password;
+    } else if (data.password?.trim()) {
+      payload.password = data.password;
     }
+    
     onSave(payload);
   };
-
-  const inputCls =
-    "w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white";
 
   return (
     <BaseModal
@@ -69,110 +88,74 @@ export function EmployeeFormModal({
       maxWidth="lg"
       hideFooter
     >
-      <div className="space-y-4">
-        {/* Nama */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            Nama Lengkap <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Contoh: Budi Sudarsono"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={inputCls}
-          />
-        </div>
+      <form onSubmit={handleSubmit(onFormSubmit) as any} className="space-y-4">
+        <InputGroup
+          label="Nama Lengkap"
+          placeholder="Contoh: Budi Sudarsono"
+          {...register("name")}
+          error={errors.name?.message}
+          required
+        />
 
-        {/* Username — hanya saat create */}
         {!isEdit && (
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
-              Username <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: budi123"
-              value={username}
-              onChange={(e) =>
-                setUsername(e.target.value.toLowerCase().replace(/\s/g, ""))
-              }
-              className={inputCls}
-            />
-          </div>
+          <InputGroup
+            label="Username"
+            placeholder="Contoh: budi123"
+            {...register("username")}
+            error={errors.username?.message}
+            required
+            onChange={(e) => {
+              e.target.value = e.target.value.toLowerCase().replace(/\s/g, "");
+            }}
+          />
         )}
 
-        {/* Role */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            Jabatan / Role
-          </label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as "admin" | "kasir")}
-            className={inputCls}
-          >
-            <option value="admin">Admin</option>
-            <option value="kasir">Kasir</option>
-          </select>
+        <div className="space-y-2">
+            <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
+              Jabatan / Role
+            </label>
+            <select
+                {...register("role")}
+                className="w-full rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-medium text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
+            >
+                <option value="admin">Admin</option>
+                <option value="kasir">Kasir</option>
+            </select>
         </div>
 
-        {/* Password */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            Nomor WhatsApp
-          </label>
-          <input
-            type="tel"
-            placeholder="Contoh: 08123456789"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className={inputCls}
-          />
-        </div>
+        <InputGroup
+          label="Nomor WhatsApp"
+          placeholder="Contoh: 08123456789"
+          type="tel"
+          {...register("phone")}
+          error={errors.phone?.message}
+        />
 
-        {/* Password */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            {isEdit
-              ? "Password Baru (kosongkan jika tidak diubah)"
-              : "Password"}{" "}
-            {!isEdit && <span className="text-red-500">*</span>}
-          </label>
-          <input
-            type="password"
-            placeholder={
-              isEdit
-                ? "Biarkan kosong jika tidak ingin mengubah"
-                : "Minimal 6 karakter"
-            }
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputCls}
-          />
-        </div>
+        <InputGroup
+          label={isEdit ? "Password Baru (kosongkan jika tidak diubah)" : "Password"}
+          placeholder={isEdit ? "Biarkan kosong jika tidak ingin mengubah" : "Minimal 6 karakter"}
+          type="password"
+          {...register("password")}
+          error={errors.password?.message}
+          required={!isEdit}
+        />
 
-        <div className="mt-4 flex justify-end gap-3 border-t border-stroke pt-4 dark:border-dark-3">
+        <div className="flex justify-end gap-3 pt-6 border-t border-stroke dark:border-dark-3 mt-6">
           <ActionButton
             variant="ghost"
             label="Batal"
             onClick={onClose}
             disabled={isLoading}
+            type="button"
           />
           <ActionButton
             variant="primary"
-            label={
-              isLoading
-                ? "Menyimpan..."
-                : isEdit
-                  ? "Simpan Perubahan"
-                  : "Simpan Karyawan"
-            }
-            onClick={handleSave}
+            label={isLoading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Simpan Karyawan"}
             disabled={isLoading}
+            type="submit"
           />
         </div>
-      </div>
+      </form>
     </BaseModal>
   );
 }

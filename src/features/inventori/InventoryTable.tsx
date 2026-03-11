@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 import { useInventory } from "@/hooks/useInventory";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/features/shared";

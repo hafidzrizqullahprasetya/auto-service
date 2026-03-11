@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { Transaction } from "@/mock/transactions";
+import { Transaction } from "@/types/transaction";
 import { useTransactions } from "@/hooks/useTransactions";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/features/shared";

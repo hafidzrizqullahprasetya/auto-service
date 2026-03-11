@@ -3,7 +3,7 @@
 import React from "react";
 import Barcode from "react-barcode";
 import { Icons } from "@/components/Icons";
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 import { formatNumber } from "@/lib/format-number";
 
 interface BarcodeLabelModalProps {

@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { ApiSparePart, ApiCategory } from "@/types/api";
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 
 /** Map BE SparePart → FE Item */
 export function mapSparePart(sp: ApiSparePart): Item {

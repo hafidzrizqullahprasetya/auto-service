@@ -1,12 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { ActionButton, BaseModal } from "@/features/shared";
 import { Icons } from "@/components/Icons";
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 import { ApiCategory } from "@/types/api";
 import { formatNumber, stripFormatting } from "@/lib/format-number";
-import { Notify } from "@/utils/notify";
+import InputGroup from "@/components/ui/InputGroup";
+
+const inventorySchema = z.object({
+  sku: z.string().optional(),
+  name: z.string().min(3, "Nama minimal 3 karakter"),
+  category_id: z.coerce.number().min(1, "Kategori wajib dipilih"),
+  type: z.string(),
+  cost_price: z.string(),
+  sell_price: z.string(),
+  current_stock: z.string(),
+  minimum_stock: z.string(),
+  unit: z.string(),
+});
+
+type InventoryFormValues = z.infer<typeof inventorySchema>;
 
 interface InventoryFormModalProps {
   onClose: () => void;
@@ -25,67 +41,52 @@ export function InventoryFormModal({
 }: InventoryFormModalProps) {
   const isEdit = !!initialData;
 
-  const [form, setForm] = useState({
-    sku: initialData?.sku ?? "",
-    name: initialData?.name ?? "",
-    category_id:
-      initialData?.categoryId ??
-      (categories.length > 0 ? categories[0].id : ""),
-    type: initialData?.type ?? "Mobil",
-    cost_price: initialData?.costPrice ? String(initialData.costPrice) : "",
-    sell_price: initialData?.price ? String(initialData.price) : "",
-    current_stock: initialData?.stock ? String(initialData.stock) : "",
-    minimum_stock: initialData?.minimumStock
-      ? String(initialData.minimumStock)
-      : "5",
-    unit: initialData?.unit ?? "pcs",
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<InventoryFormValues>({
+    resolver: zodResolver(inventorySchema) as any,
+    defaultValues: {
+      sku: initialData?.sku ?? "",
+      name: initialData?.name ?? "",
+      category_id: initialData?.categoryId ?? (categories.length > 0 ? categories[0].id : 0),
+      type: initialData?.type ?? "Mobil",
+      cost_price: initialData?.costPrice ? formatNumber(initialData.costPrice) : "",
+      sell_price: initialData?.price ? formatNumber(initialData.price) : "",
+      current_stock: initialData?.stock !== undefined ? formatNumber(initialData.stock) : "",
+      minimum_stock: initialData?.minimumStock !== undefined ? formatNumber(initialData.minimumStock) : "5",
+      unit: initialData?.unit ?? "pcs",
+    },
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
+  const formValues = watch();
 
-    // Handle number formatting for price and stock fields
-    if (
-      ["cost_price", "sell_price", "current_stock", "minimum_stock"].includes(
-        name,
-      )
-    ) {
-      // Remove non-digit characters
-      const numericValue = value.replace(/\D/g, "");
-      // Format with comma separator
-      const formatted = numericValue ? formatNumber(Number(numericValue)) : "";
-      setForm((prev) => ({
-        ...prev,
-        [name]: formatted,
-      }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+  const handleNumericChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const numericValue = value.replace(/\D/g, "");
+    const formatted = numericValue ? formatNumber(Number(numericValue)) : "";
+    setValue(name as any, formatted);
   };
 
-  const handleSave = () => {
-    // Validasi sederhana
-    if (!form.name || !form.category_id) {
-      Notify.alert("Gagal!", "Nama dan Kategori wajib diisi");
-      return;
-    }
-
+  const onFormSubmit: SubmitHandler<InventoryFormValues> = (data) => {
     onSave({
-      category_id: Number(form.category_id),
-      name: form.name,
-      sku: form.sku, // BE might generate but we can pass it
-      cost_price: stripFormatting(form.cost_price),
-      sell_price: stripFormatting(form.sell_price),
-      current_stock: stripFormatting(form.current_stock),
-      minimum_stock: stripFormatting(form.minimum_stock),
-      unit: form.unit,
+      category_id: Number(data.category_id),
+      name: data.name,
+      sku: data.sku,
+      cost_price: stripFormatting(data.cost_price),
+      sell_price: stripFormatting(data.sell_price),
+      current_stock: stripFormatting(data.current_stock),
+      minimum_stock: stripFormatting(data.minimum_stock),
+      unit: data.unit,
+      type: data.type,
     });
   };
+
+  const sellPriceNum = stripFormatting(formValues.sell_price);
+  const costPriceNum = stripFormatting(formValues.cost_price);
 
   return (
     <BaseModal
@@ -98,74 +99,35 @@ export function InventoryFormModal({
       icon={<Icons.Inventory size={20} />}
       onClose={onClose}
       maxWidth="lg"
-      footer={
-        <div className="flex justify-end gap-3">
-          <ActionButton
-            variant="ghost"
-            label="Batal"
-            onClick={onClose}
-            disabled={isLoading}
-          />
-          <ActionButton
-            variant="primary"
-            label={
-              isLoading
-                ? "Menyimpan..."
-                : isEdit
-                  ? "Simpan Perubahan"
-                  : "Simpan Item"
-            }
-            onClick={handleSave}
-            disabled={isLoading}
-          />
-        </div>
-      }
+      hideFooter
     >
-      <div className="space-y-4">
-        {/* SKU */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            SKU / Kode Barang
-          </label>
-          <input
-            name="sku"
-            type="text"
-            value={form.sku}
-            onChange={handleChange}
-            placeholder="Contoh: OL-SMX-1L"
-            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 font-mono text-sm font-bold outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-          />
-        </div>
+      <form onSubmit={handleSubmit(onFormSubmit) as any} className="space-y-4">
+        <InputGroup
+          label="SKU / Kode Barang"
+          placeholder="Contoh: OL-SMX-1L"
+          className="font-mono"
+          {...register("sku")}
+          error={errors.sku?.message}
+        />
 
-        {/* Nama */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-bold text-dark dark:text-white">
-            Nama Item / Jasa
-          </label>
-          <input
-            name="name"
-            type="text"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Contoh: Oli Yamalube Sport 1L"
-            className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-medium outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-          />
-        </div>
+        <InputGroup
+          label="Nama Item / Jasa"
+          placeholder="Contoh: Oli Yamalube Sport 1L"
+          {...register("name")}
+          error={errors.name?.message}
+          required
+        />
 
-        {/* Kategori & Tipe */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
-              Kategori
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
+              Kategori <span className="text-red">*</span>
             </label>
             <select
-              name="category_id"
-              value={(form as any).category_id ?? ""}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-              required
+              {...register("category_id")}
+              className="w-full rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-medium text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
             >
-              <option value="" disabled>
+              <option value={0} disabled>
                 Pilih Kategori
               </option>
               {categories.map((cat) => (
@@ -174,16 +136,18 @@ export function InventoryFormModal({
                 </option>
               ))}
             </select>
+            {errors.category_id && (
+              <p className="mt-1 text-xs font-medium text-red-500">{errors.category_id.message}</p>
+            )}
           </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
+          
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
               Tipe Kendaraan
             </label>
             <select
-              name="type"
-              value={form.type}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+              {...register("type")}
+              className="w-full rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-medium text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
             >
               <option value="Mobil">Mobil</option>
               <option value="Motor">Motor</option>
@@ -192,88 +156,49 @@ export function InventoryFormModal({
           </div>
         </div>
 
-        {/* Harga Modal & Harga Jual */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
-              Harga Modal (Rp)
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-dark-5">
-                Rp
-              </span>
-              <input
-                name="cost_price"
-                type="text"
-                inputMode="numeric"
-                value={form.cost_price}
-                onChange={handleChange}
-                placeholder="0"
-                className="w-full rounded-lg border border-stroke bg-transparent py-2.5 pl-12 pr-4 text-sm font-bold outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-              />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-bold text-dark dark:text-white">
-              Harga Jual (Rp)
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-dark-5">
-                Rp
-              </span>
-              <input
-                name="sell_price"
-                type="text"
-                inputMode="numeric"
-                value={form.sell_price}
-                onChange={handleChange}
-                placeholder="0"
-                className="w-full rounded-lg border border-stroke bg-transparent py-2.5 pl-12 pr-4 text-sm font-bold text-secondary outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-              />
-            </div>
-          </div>
+          <InputGroup
+            label="Harga Modal (Rp)"
+            placeholder="0"
+            leftIcon={<span className="text-sm font-bold text-dark-5">Rp</span>}
+            {...register("cost_price")}
+            onChange={handleNumericChange}
+            error={errors.cost_price?.message}
+          />
+          <InputGroup
+            label="Harga Jual (Rp)"
+            placeholder="0"
+            leftIcon={<span className="text-sm font-bold text-dark-5">Rp</span>}
+            className="text-secondary"
+            {...register("sell_price")}
+            onChange={handleNumericChange}
+            error={errors.sell_price?.message}
+          />
         </div>
 
-        {/* Stok & Minimum Stok */}
-        {form.unit !== "jasa" && (
+        {formValues.unit !== "jasa" && (
           <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-dark dark:text-white">
-                Stok Awal
-              </label>
-              <input
-                name="current_stock"
-                type="text"
-                inputMode="numeric"
-                value={form.current_stock}
-                onChange={handleChange}
-                placeholder="0"
-                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-bold outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-dark dark:text-white">
-                Min. Stok (Alert)
-              </label>
-              <input
-                name="minimum_stock"
-                type="text"
-                inputMode="numeric"
-                value={form.minimum_stock}
-                onChange={handleChange}
-                placeholder="5"
-                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm font-bold outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-bold text-dark dark:text-white">
+            <InputGroup
+              label="Stok Awal"
+              placeholder="0"
+              {...register("current_stock")}
+              onChange={handleNumericChange}
+              error={errors.current_stock?.message}
+            />
+            <InputGroup
+              label="Min. Stok"
+              placeholder="5"
+              {...register("minimum_stock")}
+              onChange={handleNumericChange}
+              error={errors.minimum_stock?.message}
+            />
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
                 Satuan
               </label>
               <select
-                name="unit"
-                value={form.unit}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-stroke bg-transparent px-4 py-2.5 text-sm outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2"
+                {...register("unit")}
+                className="w-full rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-medium text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
               >
                 <option value="pcs">pcs</option>
                 <option value="liter">liter</option>
@@ -285,31 +210,35 @@ export function InventoryFormModal({
           </div>
         )}
 
-        {/* Info margin */}
-        {stripFormatting(form.sell_price) > 0 &&
-          stripFormatting(form.cost_price) > 0 && (
-            <div className="rounded-lg border border-stroke bg-gray-1 px-4 py-3 dark:border-dark-3 dark:bg-dark-2">
-              <p className="text-xs font-bold text-dark-5">
-                Margin:{" "}
-                <span className="text-secondary">
-                  Rp{" "}
-                  {formatNumber(
-                    stripFormatting(form.sell_price) -
-                      stripFormatting(form.cost_price),
-                  )}{" "}
-                  (
-                  {Math.round(
-                    ((stripFormatting(form.sell_price) -
-                      stripFormatting(form.cost_price)) /
-                      stripFormatting(form.sell_price)) *
-                      100,
-                  )}
-                  %)
-                </span>
-              </p>
-            </div>
-          )}
-      </div>
+        {sellPriceNum > 0 && costPriceNum > 0 && (
+          <div className="rounded-lg border border-stroke bg-gray-1 px-4 py-3 dark:border-dark-3 dark:bg-dark-2">
+            <p className="text-xs font-bold text-dark-5">
+              Margin:{" "}
+              <span className="text-secondary">
+                Rp {formatNumber(sellPriceNum - costPriceNum)}{" "}
+                ({Math.round(((sellPriceNum - costPriceNum) / sellPriceNum) * 100)}
+                %)
+              </span>
+            </p>
+          </div>
+        )}
+
+        <div className="flex justify-end gap-3 pt-6 border-t border-stroke dark:border-dark-3 mt-6">
+          <ActionButton
+            variant="ghost"
+            label="Batal"
+            onClick={onClose}
+            disabled={isLoading}
+            type="button"
+          />
+          <ActionButton
+            variant="primary"
+            label={isLoading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Simpan Item"}
+            disabled={isLoading}
+            type="submit"
+          />
+        </div>
+      </form>
     </BaseModal>
   );
 }

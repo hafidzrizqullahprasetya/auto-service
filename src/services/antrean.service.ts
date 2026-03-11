@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { ApiWorkOrder } from "@/types/api";
-import { Antrean } from "@/mock/antrean";
+import { Antrean } from "@/types/antrean";
 
 const STATUS_MAP: Record<ApiWorkOrder["status"], Antrean["status"]> = {
   menunggu: "Menunggu",

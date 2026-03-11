@@ -1,4 +1,4 @@
-import { Item } from "@/mock/inventory";
+import { Item } from "@/types/inventory";
 import { Icons } from "@/components/Icons";
 import { formatNumber } from "@/lib/format-number";
 

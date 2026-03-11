@@ -8,7 +8,23 @@ import { Notify } from "@/utils/notify";
 import { vehicleMasterService, VehicleMaster } from "@/services/vehicle-master.service";
 import { customersService } from "@/services/customers.service";
 import { serviceCatalogService, ServiceCatalog } from "@/services/service-catalog.service";
-import { ApiCustomer, ApiVehicle } from "@/types/api";
+import { ApiCustomer } from "@/types/api";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+const antreanSchema = z.object({
+  noPolisi: z.string().min(1, "No. Polisi wajib diisi"),
+  tipe: z.enum(["Mobil", "Motor"]),
+  kendaraan: z.string().min(1, "Merk/Model wajib diisi"),
+  pelanggan: z.string().min(1, "Nama pelanggan wajib diisi"),
+  waPelanggan: z.string().min(1, "Nomor WhatsApp wajib diisi"),
+  layanan: z.string().min(1, "Jenis layanan wajib diisi"),
+  keluhan: z.string().default(""),
+  estimasiBiaya: z.coerce.number().default(0),
+  menginap: z.boolean().default(false),
+});
+
+type AntreanFormValues = z.infer<typeof antreanSchema>;
 
 interface AntreanFormModalProps {
   onClose: () => void;
@@ -19,7 +35,6 @@ interface AntreanFormModalProps {
 
 export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: AntreanFormModalProps) {
   const isEdit = !!item;
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [showVehicles, setShowVehicles] = useState(false);
   const [showCustomers, setShowCustomers] = useState(false);
   const [showServices, setShowServices] = useState(false);
@@ -30,18 +45,35 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
   const vehicleRef = useRef<HTMLDivElement>(null);
   const customerRef = useRef<HTMLDivElement>(null);
   const serviceRef = useRef<HTMLDivElement>(null);
-  
-  const [formData, setFormData] = useState({
-    noPolisi: "",
-    tipe: "Mobil",
-    kendaraan: "",
-    pelanggan: "",
-    waPelanggan: "",
-    layanan: "",
-    keluhan: "",
-    estimasiBiaya: 0,
-    menginap: false
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<AntreanFormValues>({
+    resolver: zodResolver(antreanSchema) as any,
+    defaultValues: {
+      noPolisi: "",
+      tipe: "Mobil",
+      kendaraan: "",
+      pelanggan: "",
+      waPelanggan: "",
+      layanan: "",
+      keluhan: "",
+      estimasiBiaya: 0,
+      menginap: false
+    }
   });
+
+  const watchKendaraan = watch("kendaraan");
+  const watchPelanggan = watch("pelanggan");
+  const watchLayanan = watch("layanan");
+  const watchTipe = watch("tipe");
+  const watchNoPolisi = watch("noPolisi");
+  const watchEstimasiBiaya = watch("estimasiBiaya");
+  const watchMenginap = watch("menginap");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,19 +95,17 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
 
   useEffect(() => {
     if (item) {
-      setFormData({
-        noPolisi: item.noPolisi || "",
-        tipe: item.tipe || "Mobil",
-        kendaraan: item.kendaraan || "",
-        pelanggan: item.pelanggan || "",
-        waPelanggan: item.waPelanggan || "",
-        layanan: item.layanan || "",
-        keluhan: item.keluhan || "",
-        estimasiBiaya: Number(item.estimasiBiaya || 0),
-        menginap: !!item.menginap
-      });
+      setValue("noPolisi", item.noPolisi || "");
+      setValue("tipe", item.tipe || "Mobil");
+      setValue("kendaraan", item.kendaraan || "");
+      setValue("pelanggan", item.pelanggan || "");
+      setValue("waPelanggan", item.waPelanggan || "");
+      setValue("layanan", item.layanan || "");
+      setValue("keluhan", item.keluhan || "");
+      setValue("estimasiBiaya", Number(item.estimasiBiaya || 0));
+      setValue("menginap", !!item.menginap);
     }
-  }, [item]);
+  }, [item, setValue]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -95,36 +125,24 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
 
   const filteredVehicles = vehicleMasters
     .map(v => `${v.brand} ${v.model}`)
-    .filter(v => v.toLowerCase().includes(formData.kendaraan.toLowerCase()))
+    .filter(v => v.toLowerCase().includes((watchKendaraan || "").toLowerCase()))
     .slice(0, 5);
 
   const filteredCustomers = customers.filter(c => 
-    c.name.toLowerCase().includes(formData.pelanggan.toLowerCase()) ||
-    c.phone.includes(formData.pelanggan)
+    c.name.toLowerCase().includes((watchPelanggan || "").toLowerCase()) ||
+    c.phone.includes(watchPelanggan || "")
   ).slice(0, 5);
 
   const filteredCatalog = catalog.filter(s => 
-    s.name.toLowerCase().includes(formData.layanan.toLowerCase())
+    s.name.toLowerCase().includes((watchLayanan || "").toLowerCase())
   ).slice(0, 5);
 
   const isExactMatch = vehicleMasters.some(
-    (v: VehicleMaster) => `${v.brand} ${v.model}`.toLowerCase() === formData.kendaraan.trim().toLowerCase()
+    (v: VehicleMaster) => `${v.brand} ${v.model}`.toLowerCase() === (watchKendaraan || "").trim().toLowerCase()
   );
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.noPolisi) newErrors.noPolisi = "No. Polisi wajib diisi";
-    if (!formData.kendaraan) newErrors.kendaraan = "Merk/Model wajib diisi";
-    if (!formData.pelanggan) newErrors.pelanggan = "Nama pelanggan wajib diisi";
-    if (!formData.layanan) newErrors.layanan = "Jenis layanan wajib diisi";
-    if (!formData.waPelanggan) newErrors.waPelanggan = "Nomor WhatsApp wajib diisi";
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const formatPlateNumber = (val: string) => {
-    const clean = val.replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(0, 9)
+    const clean = val.replace(/[^A-Z0-9]/gi, "").toUpperCase().slice(0, 9);
     const prefixMatch = clean.match(/^[A-Z]{1,2}/);
     if (!prefixMatch) return clean;
     const prefix = prefixMatch[0];
@@ -138,18 +156,12 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
     return `${prefix} ${number}${suffix ? " " + suffix : ""}`.trim();
   };
 
-  const handleSubmit = () => {
-    if (!validate()) {
-      Notify.alert("Validasi Gagal", "Mohon lengkapi semua kolom yang wajib diisi.");
-      return;
-    }
-
+  const onFormSubmit: SubmitHandler<AntreanFormValues> = (data) => {
     const payload = {
-      ...formData,
-      // Pass IDs only if editing or specifically resolved
+      ...data,
       customer_id: item?.customer_id,
       vehicle_id: item?.vehicle_id,
-      estimasi_biaya: formData.estimasiBiaya,
+      estimasi_biaya: data.estimasiBiaya,
     };
     onSave(payload);
   };
@@ -167,7 +179,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
           <ActionButton 
             variant="primary" 
             label={isLoading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Simpan Antrean"} 
-            onClick={handleSubmit} 
+            onClick={handleSubmit(onFormSubmit) as any} 
             disabled={isLoading} 
           />
         </div>
@@ -179,21 +191,22 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
             <InputGroup
               label="Nama Pelanggan"
               placeholder="Nama lengkap pemilik"
-              value={formData.pelanggan}
+              {...register("pelanggan")}
               disabled={isEdit}
-              error={errors.pelanggan}
+              error={errors.pelanggan?.message}
               onChange={(e: any) => {
-                setFormData({ ...formData, pelanggan: e.target.value });
+                setValue("pelanggan", e.target.value);
                 setShowCustomers(true);
               }}
               onFocus={() => setShowCustomers(true)}
               required
               leftIcon={<Icons.Pelanggan size={18} />}
-              rightIcon={formData.pelanggan && !isEdit && (
+              rightIcon={watchPelanggan && !isEdit && (
                 <button 
                   type="button"
                   onClick={() => {
-                    setFormData({ ...formData, pelanggan: "", waPelanggan: "" });
+                    setValue("pelanggan", "");
+                    setValue("waPelanggan", "");
                     setShowCustomers(false);
                   }}
                   className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
@@ -212,20 +225,17 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                       className="flex w-full flex-col px-5 py-3 text-left hover:bg-gray-1 dark:hover:bg-dark-3"
                       onClick={async () => {
                         const lastVehicle = c.vehicles && c.vehicles.length > 0 ? c.vehicles[0] : null;
-                        setFormData({
-                          ...formData,
-                          pelanggan: c.name,
-                          waPelanggan: c.phone,
-                          noPolisi: lastVehicle ? lastVehicle.plate_number : formData.noPolisi,
-                          tipe: lastVehicle ? lastVehicle.type : formData.tipe,
-                          kendaraan: lastVehicle ? `${lastVehicle.brand} ${lastVehicle.model}` : formData.kendaraan,
-                        });
-                        setShowCustomers(false);
+                        setValue("pelanggan", c.name);
+                        setValue("waPelanggan", c.phone);
                         if (lastVehicle) {
+                          setValue("noPolisi", lastVehicle.plate_number);
+                          setValue("tipe", (lastVehicle.type === "Motor" ? "Motor" : "Mobil") as any);
+                          setValue("kendaraan", `${lastVehicle.brand} ${lastVehicle.model}`);
                           Notify.toast(`Data ${c.name} & Unit ${lastVehicle.plate_number} dimuat`, "success", "top");
                         } else {
                           Notify.toast(`Data ${c.name} dimuat`, "success", "top");
                         }
+                        setShowCustomers(false);
                       }}
                     >
                       <span className="text-sm font-bold text-dark dark:text-white">{c.name}</span>
@@ -247,10 +257,9 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
           <InputGroup
             label="Nomor WhatsApp"
             placeholder="081xxx (Untuk notif)"
-            value={formData.waPelanggan}
+            {...register("waPelanggan")}
             disabled={isEdit}
-            error={errors.waPelanggan}
-            onChange={(e: any) => setFormData({ ...formData, waPelanggan: e.target.value })}
+            error={errors.waPelanggan?.message}
             required
             leftIcon={<Icons.Whatsapp size={18} />}
           />
@@ -260,10 +269,10 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
           <InputGroup
             label="No. Polisi"
             placeholder="Contoh: B 1234 ABC"
-            value={formData.noPolisi}
+            {...register("noPolisi")}
             disabled={isEdit}
-            error={errors.noPolisi}
-            onChange={(e: any) => setFormData({ ...formData, noPolisi: formatPlateNumber(e.target.value) })}
+            error={errors.noPolisi?.message}
+            onChange={(e: any) => setValue("noPolisi", formatPlateNumber(e.target.value))}
             className="uppercase font-bold tracking-widest"
             required
             leftIcon={<Icons.Tag size={18} />}
@@ -273,8 +282,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
             <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">Jenis Unit</label>
             <div className="relative">
               <select 
-                value={formData.tipe}
-                onChange={(e) => setFormData({ ...formData, tipe: e.target.value })}
+                {...register("tipe")}
                 className="w-full appearance-none rounded-lg border-2 border-stroke bg-white px-5 py-3 text-sm font-bold outline-none transition-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
                 disabled={isEdit}
               >
@@ -285,6 +293,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                 <Icons.ChevronDown size={14} />
               </div>
             </div>
+            {errors.tipe && <p className="text-xs text-red-500 mt-1">{errors.tipe.message}</p>}
           </div>
         </div>
 
@@ -292,19 +301,19 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
           <InputGroup
             label="Merk / Model Kendaraan"
             placeholder="Contoh: Toyota Avanza"
-            value={formData.kendaraan}
+            {...register("kendaraan")}
             disabled={isEdit}
-            error={errors.kendaraan}
+            error={errors.kendaraan?.message}
             onChange={(e: any) => {
-              setFormData({ ...formData, kendaraan: e.target.value });
+              setValue("kendaraan", e.target.value);
               setShowVehicles(true);
             }}
             onFocus={() => setShowVehicles(true)}
-            rightIcon={formData.kendaraan && !isEdit && (
+            rightIcon={watchKendaraan && !isEdit && (
               <button 
                 type="button"
                 onClick={() => {
-                  setFormData({ ...formData, kendaraan: "" });
+                  setValue("kendaraan", "");
                   setShowVehicles(false);
                 }}
                 className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
@@ -323,7 +332,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                     type="button"
                     className="flex w-full items-center px-5 py-3 text-sm font-semibold text-dark hover:bg-gray-1 dark:text-white dark:hover:bg-dark-3"
                     onClick={() => {
-                      setFormData({ ...formData, kendaraan: v });
+                      setValue("kendaraan", v);
                       setShowVehicles(false);
                     }}
                   >
@@ -331,12 +340,12 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                   </button>
                 ))}
                 
-                {formData.kendaraan.trim() !== "" && !isExactMatch && (
+                {watchKendaraan.trim() !== "" && !isExactMatch && (
                   <button
                     type="button"
                     className="flex w-full items-center gap-2 border-t border-stroke px-5 py-3 text-sm font-bold text-primary hover:bg-primary/5 dark:border-dark-3"
                     onClick={async () => {
-                      const input = formData.kendaraan.trim();
+                      const input = watchKendaraan.trim();
                       const parts = input.split(" ");
                       const brand = parts[0];
                       const model = parts.slice(1).join(" ") || "Generic";
@@ -345,7 +354,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                       try {
                         const newMaster = await vehicleMasterService.create(brand, model);
                         setVehicleMasters([...vehicleMasters, newMaster]);
-                        setFormData({ ...formData, kendaraan: `${newMaster.brand} ${newMaster.model}` });
+                        setValue("kendaraan", `${newMaster.brand} ${newMaster.model}`);
                         setShowVehicles(false);
                         Notify.toast("Merk/Model ditambahkan ke data master", "success", "top");
                       } catch (err) {
@@ -364,7 +373,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                     ) : (
                       <>
                         <Icons.Plus size={16} />
-                        Tambah "{formData.kendaraan}" ke Master
+                        Tambah "{watchKendaraan}" ke Master
                       </>
                     )}
                   </button>
@@ -379,20 +388,21 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
           <InputGroup
             label="Jenis Layanan"
             placeholder="Contoh: Ganti Oli & Filter"
-            value={formData.layanan}
-            error={errors.layanan}
+            {...register("layanan")}
+            error={errors.layanan?.message}
             onChange={(e: any) => {
-              setFormData({ ...formData, layanan: e.target.value });
+              setValue("layanan", e.target.value);
               setShowServices(true);
             }}
             onFocus={() => setShowServices(true)}
             required
             leftIcon={<Icons.Kasir size={18} />}
-            rightIcon={formData.layanan && (
+            rightIcon={watchLayanan && (
               <button 
                 type="button"
                 onClick={() => {
-                  setFormData({ ...formData, layanan: "", estimasiBiaya: 0 });
+                  setValue("layanan", "");
+                  setValue("estimasiBiaya", 0);
                   setShowServices(false);
                 }}
                 className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
@@ -410,11 +420,8 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
                     type="button"
                     className="flex w-full items-center justify-between px-5 py-3 text-left hover:bg-gray-1 dark:hover:bg-dark-3"
                     onClick={() => {
-                      setFormData({
-                        ...formData,
-                        layanan: s.name,
-                        estimasiBiaya: Number(s.standard_price)
-                      });
+                      setValue("layanan", s.name);
+                      setValue("estimasiBiaya", Number(s.standard_price));
                       setShowServices(false);
                     }}
                   >
@@ -435,8 +442,7 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
           <textarea 
             rows={3}
             placeholder="Deskripsi keluhan pelanggan..."
-            value={formData.keluhan}
-            onChange={(e) => setFormData({ ...formData, keluhan: e.target.value })}
+            {...register("keluhan")}
             className="w-full rounded-lg border-2 border-stroke bg-white px-5 py-3 text-sm outline-none transition-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
           />
         </div>
@@ -446,15 +452,15 @@ export function AntreanFormModal({ onClose, onSave, item, isLoading = false }: A
             label="Estimasi Biaya"
             type="number"
             placeholder="Rp."
-            value={String(formData.estimasiBiaya)}
-            onChange={(e: any) => setFormData({ ...formData, estimasiBiaya: Number(e.target.value) })}
+            {...register("estimasiBiaya")}
+            error={errors.estimasiBiaya?.message}
             leftIcon={<span className="text-xs font-bold text-dark-5">Rp</span>}
           />
           <div className="flex flex-col flex-1 justify-center pt-6">
             <Checkbox
               label="Kendaraan Menginap"
-              checked={formData.menginap}
-              onChange={(e) => setFormData({ ...formData, menginap: e.target.checked })}
+              checked={watchMenginap}
+              onChange={(e) => setValue("menginap", e.target.checked)}
               withIcon="check"
               withBg
               radius="md"

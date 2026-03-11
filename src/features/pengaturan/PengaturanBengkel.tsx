@@ -10,7 +10,10 @@ import { useSettings } from "@/hooks/useSettings";
 import { Badge } from "@/features/shared";
 import Skeleton from "react-loading-skeleton";
 import dayjs from "dayjs";
-import { toast } from "react-hot-toast";
+import { Notify } from "@/utils/notify";
+import InputGroup from "@/components/ui/InputGroup";
+import { EmployeeFormModal } from "@/features/karyawan/EmployeeFormModal";
+import { usersService } from "@/services/users.service";
 import {
   PERMISSION_ROUTES,
   DEFAULT_PERMISSIONS,
@@ -30,45 +33,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "akun", label: "Manajemen Akun", icon: Icons.Karyawan },
 ];
 
-function InputField({
-  label,
-  type = "text",
-  value,
-  onChange,
-  placeholder,
-  loading,
-}: {
-  label: string;
-  type?: string;
-  value?: string;
-  onChange?: (val: string) => void;
-  placeholder?: string;
-  loading?: boolean;
-}) {
-  if (loading) {
-    return (
-      <div className="space-y-2">
-        <div className="h-4 w-24 rounded bg-gray-2 dark:bg-dark-3 animate-pulse" />
-        <div className="h-10 w-full rounded-lg bg-gray-2 dark:bg-dark-3 animate-pulse" />
-      </div>
-    );
-  }
 
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
-        {label}
-      </label>
-      <input
-        type={type}
-        value={value ?? ""}
-        onChange={(e) => onChange?.(e.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
-      />
-    </div>
-  );
-}
 
 function SectionCard({
   title,
@@ -88,7 +53,6 @@ function SectionCard({
     </div>
   );
 }
-
 function ProfilTab({ settings, setSettings, loading }: { settings: any, setSettings: (val: any) => void, loading: boolean }) {
   const updateField = (field: string, val: string) => {
     setSettings({ ...settings, [field]: val });
@@ -115,17 +79,17 @@ function ProfilTab({ settings, setSettings, loading }: { settings: any, setSetti
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField
+          <InputGroup
             label="Nama Bengkel"
             value={settings?.name}
-            onChange={(v) => updateField("name", v)}
-            loading={loading}
+            onChange={(e) => updateField("name", e.target.value)}
+            disabled={loading}
           />
-          <InputField
+          <InputGroup
             label="Nomor Telepon / WA"
             value={settings?.phone}
-            onChange={(v) => updateField("phone", v)}
-            loading={loading}
+            onChange={(e) => updateField("phone", e.target.value)}
+            disabled={loading}
           />
         </div>
         <div className="mt-4">
@@ -240,8 +204,43 @@ function PermissionEditor() {
 }
 
 function ManajemenAkunTab({ userRole }: { userRole: Role }) {
-  const [showForm, setShowForm] = useState(false);
-  const { data: employees, loading } = useEmployees();
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEmp, setSelectedEmp] = useState<any>(null);
+  const { data: employees, loading, refetch } = useEmployees();
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async (data: any) => {
+    try {
+      setSaving(true);
+      if (selectedEmp) {
+        await usersService.update(selectedEmp.id, data);
+        Notify.toast("Akun berhasil diperbarui");
+      } else {
+        await usersService.create(data);
+        Notify.toast("Akun baru berhasil dibuat");
+      }
+      setShowModal(false);
+      setSelectedEmp(null);
+      refetch();
+    } catch (err) {
+      Notify.alert("Gagal", "Gagal menyimpan akun", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirm = await Notify.confirm("Hapus Akun", "Apakah Anda yakin ingin menghapus akun ini? Tindakan ini tidak dapat dibatalkan.");
+    if (confirm) {
+      try {
+        await usersService.delete(id);
+        Notify.toast("Akun berhasil dihapus");
+        refetch();
+      } catch (err) {
+        Notify.alert("Gagal", "Gagal menghapus akun", "error");
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -257,54 +256,24 @@ function ManajemenAkunTab({ userRole }: { userRole: Role }) {
       <SectionCard title="Daftar Akun Pengguna">
         <div className="mb-4 flex justify-end">
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              setSelectedEmp(null);
+              setShowModal(true);
+            }}
             className="rounded-lg border-2 border-dark bg-dark px-5 py-2 text-xs font-bold text-white transition-all hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white"
           >
             + Tambah Akun
           </button>
         </div>
 
-        {showForm && (
-          <div className="mb-5 rounded-lg border-2 border-dashed border-stroke p-5 dark:border-dark-3">
-            <p className="mb-4 text-sm font-bold text-dark dark:text-white">
-              Akun Baru
-            </p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <InputField label="Nama Lengkap" placeholder="Nama pengguna" />
-              <InputField
-                label="Username"
-                placeholder="username (huruf kecil, tanpa spasi)"
-              />
-              <InputField
-                label="Password"
-                type="password"
-                placeholder="Min. 8 karakter"
-              />
-              <div>
-                <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
-                  Role
-                </label>
-                <select className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white">
-                  <option value="admin">Admin</option>
-                  <option value="kasir">Kasir</option>
-                </select>
-                <p className="mt-1 text-[10px] text-dark-5">
-                  Owner hanya bisa dibuat langsung di sistem.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 flex gap-3">
-              <button className="rounded-lg border-2 border-dark bg-dark px-6 py-2 text-xs font-bold text-white transition-all hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white">
-                Simpan Akun
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className="rounded-lg border-2 border-stroke px-6 py-2 text-xs font-bold text-dark transition-all hover:bg-gray-1 dark:border-dark-3 dark:text-white"
-              >
-                Batal
-              </button>
-            </div>
-          </div>
+        {showModal && (
+          <EmployeeFormModal
+            onClose={() => setShowModal(false)}
+            onSave={handleSave}
+            initialData={selectedEmp}
+            mode={selectedEmp ? "edit" : "create"}
+            isLoading={saving}
+          />
         )}
 
         <div className="flex flex-col gap-2">
@@ -353,9 +322,23 @@ function ManajemenAkunTab({ userRole }: { userRole: Role }) {
                   {emp.role}
                 </Badge>
                 {emp.role !== "Owner" && (
-                  <button className="text-[10px] font-bold text-dark-5 underline hover:text-dark dark:hover:text-white">
-                    Edit
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => {
+                        setSelectedEmp(emp);
+                        setShowModal(true);
+                      }}
+                      className="text-[10px] font-bold text-dark-5 underline hover:text-dark dark:hover:text-white"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(emp.id)}
+                      className="text-[10px] font-bold text-red-500 underline hover:text-red-700"
+                    >
+                      Hapus
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -402,20 +385,20 @@ function WAGatewayTab({ settings, setSettings, loading }: { settings: any, setSe
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField
+          <InputGroup
             label="Nomor WA Penerima"
             value={settings?.wa_target_number}
-            onChange={(v) => updateField("wa_target_number", v)}
+            onChange={(e) => setSettings({ ...settings, wa_target_number: e.target.value })}
             placeholder="+62 812-xxxx-xxxx"
-            loading={loading}
+            disabled={loading}
           />
-          <InputField
+          <InputGroup
             label="API Gateway Token"
             type="password"
             value={settings?.wa_gateway_token}
-            onChange={(v) => updateField("wa_gateway_token", v)}
+            onChange={(e) => setSettings({ ...settings, wa_gateway_token: e.target.value })}
             placeholder="Token dari provider..."
-            loading={loading}
+            disabled={loading}
           />
         </div>
       </SectionCard>
@@ -493,8 +476,8 @@ function OperasionalTab() {
     <div className="flex flex-col gap-6">
       <SectionCard title="Jam Operasional">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField label="Jam Buka" type="time" value="08:00" />
-          <InputField label="Jam Tutup" type="time" value="17:00" />
+          <InputGroup label="Jam Buka" type="time" defaultValue="08:00" />
+          <InputGroup label="Jam Tutup" type="time" defaultValue="17:00" />
         </div>
         <div className="mt-5">
           <p className="mb-3 text-sm font-bold text-dark dark:text-white">
@@ -561,9 +544,9 @@ export function PengaturanBengkel() {
     try {
       setSaving(true);
       await updateSettings(localSettings);
-      toast.success("Pengaturan berhasil disimpan");
+      Notify.toast("Pengaturan berhasil disimpan");
     } catch (err) {
-      toast.error("Gagal menyimpan pengaturan");
+      Notify.alert("Gagal", "Gagal menyimpan pengaturan", "error");
     } finally {
       setSaving(false);
     }

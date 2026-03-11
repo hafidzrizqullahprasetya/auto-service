@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { Antrean } from "@/mock/antrean";
+import { Antrean } from "@/types/antrean";
 import {
   ActionButton,
   Badge,
@@ -14,7 +14,6 @@ import { Icons } from "@/components/Icons";
 import { AntreanFormModal } from "./AntreanFormModal";
 import { SPKModal } from "./SPKModal";
 import dayjs from "dayjs";
-import toast from "react-hot-toast";
 import { antreanService } from "@/services/antrean.service";
 import { antreanToExcelRows } from "@/lib/excel";
 
