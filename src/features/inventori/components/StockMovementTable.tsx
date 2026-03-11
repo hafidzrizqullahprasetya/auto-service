@@ -7,6 +7,7 @@ import { StockMovement } from "@/types/stock-movement";
 import { Badge } from "@/features/shared";
 import { StockMovementForm } from "./StockMovementForm";
 import { StockSummary } from "./StockSummary";
+import { StockMovementTableSkeleton } from "./StockMovementTableSkeleton";
 import { useStockMovements } from "@/hooks/useStockMovements";
 import { stockMovementService } from "@/services/stock-movements.service";
 import dayjs from "dayjs";
@@ -16,6 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export function StockMovementTable() {
   const isMobile = useIsMobile();
   const { data: movements, loading, error, refetch } = useStockMovements();
+
   const [showMasukForm, setShowMasukForm] = useState(false);
   const [showKeluarForm, setShowKeluarForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -186,6 +188,8 @@ export function StockMovementTable() {
     [isMobile],
   );
 
+  if (loading) return <StockMovementTableSkeleton />;
+
   return (
     <div className="flex flex-col gap-6">
       <StockSummary movements={movements || []} />
@@ -193,7 +197,6 @@ export function StockMovementTable() {
       <DataTable
         columns={columns}
         data={movements || []}
-        isLoading={loading}
         searchable={["sparePartName", "sku"]}
         searchPlaceholder="Cari nama atau SKU..."
         title="Riwayat Pergerakan Stok"

@@ -11,6 +11,7 @@ import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { BarcodeLabelModal, ConfirmDeleteModal } from "@/features/shared";
 import { ActionButton, ExcelButtons } from "@/features/shared";
+import { InventoryTableSkeleton } from "./InventoryTableSkeleton";
 import { InventoryFormModal } from "./InventoryFormModal";
 import { BarcodeExportModal } from "./BarcodeExportModal";
 import { InventorySummary } from "./InventorySummary";
@@ -34,6 +35,7 @@ export function InventoryTable() {
     updateItem,
     deleteItem,
   } = useInventory();
+  
   
   const [barcodeItem, setBarcodeItem] = useState<Item | null>(null);
   const [editItem, setEditItem] = useState<Item | null>(null);
@@ -212,6 +214,7 @@ export function InventoryTable() {
   },
     [isMobile, categories],
   );
+  if (loading) return <InventoryTableSkeleton />;
 
   return (
     <div className="flex flex-col gap-6">
@@ -220,7 +223,6 @@ export function InventoryTable() {
       <DataTable
         columns={columns}
         data={filteredData}
-        isLoading={loading}
         searchable={["name", "sku"]}
         searchPlaceholder="Cari nama atau SKU item..."
         title="Daftar Inventori"

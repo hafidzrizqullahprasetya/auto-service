@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function InventoriPage() {
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto">
       <Breadcrumb pageName="Inventori" />
 
       <div className="flex flex-col gap-10">

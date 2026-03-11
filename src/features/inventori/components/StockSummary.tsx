@@ -1,13 +1,13 @@
-"use client";
-
+import { StatCard } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { StockMovement } from "@/types/stock-movement";
 
 interface StockSummaryProps {
   movements: StockMovement[];
+  loading?: boolean;
 }
 
-export function StockSummary({ movements }: StockSummaryProps) {
+export function StockSummary({ movements, loading = false }: StockSummaryProps) {
   const totalMasuk = movements
     .filter((m) => m.type === "masuk")
     .reduce((s, m) => s + m.quantityChange, 0);
@@ -19,49 +19,35 @@ export function StockSummary({ movements }: StockSummaryProps) {
     {
       label: "Total Masuk",
       value: totalMasuk,
-      sub: "unit masuk",
+      suffix: "unit",
       icon: <Icons.ArrowUp size={20} />,
-      color: "text-green-600",
-      bg: "bg-green-100/50 dark:bg-green-500/10",
     },
     {
       label: "Total Keluar",
       value: totalKeluar,
-      sub: "unit keluar",
+      suffix: "unit",
       icon: <Icons.ArrowDown size={20} />,
-      color: "text-red-500",
-      bg: "bg-red-100/50 dark:bg-red-500/10",
     },
     {
       label: "Total Transaksi",
       value: movements.length,
-      sub: "entri log",
+      suffix: "entri",
       icon: <Icons.History size={20} />,
-      color: "text-primary",
-      bg: "bg-primary/10",
     },
   ];
 
   return (
     <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
-      {stats.map(({ label, value, sub, icon, color, bg }) => (
-        <div
+      {stats.map(({ label, value, suffix, icon }) => (
+        <StatCard
           key={label}
-          className="rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark"
-        >
-          <div className="flex items-center gap-4">
-            <div className={`flex h-12 w-12 items-center justify-center rounded-full ${bg} ${color}`}>
-              {icon}
-            </div>
-            <div>
-              <h4 className="text-2xl font-bold leading-none tracking-tight text-dark dark:text-white">
-                {value}
-              </h4>
-              <p className="mt-1 text-sm font-medium text-dark-5">{label}</p>
-              <p className="text-[10px] font-medium text-dark-6 uppercase">{sub}</p>
-            </div>
-          </div>
-        </div>
+          label={label}
+          value={value}
+          suffix={suffix}
+          icon={icon}
+          loading={loading}
+          variant="horizontal"
+        />
       ))}
     </div>
   );

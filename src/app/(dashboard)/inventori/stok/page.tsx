@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function StokPage() {
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto">
       <Breadcrumb pageName="Pergerakan Stok" />
       <StockMovementTable />
     </div>

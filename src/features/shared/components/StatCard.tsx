@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/format-number";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StatCardProps {
   label: string;
@@ -16,19 +17,21 @@ interface StatCardProps {
   };
   variant?: "horizontal" | "vertical"; 
   className?: string;
+  loading?: boolean;
 }
 
 export function StatCard({
   label,
   value,
   icon,
-  color = "text-primary",
-  bg = "bg-primary/10",
+  color = "text-dark dark:text-white",
+  bg = "bg-gray-2 dark:bg-white/5",
   isMoney = false,
   suffix,
   growth,
   variant = "horizontal",
   className,
+  loading = false,
 }: StatCardProps) {
   const displayValue = isMoney ? formatCurrency(Number(value)) : value;
 
@@ -47,14 +50,22 @@ export function StatCard({
         <div className="mt-4 flex items-end justify-between">
           <div>
             <h4 className="text-2xl font-bold tracking-tight text-dark dark:text-white">
-              {displayValue} {suffix && <span className="text-xs font-medium text-dark-5">{suffix}</span>}
+              {loading ? <Skeleton className="h-8 w-24" /> : (
+                <>
+                  {displayValue} {suffix && <span className="text-xs font-medium text-dark-5">{suffix}</span>}
+                </>
+              )}
             </h4>
-            <span className="text-sm font-medium text-dark-5 dark:text-dark-6">
-              {label}
-            </span>
+            <div className="mt-1">
+              {loading ? <Skeleton className="h-4 w-16" /> : (
+                <span className="text-sm font-medium text-dark-5 dark:text-dark-6">
+                  {label}
+                </span>
+              )}
+            </div>
           </div>
 
-          {growth && (
+          {growth && !loading && (
             <span className={cn("flex items-center gap-1 text-sm font-medium", growth.isUp ? 'text-green' : 'text-red')}>
               {growth.value}%
               <svg
@@ -85,12 +96,20 @@ export function StatCard({
           {icon}
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-dark-5 dark:text-dark-6 line-clamp-1">
-            {label}
-          </p>
           <h4 className="text-xl font-black text-dark dark:text-white">
-            {displayValue} {suffix && <span className="text-xs font-medium text-dark-5">{suffix}</span>}
+            {loading ? <Skeleton className="h-7 w-20" /> : (
+              <>
+                {displayValue} {suffix && <span className="text-xs font-medium text-dark-5">{suffix}</span>}
+              </>
+            )}
           </h4>
+          <div className="mt-0.5">
+            {loading ? <Skeleton className="h-4 w-16" /> : (
+              <p className="text-xs font-bold tracking-wider text-dark-5 dark:text-dark-6 line-clamp-1">
+                {label}
+              </p>
+            )}
+          </div>
         </div>
       </div>
       {/* Decorative background icon */}

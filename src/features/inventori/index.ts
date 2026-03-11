@@ -5,3 +5,6 @@ export { BarcodeExportModal } from "./components/BarcodeExportModal";
 export { StockMovementTable } from "./components/StockMovementTable";
 export { StockMovementForm } from "./components/StockMovementForm";
 export { StockOpnameTable } from "./components/StockOpnameTable";
+export { InventoryTableSkeleton } from "./components/InventoryTableSkeleton";
+export { StockMovementTableSkeleton } from "./components/StockMovementTableSkeleton";
+export { StockOpnameTableSkeleton } from "./components/StockOpnameTableSkeleton";
