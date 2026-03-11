@@ -63,7 +63,7 @@ export function CreateTransactionForm({
   }, [customerId]);
 
   const selectedCustomer = customers.find((c) => c.id === customerId);
-  const selectedVehicle = customerVehicles.find((v) => v.id === vehicleId);
+  const selectedVehicle = customerVehicles.find((v) => v.id === Number(vehicleId));
 
   const filteredItems = useMemo(
     () =>
@@ -437,7 +437,7 @@ export function CreateTransactionForm({
               <div className="flex items-center justify-between">
                 <span className="text-sm text-dark-5">Kendaraan:</span>
                 <span className="text-sm font-bold text-dark dark:text-white">
-                  {selectedVehicle.plateNumber}
+                  {selectedVehicle.plate_number}
                 </span>
               </div>
             )}

@@ -121,7 +121,7 @@ export const opnameService = {
 
   async closeOpname(opnameId: string): Promise<StockOpname> {
     const res = await api.post<ApiStockOpname>(
-      `/opnames/${opnameId}/close`,
+      `/api/v1/opnames/${opnameId}/close`,
       {},
     );
     return mapStockOpname(res.data);

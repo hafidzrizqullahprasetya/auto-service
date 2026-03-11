@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,11 +10,31 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { getTopServicesData } from "@/mock/dashboard-charts";
 import { Icons } from "@/components/Icons";
+import { api } from "@/lib/api";
 
-export async function TopServices({ className }: { className?: string }) {
-  const data = getTopServicesData();
+interface TopServiceItem {
+  name: string;
+  total_qty: number;
+}
+
+export function TopServices({ className }: { className?: string }) {
+  const [data, setData] = useState<TopServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTopProducts() {
+      try {
+        const res = await api.get<TopServiceItem[]>("/reports/top-products?limit=5");
+        setData(res.data || []);
+      } catch (err) {
+        console.error("Failed to load top products", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTopProducts();
+  }, []);
 
   return (
     <div
@@ -37,7 +60,26 @@ export async function TopServices({ className }: { className?: string }) {
         </TableHeader>
 
         <TableBody>
-          {data.map((item, i) => (
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <TableRow className="text-center text-sm font-bold" key={i}>
+                <TableCell className="flex items-center gap-3 !text-left">
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-2"></div>
+                  <div className="w-24 h-4 bg-gray-2 dark:bg-dark-3 rounded animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="w-16 h-4 bg-gray-2 dark:bg-dark-3 rounded animate-pulse mx-auto"></div>
+                </TableCell>
+                <TableCell className="!text-right">
+                  <div className="w-8 h-4 bg-gray-2 dark:bg-dark-3 rounded animate-pulse ml-auto"></div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center py-8 text-dark-5">Belum ada data</TableCell>
+            </TableRow>
+          ) : data.map((item, i) => (
             <TableRow
               className="text-center text-sm font-bold text-dark dark:text-white"
               key={item.name + i}
@@ -53,15 +95,12 @@ export async function TopServices({ className }: { className?: string }) {
 
               <TableCell>
                 <span className="bg-primary/5 text-primary px-3 py-1 rounded-full text-xs">
-                  {item.count} Kali
+                  {item.total_qty} Item
                 </span>
               </TableCell>
 
-              <TableCell className={cn(
-                "!text-right flex items-center justify-end gap-1",
-                item.growth > 0 ? "text-green" : "text-red"
-              )}>
-                {item.growth > 0 ? "▲" : "▼"} {Math.abs(item.growth)}%
+              <TableCell className="!text-right text-dark-5 font-medium">
+                -
               </TableCell>
             </TableRow>
           ))}

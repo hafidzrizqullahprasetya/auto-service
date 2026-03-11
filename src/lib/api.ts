@@ -1,6 +1,8 @@
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "https://be-opname.vercel.app";
 
+const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION ?? "/api/v1";
+
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
@@ -26,7 +28,12 @@ async function request<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+const url = `${API_BASE.replace(/\/+$/, "")}${path}`;
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[API REQUEST] ${options.method || "GET"} ${url}`);
+  }
+
+  const res = await fetch(url, { ...options, headers });
 
   if (res.status === 401 && !skipAuthRedirect) {
     if (typeof window !== "undefined") {
@@ -65,22 +72,38 @@ async function request<T>(
   return json;
 }
 
+function apiPath(path: string): string {
+  // Normalize path: remove any leading /api/v1 or /v1 prefix if present
+  const baseCleanPath = path.replace(/^\/?(api\/v1|v1)\//, "/").replace(/^\/?(api\/v1|v1)$/, "/");
+  
+  // Ensure we have a single leading slash
+  const cleanPath = baseCleanPath.startsWith("/") ? baseCleanPath : `/${baseCleanPath}`;
+  
+  // Normalize API_VERSION prepending
+  const version = API_VERSION.replace(/\/+$/, "");
+  const versionClean = version.startsWith("/") ? version : `/${version}`;
+  
+  // Combine version and path, ensuring no double slashes
+  if (cleanPath === "/") return versionClean;
+  return `${versionClean}${cleanPath}`;
+}
+
 export const api = {
-  get: <T>(path: string) => request<T>(path),
+  get: <T>(path: string) => request<T>(apiPath(path)),
   post: <T>(path: string, body?: unknown, skipAuthRedirect = false) =>
-    request<T>(path, {
+    request<T>(apiPath(path), {
       method: "POST",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }, skipAuthRedirect),
   put: <T>(path: string, body?: unknown) =>
-    request<T>(path, {
+    request<T>(apiPath(path), {
       method: "PUT",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
   patch: <T>(path: string, body?: unknown) =>
-    request<T>(path, {
+    request<T>(apiPath(path), {
       method: "PATCH",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
-  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  delete: <T>(path: string) => request<T>(apiPath(path), { method: "DELETE" }),
 };

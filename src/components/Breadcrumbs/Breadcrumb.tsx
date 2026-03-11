@@ -15,7 +15,7 @@ const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
               className="font-medium text-dark-5 hover:text-dark"
               href="/"
             >
-              <HomeIcon size={14} className="inline-block sm:hidden" />
+              <HomeIcon width={14} height={14} className="inline-block sm:hidden" />
               <span className="hidden sm:inline">Dashboard</span>
             </Link>
           </li>

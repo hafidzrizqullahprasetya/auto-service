@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { MOCK_SERVICE_CATALOG, ServiceCatalog } from "@/mock/service-catalog";
+import { useServiceCatalog } from "@/hooks/useServiceCatalog";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
+import Skeleton from "react-loading-skeleton";
 
-const KATEGORI_COLORS: Record<ServiceCatalog["kategori"], string> = {
+const KATEGORI_COLORS: Record<string, string> = {
   "Mesin": "bg-primary/10 text-primary",
   "Rem & Transmisi": "bg-red-light-1 text-red",
   "Kelistrikan": "bg-yellow/10 text-yellow",
@@ -17,7 +18,7 @@ const KATEGORI_COLORS: Record<ServiceCatalog["kategori"], string> = {
 };
 
 export function KatalogJasa() {
-  const [items, setItems] = useState(MOCK_SERVICE_CATALOG);
+  const { data: items, loading, toggleAktif } = useServiceCatalog();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filtered = items.filter(
@@ -25,12 +26,6 @@ export function KatalogJasa() {
       s.namaJasa.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.kategori.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const toggleAktif = (id: string) => {
-    setItems((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, aktif: !s.aktif } : s))
-    );
-  };
 
   return (
     <div className="rounded-xl border border-stroke bg-white shadow-sm dark:border-dark-3 dark:bg-gray-dark">
@@ -58,82 +53,108 @@ export function KatalogJasa() {
       </div>
 
       <div className="p-4">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((svc) => (
-            <div
-              key={svc.id}
-              className={cn(
-                "rounded-xl border p-4 transition-all",
-                svc.aktif
-                  ? "border-stroke bg-white dark:border-dark-3 dark:bg-dark-2"
-                  : "border-stroke/50 bg-gray-1 opacity-60 dark:border-dark-3/50 dark:bg-dark-3"
-              )}
-            >
-              {/* Header */}
-              <div className="mb-3 flex items-start justify-between">
-                <span
-                  className={cn(
-                    "rounded-full px-2 py-0.5 text-[10px] font-bold",
-                    KATEGORI_COLORS[svc.kategori]
-                  )}
-                >
-                  {svc.kategori}
-                </span>
-                <button
-                  onClick={() => toggleAktif(svc.id)}
-                  className={cn(
-                    "relative h-5 w-9 rounded-full transition-colors shrink-0",
-                    svc.aktif ? "bg-primary" : "bg-gray-3 dark:bg-dark-3"
-                  )}
-                  title={svc.aktif ? "Nonaktifkan" : "Aktifkan"}
-                >
+        {loading ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-dark-2"
+              >
+                <div className="mb-3 flex items-start justify-between">
+                  <Skeleton width={80} height={20} className="rounded-full" />
+                  <Skeleton width={36} height={20} className="rounded-full" />
+                </div>
+                <Skeleton width="80%" height={20} className="mb-2" />
+                <div className="mb-3 space-y-1">
+                  <Skeleton width="40%" height={14} />
+                  <Skeleton width="50%" height={14} />
+                  <Skeleton width="30%" height={14} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Skeleton width={100} height={24} />
+                  <Skeleton width={28} height={28} className="rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((svc) => (
+              <div
+                key={svc.id}
+                className={cn(
+                  "rounded-xl border p-4 transition-all",
+                  svc.aktif
+                    ? "border-stroke bg-white dark:border-dark-3 dark:bg-dark-2"
+                    : "border-stroke/50 bg-gray-1 opacity-60 dark:border-dark-3/50 dark:bg-dark-3"
+                )}
+              >
+                {/* Header */}
+                <div className="mb-3 flex items-start justify-between">
                   <span
                     className={cn(
-                      "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-                      svc.aktif ? "left-4" : "left-0.5"
+                      "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                      KATEGORI_COLORS[svc.kategori] || "bg-gray-2 text-dark-5"
                     )}
-                  />
-                </button>
-              </div>
-
-              <h4 className="mb-1 font-bold text-sm text-dark dark:text-white">{svc.namaJasa}</h4>
-
-              <div className="mb-3 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs text-dark-5">
-                  <Icons.Pending size={11} className="shrink-0" />
-                  {svc.durasiEstimasi}
+                  >
+                    {svc.kategori}
+                  </span>
+                  <button
+                    onClick={() => toggleAktif(svc.id, svc.aktif)}
+                    className={cn(
+                      "relative h-5 w-9 rounded-full transition-colors shrink-0",
+                      svc.aktif ? "bg-primary" : "bg-gray-3 dark:bg-dark-3"
+                    )}
+                    title={svc.aktif ? "Nonaktifkan" : "Aktifkan"}
+                  >
+                    <span
+                      className={cn(
+                        "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
+                        svc.aktif ? "left-4" : "left-0.5"
+                      )}
+                    />
+                  </button>
                 </div>
-                {svc.garansi && (
+
+                <h4 className="mb-1 font-bold text-sm text-dark dark:text-white">{svc.namaJasa}</h4>
+
+                <div className="mb-3 space-y-1">
                   <div className="flex items-center gap-1.5 text-xs text-dark-5">
-                    <Icons.Success size={11} className="shrink-0 text-green" />
-                    Garansi {svc.garansi}
+                    <Icons.Pending size={11} className="shrink-0" />
+                    {svc.durasiEstimasi}
                   </div>
-                )}
-                <div className="flex items-center gap-1.5 text-xs text-dark-5">
-                  {svc.berlakuUntuk === "Mobil" ? (
-                    <Icons.KendaraanMobil size={11} className="shrink-0" />
-                  ) : svc.berlakuUntuk === "Motor" ? (
-                    <Icons.KendaraanMotor size={11} className="shrink-0" />
-                  ) : (
-                    <Icons.Antrean size={11} className="shrink-0" />
+                  {svc.garansi && (
+                    <div className="flex items-center gap-1.5 text-xs text-dark-5">
+                      <Icons.Success size={11} className="shrink-0 text-green" />
+                      Garansi {svc.garansi}
+                    </div>
                   )}
-                  {svc.berlakuUntuk}
+                  <div className="flex items-center gap-1.5 text-xs text-dark-5">
+                    {svc.berlakuUntuk === "Mobil" ? (
+                      <Icons.KendaraanMobil size={11} className="shrink-0" />
+                    ) : svc.berlakuUntuk === "Motor" ? (
+                      <Icons.KendaraanMotor size={11} className="shrink-0" />
+                    ) : (
+                      <Icons.Antrean size={11} className="shrink-0" />
+                    )}
+                    {svc.berlakuUntuk}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <p className="font-black text-base text-secondary">
+                    Rp {formatNumber(svc.hargaStandar)}
+                  </p>
+                  <button className="rounded-lg p-1.5 text-dark-5 hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors">
+                    <Icons.Settings size={14} />
+                  </button>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
 
-              <div className="flex items-center justify-between">
-                <p className="font-black text-base text-secondary">
-                  Rp {formatNumber(svc.hargaStandar)}
-                </p>
-                <button className="rounded-lg p-1.5 text-dark-5 hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors">
-                  <Icons.Settings size={14} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-dark-5">
             <Icons.Search size={32} className="mb-2 opacity-20" />
             <p className="text-sm">Tidak ada layanan ditemukan</p>

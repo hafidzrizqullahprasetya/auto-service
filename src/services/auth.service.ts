@@ -15,7 +15,7 @@ export const authService = {
       const res = await api.post<LoginResponse>("/api/v1/auth/login", {
         username,
         password,
-      }, true); 
+      }, true);
       return res.data;
     } catch (error) {
       if (error instanceof Error) {

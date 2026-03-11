@@ -177,54 +177,84 @@ export function DataTable<TData, TValue>({
       {/* ── Table ───────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-x-auto">
         {isLoading ? (
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className="border-b border-stroke bg-gray-2/30 [&>th]:px-4 [&>th]:py-4 sm:[&>th]:px-8 sm:[&>th]:py-5"
-                >
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className="hidden text-xs font-bold text-dark-5 sm:table-cell"
+          <>
+            {/* Desktop Loading Skeleton */}
+            <div className="hidden sm:block">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow
+                      key={headerGroup.id}
+                      className="border-b border-stroke bg-gray-2/30 [&>th]:px-8 [&>th]:py-5"
                     >
-                      <div className="relative flex min-h-[14px] items-center">
-                        <div className="w-full">
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </div>
-                      </div>
-                    </TableHead>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead
+                          key={header.id}
+                          className="text-xs font-bold text-dark-5"
+                        >
+                          <div className="relative flex min-h-[14px] items-center">
+                            <div className="w-full">
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                            </div>
+                          </div>
+                        </TableHead>
+                      ))}
+                    </TableRow>
                   ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: pageSize }).map((_, index) => (
+                    <TableRow
+                      key={`skeleton-${index}`}
+                      className="h-[84px] border-b border-stroke bg-white"
+                    >
+                      {columns.map((_, colIndex) => (
+                        <TableCell
+                          key={`col-${colIndex}`}
+                          className="px-8 py-0"
+                        >
+                          <Skeleton
+                            height={20}
+                            className="w-full max-w-[80%] rounded-md"
+                          />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Loading Skeleton */}
+            <div className="sm:hidden divide-y divide-stroke">
               {Array.from({ length: pageSize }).map((_, index) => (
-                <TableRow
-                  key={`skeleton-${index}`}
-                  className="h-[84px] border-b border-stroke bg-white"
+                <div
+                  key={`skeleton-mobile-${index}`}
+                  className={cn(
+                    "flex flex-col gap-3 p-4",
+                    index % 2 === 0 ? "bg-white" : "bg-gray-2/20",
+                  )}
                 >
-                  {columns.map((_, colIndex) => (
-                    <TableCell
-                      key={`col-${colIndex}`}
-                      className="hidden px-4 py-0 sm:table-cell sm:px-8"
-                    >
-                      <Skeleton
-                        height={20}
-                        className="w-full max-w-[80%] rounded-md"
-                      />
-                    </TableCell>
-                  ))}
-                </TableRow>
+                  {Array.from({ length: Math.min(3, columns.length) }).map(
+                    (_, colIndex) => (
+                      <div
+                        key={`skeleton-mobile-col-${colIndex}`}
+                        className="flex items-center justify-between border-b border-stroke pb-2 last:border-0 last:pb-0"
+                      >
+                        <Skeleton height={20} width={100 + Math.random() * 50} />
+                        <Skeleton height={14} width={60} />
+                      </div>
+                    ),
+                  )}
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          </>
         ) : (
           <>
             {/* Desktop Table */}

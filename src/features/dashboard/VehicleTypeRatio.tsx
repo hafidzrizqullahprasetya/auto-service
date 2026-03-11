@@ -1,24 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { PeriodPicker } from "@/components/period-picker";
 import { cn } from "@/lib/utils";
-import { getVehicleRatioData } from "@/mock/dashboard-charts";
 import { DonutChart } from "@/components/ui/charts/used-devices/chart";
+import { api } from "@/lib/api";
+import Skeleton from "react-loading-skeleton";
 
 type PropsType = {
   timeFrame?: string;
   className?: string;
 };
 
-export async function VehicleTypeRatio({
+export function VehicleTypeRatio({
   timeFrame = "monthly",
   className,
 }: PropsType) {
-  const rawData = getVehicleRatioData();
-  
-  // Transform to format expected by DonutChart: { name: string; amount: number }[]
-  const data = rawData.map(d => ({
-    name: d.label,
-    amount: d.value
-  }));
+  const [data, setData] = useState<{ name: string; amount: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRatio() {
+      try {
+        const res = await api.get<any[]>("/reports/vehicle-ratio");
+        if (res.data) {
+          setData(res.data.map(d => ({
+            name: d.label,
+            amount: d.value
+          })));
+        }
+      } catch (err) {
+        console.error("Failed to fetch vehicle ratio", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRatio();
+  }, [timeFrame]);
 
   return (
     <div
@@ -39,7 +57,13 @@ export async function VehicleTypeRatio({
       </div>
 
       <div className="w-full grid place-items-center">
-        <DonutChart data={data} />
+        {loading ? (
+          <Skeleton width={200} height={200} className="rounded-full" />
+        ) : data.length > 0 ? (
+          <DonutChart data={data} />
+        ) : (
+          <p className="py-12 text-sm font-medium text-dark-5">Belum ada data</p>
+        )}
       </div>
     </div>
   );

@@ -81,37 +81,12 @@ export default function KasirPage() {
   const handleCheckout = async () => {
     try {
       Notify.loading("Memproses pembayaran...");
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
 
       if (cart.length === 0) {
         throw new Error("Keranjang kosong!");
       }
-
-      const newTx: Transaction = {
-        id: "new-tx-" + Date.now(),
-        invoiceNo: `INV/${dayjs().format("YYYYMMDD")}/${Math.floor(100 + Math.random() * 900)}`,
-        date: new Date().toISOString(),
-        customerName: "Pelanggan Umum",
-        vehiclePlate: "—",
-        items: cart.map((c) => ({
-          name: c.item.name,
-          price: c.item.price,
-          qty: c.quantity,
-        })),
-        subtotal,
-        tax,
-        total,
-        paymentMethod: "Cash",
-        type: cart.some((c) => c.item.category === "Service")
-          ? "Service"
-          : "Sparepart Only",
-        paymentStatus: "Lunas",
-      };
-      setLastTransaction(newTx);
-      setShowReceipt(true);
-      setCart([]);
-      Notify.toast("Transaksi berhasil diproses!", "success", "top");
+      throw new Error("Gunakan fitur 'Buat Nota Servis' untuk mencatat pelanggan dan kendaraan.");
+      
     } catch (err: any) {
       const errorMsg = err instanceof Error ? err.message : "Gagal memproses pembayaran";
       Notify.alert("Gagal!", errorMsg);
@@ -281,25 +256,44 @@ export default function KasirPage() {
           onClose={() => setShowCreateForm(false)}
           onSave={async (data) => {
             try {
-              Notify.loading("Menyimpan transaksi...");
-              // Simulate API delay
-              await new Promise((resolve) => setTimeout(resolve, 800));
-              
-              if (!data.customerId) {
-                throw new Error("Pelanggan tidak boleh kosong!");
+              if (!data.customerId || !data.vehicleId) {
+                Notify.alert("Gagal!", "Pelanggan dan kendaraan wajib dipilih!");
+                return;
               }
               if (data.items.length === 0) {
-                throw new Error("Keranjang tidak boleh kosong!");
+                Notify.alert("Gagal!", "Keranjang tidak boleh kosong!");
+                return;
               }
 
-              console.log("Transaction saved:", data);
-              Notify.toast("Transaksi berhasil disimpan!", "success", "top");
-              setShowCreateForm(false);
+              Notify.loading("Menyimpan transaksi...");
+              const { api } = await import("@/lib/api");
+              
+              const payload = {
+                customer_id: data.customerId,
+                vehicle_id: data.vehicleId,
+                transaction_date: new Date().toISOString(),
+                payment_method: data.paymentMethod,
+                payment_status: data.paymentStatus === "Lunas" ? "lunas" : "belum_bayar",
+                notes: data.notes || undefined,
+                items: data.items.map((cartItem: any) => ({
+                  item_type: cartItem.isJasa ? "jasa" : "spare_part",
+                  spare_part_id: cartItem.isJasa ? null : cartItem.item.id,
+                  item_name: cartItem.isJasa ? cartItem.jasaName : cartItem.item.name,
+                  quantity: cartItem.quantity,
+                  unit_price: cartItem.isJasa ? cartItem.jasaPrice : cartItem.item.price
+                }))
+              };
+
+              const res = await api.post<any>("/api/v1/transactions", payload);
+              
+              if (res.data) {
+                Notify.toast("Transaksi berhasil disimpan!", "success", "top");
+                setShowCreateForm(false);
+                // Can trigger reload of transactions logic here
+              }
             } catch (err: any) {
-              const errorMsg = err instanceof Error ? err.message : "Terjadi kesalahan sistem";
-              Notify.alert("Gagal!", errorMsg);
-            } finally {
-              // Close any dangling loading if needed, but Notify.alert or Notify.toast auto-close the loading state typically in Swal.
+              const errorMsg = err.response?.data?.message || err.message || "Terjadi kesalahan saat menyimpan transaksi";
+              Notify.alert("Gagal Menyimpan!", errorMsg);
             }
           }}
         />

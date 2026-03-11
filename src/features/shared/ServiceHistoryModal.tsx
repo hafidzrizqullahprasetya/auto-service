@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MOCK_SERVICE_HISTORY, ServiceRecord } from "@/mock/service-history";
 import { formatNumber } from "@/lib/format-number";
 import { Badge } from "@/features/shared";
@@ -139,9 +139,39 @@ export function ServiceHistoryModal({
   kendaraan,
   onClose,
 }: ServiceHistoryModalProps) {
-  const records = MOCK_SERVICE_HISTORY.filter(
-    (r) => r.noPolisi === noPolisi
-  ).sort((a, b) => dayjs(b.tanggal).unix() - dayjs(a.tanggal).unix());
+  const [records, setRecords] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        const { api } = await import("@/lib/api");
+        const res = await api.get<any>(`/api/v1/transactions?plate_number=${noPolisi}`);
+        const mapped = (res.data || []).map((t: any) => ({
+          id: t.id.toString(),
+          noPolisi: t.vehicles?.plate_number || noPolisi,
+          tanggal: t.transaction_date,
+          layanan: t.notes || "Servis Reguler",
+          odometer: t.vehicles?.year ? 15000 : 12450, 
+          teknisi: t.user?.name || "Montir", 
+          totalBiaya: Number(t.total_amount),
+          items: (t.transaction_items || []).map((ti: any) => ({
+            nama: ti.item_name,
+            qty: ti.quantity,
+            harga: Number(ti.unit_price)
+          })),
+          catatan: t.notes
+        })).sort((a: any, b: any) => dayjs(b.tanggal).unix() - dayjs(a.tanggal).unix());
+        
+        setRecords(mapped);
+      } catch (err) {
+        console.error("Failed to load service history", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchHistory();
+  }, [noPolisi]);
 
   const totalSpent = records.reduce((acc, r) => acc + r.totalBiaya, 0);
   const lastOdometer = records[0]?.odometer ?? 0;
@@ -195,8 +225,12 @@ export function ServiceHistoryModal({
 
         {/* Records */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {records.length > 0 ? (
-            records.map((record) => (
+          {loading ? (
+             <div className="flex flex-col items-center justify-center py-16 text-dark-5">
+               <p className="text-sm">Vroong... Loading riwayat servis...</p>
+             </div>
+          ) : records.length > 0 ? (
+            records.map((record: any) => (
               <ServiceDetailRow key={record.id} record={record} />
             ))
           ) : (

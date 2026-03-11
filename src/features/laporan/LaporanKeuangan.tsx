@@ -67,7 +67,7 @@ function StatCard({
 }
 
 export function LaporanKeuangan() {
-  const { data: allTransactions } = useTransactions();
+  const { data: allTransactions, loading } = useTransactions();
   const [period, setPeriod] = useState<Period>("semua");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -112,6 +112,8 @@ export function LaporanKeuangan() {
     (t) => t.paymentMethod === "E-Wallet",
   ).length;
   const cardTx = filtered.filter((t) => t.paymentMethod === "Card").length;
+  const serviceTxCount = filtered.filter((t) => t.type === "Service").length;
+  const partTxCount = filtered.filter((t) => t.type === "Sparepart Only").length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -121,6 +123,7 @@ export function LaporanKeuangan() {
           {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
             <button
               key={p}
+              disabled={loading}
               onClick={() => {
                 setPeriod(p);
                 setDateFrom("");
@@ -131,6 +134,7 @@ export function LaporanKeuangan() {
                 period === p && !dateFrom
                   ? "bg-dark text-white dark:bg-white dark:text-dark"
                   : "text-dark-5 hover:text-dark dark:hover:text-white",
+                loading && "opacity-50 cursor-not-allowed",
               )}
             >
               {PERIOD_LABELS[p]}
@@ -142,51 +146,68 @@ export function LaporanKeuangan() {
           <input
             type="date"
             value={dateFrom}
+            disabled={loading}
             onChange={(e) => {
               setDateFrom(e.target.value);
               setPeriod("semua");
             }}
-            className="rounded-lg border border-stroke bg-gray-1 px-3 py-2 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+            className="rounded-lg border border-stroke bg-gray-1 px-3 py-2 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:opacity-50"
           />
           <span className="text-sm font-bold text-dark-5">–</span>
           <input
             type="date"
             value={dateTo}
+            disabled={loading}
             onChange={(e) => {
               setDateTo(e.target.value);
               setPeriod("semua");
             }}
-            className="rounded-lg border border-stroke bg-gray-1 px-3 py-2 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+            className="rounded-lg border border-stroke bg-gray-1 px-3 py-2 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:opacity-50"
           />
         </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Total Pendapatan"
-          value={`Rp ${formatNumber(totalPendapatan)}`}
-          icon={Icons.Kasir}
-          trend={{ v: 12.5, up: true }}
-        />
-        <StatCard
-          label="Pendapatan Jasa"
-          value={`Rp ${formatNumber(pendapatanJasa)}`}
-          sub={`${filtered.filter((t) => t.type === "Service").length} transaksi`}
-          icon={Icons.Repair}
-        />
-        <StatCard
-          label="Pendapatan Sparepart"
-          value={`Rp ${formatNumber(pendapatanPart)}`}
-          sub={`${filtered.filter((t) => t.type === "Sparepart Only").length} transaksi`}
-          icon={Icons.Inventory}
-        />
-        <StatCard
-          label="Total PPN Terkumpul"
-          value={`Rp ${formatNumber(totalPajak)}`}
-          sub="Tarif 11%"
-          icon={Icons.Database}
-        />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-lg border border-stroke bg-white p-5 shadow-none dark:border-dark-3 dark:bg-gray-dark h-[140px] animate-pulse">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="h-11 w-11 rounded-lg bg-gray-2 dark:bg-dark-3" />
+                <div className="h-4 w-12 rounded bg-gray-2 dark:bg-dark-3" />
+              </div>
+              <div className="h-6 w-3/4 mb-2 rounded bg-gray-2 dark:bg-dark-3" />
+              <div className="h-4 w-1/2 rounded bg-gray-2 dark:bg-dark-3" />
+            </div>
+          ))
+        ) : (
+          <>
+            <StatCard
+              label="Total Pendapatan"
+              value={`Rp ${formatNumber(totalPendapatan)}`}
+              icon={Icons.Kasir}
+              trend={{ v: 12.5, up: true }}
+            />
+            <StatCard
+              label="Pendapatan Jasa"
+              value={`Rp ${formatNumber(pendapatanJasa)}`}
+              sub={`${serviceTxCount} transaksi`}
+              icon={Icons.Repair}
+            />
+            <StatCard
+              label="Pendapatan Sparepart"
+              value={`Rp ${formatNumber(pendapatanPart)}`}
+              sub={`${partTxCount} transaksi`}
+              icon={Icons.Inventory}
+            />
+            <StatCard
+              label="Total PPN Terkumpul"
+              value={`Rp ${formatNumber(totalPajak)}`}
+              sub="Tarif 11%"
+              icon={Icons.Database}
+            />
+          </>
+        )}
       </div>
 
       {/* Breakdown Row */}
@@ -197,7 +218,17 @@ export function LaporanKeuangan() {
             Metode Pembayaran
           </h3>
           <div className="space-y-3">
-            {[
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between animate-pulse">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-gray-2 dark:bg-dark-3" />
+                    <div className="h-4 w-16 rounded bg-gray-2 dark:bg-dark-3" />
+                  </div>
+                  <div className="h-4 w-12 rounded bg-gray-2 dark:bg-dark-3" />
+                </div>
+              ))
+             ) : [
               { label: "Cash", count: cashTx, icon: Icons.Cash },
               { label: "Transfer", count: transferTx, icon: Icons.Database },
               { label: "E-Wallet", count: ewalletTx, icon: Icons.EWallet },
@@ -216,7 +247,7 @@ export function LaporanKeuangan() {
                   {count}{" "}
                   <span className="text-[11px] font-medium text-dark-5">
                     TX
-                  </span>
+                    </span>
                 </span>
               </div>
             ))}
@@ -228,7 +259,18 @@ export function LaporanKeuangan() {
           <h3 className="mb-4 text-sm font-bold text-dark dark:text-white">
             Komposisi Pendapatan
           </h3>
-          {totalPendapatan > 0 ? (
+          {loading ? (
+            <div className="space-y-4 animate-pulse">
+              <div className="space-y-2">
+                <div className="flex justify-between"><div className="h-4 w-20 rounded bg-gray-2 dark:bg-dark-3"/><div className="h-4 w-8 rounded bg-gray-2 dark:bg-dark-3"/></div>
+                <div className="h-2 w-full rounded bg-gray-2 dark:bg-dark-3" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between"><div className="h-4 w-20 rounded bg-gray-2 dark:bg-dark-3"/><div className="h-4 w-8 rounded bg-gray-2 dark:bg-dark-3"/></div>
+                <div className="h-2 w-full rounded bg-gray-2 dark:bg-dark-3" />
+              </div>
+            </div>
+          ) : totalPendapatan > 0 ? (
             <div className="space-y-3">
               {[
                 {
@@ -281,41 +323,52 @@ export function LaporanKeuangan() {
             Ringkasan Periode
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-stroke py-2 dark:border-dark-3">
-              <span className="text-xs font-medium text-dark-5">
-                Total Transaksi
-              </span>
-              <span className="text-lg font-bold text-dark dark:text-white">
-                {filtered.length}
-              </span>
-            </div>
-            <div className="flex items-center justify-between border-b border-stroke py-2 dark:border-dark-3">
-              <span className="text-xs font-medium text-dark-5">
-                Rata-rata / TX
-              </span>
-              <span className="font-bold text-dark dark:text-white">
-                Rp{" "}
-                {filtered.length > 0
-                  ? formatNumber(Math.round(totalPendapatan / filtered.length))
-                  : "0"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between border-b border-stroke py-2 dark:border-dark-3">
-              <span className="text-xs font-medium text-dark-5">
-                Transaksi Jasa
-              </span>
-              <span className="font-bold text-dark dark:text-white">
-                {filtered.filter((t) => t.type === "Service").length}
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <span className="text-xs font-medium text-dark-5">
-                Transaksi Part
-              </span>
-              <span className="font-bold text-dark dark:text-white">
-                {filtered.filter((t) => t.type === "Sparepart Only").length}
-              </span>
-            </div>
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between border-b border-stroke py-3 last:border-0 dark:border-dark-3 animate-pulse">
+                  <div className="h-3 w-20 rounded bg-gray-2 dark:bg-dark-3" />
+                  <div className="h-5 w-12 rounded bg-gray-2 dark:bg-dark-3" />
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="flex items-center justify-between border-b border-stroke py-2 dark:border-dark-3">
+                  <span className="text-xs font-medium text-dark-5">
+                    Total Transaksi
+                  </span>
+                  <span className="text-lg font-bold text-dark dark:text-white">
+                    {filtered.length}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-b border-stroke py-2 dark:border-dark-3">
+                  <span className="text-xs font-medium text-dark-5">
+                    Rata-rata / TX
+                  </span>
+                  <span className="font-bold text-dark dark:text-white">
+                    Rp{" "}
+                    {filtered.length > 0
+                      ? formatNumber(Math.round(totalPendapatan / filtered.length))
+                      : "0"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-b border-stroke py-2 dark:border-dark-3">
+                  <span className="text-xs font-medium text-dark-5">
+                    Transaksi Jasa
+                  </span>
+                  <span className="font-bold text-dark dark:text-white">
+                    {serviceTxCount}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-xs font-medium text-dark-5">
+                    Transaksi Part
+                  </span>
+                  <span className="font-bold text-dark dark:text-white">
+                    {partTxCount}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

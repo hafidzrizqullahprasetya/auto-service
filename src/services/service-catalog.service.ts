@@ -18,4 +18,13 @@ export const serviceCatalogService = {
     const res = await api.post<ServiceCatalog>("/api/v1/service-catalog", data);
     return res.data;
   },
+
+  async update(id: string | number, data: Partial<ServiceCatalog>): Promise<ServiceCatalog> {
+    const res = await api.put<ServiceCatalog>(`/api/v1/service-catalog/${id}`, data);
+    return res.data;
+  },
+
+  async delete(id: string | number): Promise<void> {
+    await api.delete(`/api/v1/service-catalog/${id}`);
+  },
 };

@@ -14,7 +14,8 @@ export function standardFormat(value: number) {
   });
 }
 
-export function formatNumber(value: number) {
+export function formatNumber(value: number | undefined | null) {
+  if (value === undefined || value === null) return "0";
   return value.toLocaleString("id-ID");
 }
 

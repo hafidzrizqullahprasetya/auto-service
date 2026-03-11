@@ -1,19 +1,51 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { PeriodPicker } from "@/components/period-picker";
 import { standardFormat } from "@/lib/format-number";
 import { cn } from "@/lib/utils";
-import { getRevenueData } from "@/mock/dashboard-charts";
 import { PaymentsOverviewChart } from "@/components/ui/charts/payments-overview/chart";
+import { api } from "@/lib/api";
 
 type PropsType = {
   timeFrame?: string;
   className?: string;
 };
 
-export async function RevenueAnalysis({
+export function RevenueAnalysis({
   timeFrame = "monthly",
   className,
 }: PropsType) {
-  const data = getRevenueData(timeFrame);
+  const [data, setData] = useState<{ received: { x: string | number; y: number }[]; due: { x: string | number; y: number }[] }>({ received: [], due: [] });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRevenue() {
+      try {
+        const today = new Date();
+        const dateParam = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`; // YYYY-MM
+        const res = await api.get<any>(`/reports/revenue?period=monthly&date=${dateParam}`);
+        
+        if (res.data && res.data.daily_breakdown) {
+          const breakdown: { date: string; revenue: number }[] = res.data.daily_breakdown;
+          const received = breakdown.map(b => ({
+            x: b.date.split("-")[2], // Just the day
+            y: b.revenue / 1000000 // In millions for the chart if it expects that, but let's actually just pass revenue
+          }));
+          
+          setData({
+            received: received.length ? received : [{ x: "No Data", y: 0 }],
+            due: received.map(r => ({ x: r.x, y: 0 })) // Mock due as 0 since we don't have separate pending revenue in this endpoint currently
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load revenue data", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRevenue();
+  }, [timeFrame]);
 
   return (
     <div
@@ -44,7 +76,7 @@ export async function RevenueAnalysis({
         </div>
 
         <div>
-          <dt className="text-2xl font-bold tracking-tight text-dark dark:text-white">
+           <dt className="text-2xl font-bold tracking-tight text-dark dark:text-white">
             Rp {standardFormat(data.due.reduce((acc, { y }) => acc + y, 0) * 1000000)}
           </dt>
           <dd className="font-medium dark:text-dark-6">Pendapatan Tertunda</dd>

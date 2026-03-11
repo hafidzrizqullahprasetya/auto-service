@@ -238,7 +238,7 @@ export function PurchaseOrderTable() {
               />
             </div>
             <ActionButton variant="outline" label="Export PO" icon={<Icons.Print size={16} />} />
-            <Button>Buat PO Baru</Button>
+            <ActionButton variant="primary" label="Buat PO Baru" icon={<Icons.Plus size={16} />} />
           </div>
         </div>
 

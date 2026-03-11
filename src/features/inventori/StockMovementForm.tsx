@@ -7,7 +7,7 @@ import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInventory } from "@/hooks/useInventory";
-import { SparePart as Item } from "@/types/api";
+import { Item } from "@/mock/inventory";
 import { formatNumber } from "@/lib/format-number";
 
 type MovementType = "masuk" | "keluar";

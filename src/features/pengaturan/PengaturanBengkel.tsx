@@ -5,10 +5,12 @@ import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 import { KatalogJasa } from "@/features/kasir/KatalogJasa";
 
-import { MOCK_WA_NOTIFICATIONS } from "@/mock/wa-notifications";
 import { useEmployees } from "@/hooks/useEmployees";
+import { useSettings } from "@/hooks/useSettings";
 import { Badge } from "@/features/shared";
+import Skeleton from "react-loading-skeleton";
 import dayjs from "dayjs";
+import { toast } from "react-hot-toast";
 import {
   PERMISSION_ROUTES,
   DEFAULT_PERMISSIONS,
@@ -31,14 +33,27 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
 function InputField({
   label,
   type = "text",
-  defaultValue,
+  value,
+  onChange,
   placeholder,
+  loading,
 }: {
   label: string;
   type?: string;
-  defaultValue?: string;
+  value?: string;
+  onChange?: (val: string) => void;
   placeholder?: string;
+  loading?: boolean;
 }) {
+  if (loading) {
+    return (
+      <div className="space-y-2">
+        <div className="h-4 w-24 rounded bg-gray-2 dark:bg-dark-3 animate-pulse" />
+        <div className="h-10 w-full rounded-lg bg-gray-2 dark:bg-dark-3 animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
@@ -46,69 +61,11 @@ function InputField({
       </label>
       <input
         type={type}
-        defaultValue={defaultValue}
+        value={value ?? ""}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
         className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
       />
-    </div>
-  );
-}
-
-function SelectField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
-        {label}
-      </label>
-      <select className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-medium text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white">
-        {children}
-      </select>
-    </div>
-  );
-}
-
-function ToggleField({
-  label,
-  description,
-  defaultChecked,
-}: {
-  label: string;
-  description?: string;
-  defaultChecked?: boolean;
-}) {
-  const [checked, setChecked] = useState(defaultChecked ?? false);
-  return (
-    <div className="flex items-center justify-between border-b border-stroke py-4 last:border-0 dark:border-dark-3">
-      <div>
-        <p className="text-sm font-bold text-dark dark:text-white">{label}</p>
-        {description && (
-          <p className="mt-1 text-xs font-medium text-dark-5">{description}</p>
-        )}
-      </div>
-      <button
-        onClick={() => setChecked(!checked)}
-        className={cn(
-          "relative h-6 w-12 rounded-lg border-2 border-stroke bg-gray-1 dark:bg-dark-2",
-          checked
-            ? "border-dark bg-dark dark:border-white dark:bg-white"
-            : "bg-gray-2 dark:bg-dark-3",
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 h-4 w-5 rounded-md shadow-none",
-            checked
-              ? "right-0.5 bg-white dark:bg-dark"
-              : "left-0.5 bg-dark dark:bg-white",
-          )}
-        />
-      </button>
     </div>
   );
 }
@@ -132,14 +89,17 @@ function SectionCard({
   );
 }
 
-function ProfilTab() {
+function ProfilTab({ settings, setSettings, loading }: { settings: any, setSettings: (val: any) => void, loading: boolean }) {
+  const updateField = (field: string, val: string) => {
+    setSettings({ ...settings, [field]: val });
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <SectionCard title="Identitas Bengkel">
-        {/* Logo Upload */}
         <div className="mb-6 flex items-center gap-5">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-stroke bg-gray-2 dark:border-dark-4 dark:bg-dark-3">
-            <Icons.Dashboard size={30} className="text-dark-5" />
+             {loading ? <Skeleton height={80} width={80} /> : <Icons.Dashboard size={30} className="text-dark-5" />}
           </div>
           <div>
             <p className="text-sm font-bold text-dark dark:text-white">
@@ -157,60 +117,37 @@ function ProfilTab() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <InputField
             label="Nama Bengkel"
-            defaultValue="AutoService Premium Garage"
+            value={settings?.name}
+            onChange={(v) => updateField("name", v)}
+            loading={loading}
           />
           <InputField
             label="Nomor Telepon / WA"
-            defaultValue="+62 812-3456-7890"
-          />
-          <InputField
-            label="Email Address"
-            type="email"
-            defaultValue="info@autoservice.id"
-          />
-          <InputField
-            label="Website Office"
-            defaultValue="www.autoservice.id"
+            value={settings?.phone}
+            onChange={(v) => updateField("phone", v)}
+            loading={loading}
           />
         </div>
         <div className="mt-4">
           <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
             Alamat Operasional
           </label>
-          <textarea
-            rows={3}
-            defaultValue="Jl. Otomotif No. 123, Kawasan Industri Otomotif, Jakarta Selatan, DKI Jakarta 12345."
-            className="w-full resize-none rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
-          />
-        </div>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField label="NPWP" defaultValue="12.345.678.9-012.000" />
-          <InputField
-            label="Nomor Izin Usaha (SIUP)"
-            defaultValue="503/1234/SIUP/2023"
-          />
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Media Sosial">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField label="Instagram" placeholder="@autoservice.id" />
-          <InputField label="Facebook" placeholder="fb.com/autoservice" />
-          <InputField
-            label="WhatsApp Business"
-            defaultValue="+62 812-3456-7890"
-          />
-          <InputField
-            label="Google Maps Link"
-            placeholder="https://goo.gl/maps/..."
-          />
+          {loading ? (
+            <div className="h-24 w-full rounded-lg bg-gray-2 dark:bg-dark-3 animate-pulse" />
+          ) : (
+            <textarea
+              rows={3}
+              value={settings?.address}
+              onChange={(e) => updateField("address", e.target.value)}
+              className="w-full resize-none rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+            />
+          )}
         </div>
       </SectionCard>
     </div>
   );
 }
 
-/** Editor izin akses per-route untuk Admin dan Kasir, hanya tampil ke Owner */
 function PermissionEditor() {
   const [perms, setPerms] = useState(() => getPermissions());
   const [saved, setSaved] = useState(false);
@@ -304,7 +241,7 @@ function PermissionEditor() {
 
 function ManajemenAkunTab({ userRole }: { userRole: Role }) {
   const [showForm, setShowForm] = useState(false);
-  const { data: employees } = useEmployees();
+  const { data: employees, loading } = useEmployees();
 
   return (
     <div className="flex flex-col gap-6">
@@ -371,7 +308,20 @@ function ManajemenAkunTab({ userRole }: { userRole: Role }) {
         )}
 
         <div className="flex flex-col gap-2">
-          {employees.map((emp) => (
+          {loading ? (
+             Array.from({ length: 3 }).map((_, i) => (
+               <div key={i} className="flex items-center justify-between rounded-lg border border-stroke px-4 py-3 dark:border-dark-3 animate-pulse">
+                 <div className="flex items-center gap-3">
+                   <div className="h-9 w-9 rounded-lg bg-gray-2 dark:bg-dark-3" />
+                   <div className="space-y-2">
+                     <div className="h-4 w-32 rounded bg-gray-2 dark:bg-dark-3" />
+                     <div className="h-3 w-20 rounded bg-gray-2 dark:bg-dark-3" />
+                   </div>
+                 </div>
+                 <div className="h-6 w-16 rounded-full bg-gray-2 dark:bg-dark-3" />
+               </div>
+             ))
+          ) : employees.map((emp) => (
             <div
               key={emp.id}
               className="flex items-center justify-between rounded-lg border border-stroke px-4 py-3 dark:border-dark-3"
@@ -419,92 +369,92 @@ function ManajemenAkunTab({ userRole }: { userRole: Role }) {
   );
 }
 
-function WAGatewayTab() {
-  const [waNumber, setWaNumber] = useState("+62 812-3456-7890");
-  const [waToken, setWaToken] = useState("");
-  const [provider, setProvider] = useState("fonnte");
+function WAGatewayTab({ settings, setSettings, loading }: { settings: any, setSettings: (val: any) => void, loading: boolean }) {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(true);
+
+  const updateField = (field: string, val: string) => {
+    setSettings({ ...settings, [field]: val });
+  };
+
+  useEffect(() => {
+    async function fetchWaLogs() {
+      try {
+        const { api } = await import("@/lib/api");
+        const res = await api.get<any[]>("/api/v1/notifications/wa");
+        setLogs(res.data || []);
+      } catch (err) {
+        console.error("Failed to load WA logs", err);
+      } finally {
+        setLoadingLogs(false);
+      }
+    }
+    fetchWaLogs();
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
       <SectionCard title="Konfigurasi WhatsApp Gateway">
         <div className="mb-4 rounded-lg border border-stroke bg-gray-1 p-3 text-xs text-dark-5 dark:border-dark-3 dark:bg-dark-2">
           <p>
-            WA Gateway digunakan untuk mengirim notifikasi otomatis ke pemilik
-            bengkel saat stok sparepart mencapai batas minimum. Gunakan layanan
-            seperti <strong>Fonnte</strong> atau{" "}
-            <strong>WA Business API</strong>.
+            WA Gateway digunakan untuk mengirim notifikasi otomatis ke pelanggan
+            dan monitoring stok.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
-              Provider Gateway
-            </label>
-            <select
-              value={provider}
-              onChange={(e) => setProvider(e.target.value)}
-              className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
-            >
-              <option value="fonnte">FO-NNTE</option>
-              <option value="wablas">WA-BLAS</option>
-              <option value="wa_business">WA-BUSINESS-API</option>
-              <option value="custom">CUSTOM-API-GATEWAY</option>
-            </select>
-          </div>
-          <div>
-            <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
-              Nomor WA Penerima
-            </label>
-            <input
-              type="text"
-              value={waNumber}
-              onChange={(e) => setWaNumber(e.target.value)}
-              placeholder="+62 812-xxxx-xxxx"
-              className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 text-sm font-bold text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
-            />
-          </div>
-        </div>
-        <div className="mt-4">
-          <label className="mb-2 block text-sm font-bold text-dark dark:text-white">
-            API Secret Key
-          </label>
-          <input
-            type="password"
-            value={waToken}
-            onChange={(e) => setWaToken(e.target.value)}
-            placeholder="Key dari provider..."
-            className="w-full rounded-lg border border-stroke bg-gray-1 px-4 py-2.5 font-mono text-sm font-black tracking-widest text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+          <InputField
+            label="Nomor WA Penerima"
+            value={settings?.wa_target_number}
+            onChange={(v) => updateField("wa_target_number", v)}
+            placeholder="+62 812-xxxx-xxxx"
+            loading={loading}
           />
-        </div>
-        <div className="mt-6 flex gap-3">
-          <button className="rounded-lg border-2 border-dark bg-dark px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white">
-            Simpan & Test Gateway
-          </button>
-          <button className="rounded-lg border-2 border-stroke px-6 py-2.5 text-sm font-bold text-dark transition-all hover:bg-gray-1 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2">
-            Reset Option
-          </button>
+          <InputField
+            label="API Gateway Token"
+            type="password"
+            value={settings?.wa_gateway_token}
+            onChange={(v) => updateField("wa_gateway_token", v)}
+            placeholder="Token dari provider..."
+            loading={loading}
+          />
         </div>
       </SectionCard>
 
       <SectionCard title="Log Notifikasi WA">
         <div className="flex flex-col gap-2">
-          {MOCK_WA_NOTIFICATIONS.map((notif) => (
+          {loadingLogs ? (
+             Array.from({ length: 4 }).map((_, i) => (
+               <div key={i} className="flex items-start justify-between gap-4 rounded-lg border border-stroke p-4 dark:border-dark-3 animate-pulse">
+                 <div className="flex-1 space-y-2">
+                   <div className="h-4 w-40 rounded bg-gray-2 dark:bg-dark-3" />
+                   <div className="h-3 w-full rounded bg-gray-2 dark:bg-dark-3" />
+                   <div className="h-3 w-24 rounded bg-gray-2 dark:bg-dark-3" />
+                 </div>
+                 <div className="flex flex-col items-end gap-2">
+                   <div className="h-5 w-16 rounded bg-gray-2 dark:bg-dark-3" />
+                   <div className="h-3 w-20 rounded bg-gray-2 dark:bg-dark-3" />
+                 </div>
+               </div>
+             ))
+          ) : logs.length === 0 ? (
+             <p className="text-sm text-dark-5 py-4 text-center">Belum ada riwayat notifikasi WA</p>
+          ) : logs.map((notif) => (
             <div
               key={notif.id}
               className="flex items-start justify-between gap-4 rounded-lg border border-stroke p-4 dark:border-dark-3"
             >
               <div className="flex-1">
                 <p className="text-sm font-bold text-dark dark:text-white">
-                  {notif.sparePartName}
+                  {notif.spare_parts?.name || "Notifikasi Sistem"}
                 </p>
-                <p className="font-mono text-[10px] text-dark-5">{notif.sku}</p>
-                <p className="mt-1 text-xs text-dark-5">
-                  Stok:{" "}
-                  <span className="font-bold text-secondary">
-                    {notif.currentStock}
-                  </span>{" "}
-                  / Min: {notif.minimumStock}
-                  {" · "} Ke: {notif.waNumber}
+                {notif.spare_parts?.sku && (
+                  <p className="font-mono text-[10px] text-dark-5">{notif.spare_parts.sku}</p>
+                )}
+                <p className="mt-1 text-xs text-dark-5 line-clamp-1" title={notif.message_body}>
+                  {notif.message_body}
+                </p>
+                <p className="mt-1 text-xs font-medium text-dark-5">
+                  Tujuan: <span className="text-secondary">{notif.wa_number}</span>
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">
@@ -525,9 +475,9 @@ function WAGatewayTab() {
                       : "Gagal"}
                 </Badge>
                 <p className="text-[10px] text-dark-5">
-                  {notif.sentAt
-                    ? dayjs(notif.sentAt).format("DD/MM/YY HH:mm")
-                    : "—"}
+                  {notif.sent_at
+                    ? dayjs(notif.sent_at).format("DD/MM/YY HH:mm")
+                    : dayjs(notif.created_at).format("DD/MM/YY HH:mm")}
                 </p>
               </div>
             </div>
@@ -543,8 +493,8 @@ function OperasionalTab() {
     <div className="flex flex-col gap-6">
       <SectionCard title="Jam Operasional">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField label="Jam Buka" type="time" defaultValue="08:00" />
-          <InputField label="Jam Tutup" type="time" defaultValue="17:00" />
+          <InputField label="Jam Buka" type="time" value="08:00" />
+          <InputField label="Jam Tutup" type="time" value="17:00" />
         </div>
         <div className="mt-5">
           <p className="mb-3 text-sm font-bold text-dark dark:text-white">
@@ -570,115 +520,26 @@ function OperasionalTab() {
           </div>
         </div>
       </SectionCard>
-
-      <SectionCard title="Konfigurasi Sistem">
-        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField label="Tarif PPN (%)" type="number" defaultValue="11" />
-          <SelectField label="Mata Uang">
-            <option value="IDR">IDR – Rupiah (Rp)</option>
-            <option value="USD">USD – Dollar ($)</option>
-          </SelectField>
-          <InputField
-            label="Kapasitas Bay Servis"
-            type="number"
-            defaultValue="6"
-          />
-          <SelectField label="Format Nomor Invoice">
-            <option>INV/YYYYMMDD/###</option>
-            <option>INV-####</option>
-            <option>Custom</option>
-          </SelectField>
-        </div>
-        <div>
-          <ToggleField
-            label="Notifikasi Reminder Otomatis"
-            description="Kirim WA otomatis saat jadwal servis mendekati"
-            defaultChecked={true}
-          />
-          <ToggleField
-            label="Alert Stok Menipis"
-            description="Notifikasi ketika stok item mencapai batas minimum"
-            defaultChecked={true}
-          />
-          <ToggleField
-            label="Garansi Servis Default"
-            description="Aktifkan garansi 3 bulan di setiap servis baru"
-            defaultChecked={false}
-          />
-          <ToggleField
-            label="Mode Gelap Otomatis"
-            description="Sesuaikan tema dengan pengaturan sistem perangkat"
-            defaultChecked={false}
-          />
-        </div>
-      </SectionCard>
     </div>
   );
 }
 
-function InvoiceTab() {
+function EmptyTab({ title }: { title: string }) {
   return (
-    <div className="flex flex-col gap-6">
-      <SectionCard title="Template Invoice">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InputField
-            label="Catatan Footer Invoice"
-            defaultValue="Terima kasih telah mempercayakan kendaraan Anda kepada kami."
-          />
-          <InputField
-            label="Syarat & Ketentuan Garansi"
-            defaultValue="Garansi berlaku 3 bulan sejak tanggal servis."
-          />
-          <SelectField label="Warna Tema Invoice">
-            <option>Biru (Default)</option>
-            <option>Merah</option>
-            <option>Hijau</option>
-            <option>Hitam & Putih</option>
-          </SelectField>
-          <SelectField label="Ukuran Kertas Cetak">
-            <option>A4</option>
-            <option>Letter (USA)</option>
-            <option>Thermal 80mm</option>
-          </SelectField>
-        </div>
-        <div className="mt-4">
-          <ToggleField
-            label="Tampilkan Logo di Invoice"
-            description="Logo bengkel akan muncul di header invoice"
-            defaultChecked={true}
-          />
-          <ToggleField
-            label="Tampilkan Barcode / QR di Invoice"
-            description="QR code untuk verifikasi keaslian invoice"
-            defaultChecked={false}
-          />
-          <ToggleField
-            label="Tampilkan Rincian Pajak"
-            description="Breakdown PPN ditampilkan di invoice"
-            defaultChecked={true}
-          />
-        </div>
-      </SectionCard>
-
-      {/* Preview */}
-      <SectionCard title="Preview Invoice Visual">
-        <div className="rounded-lg border-2 border-dashed border-stroke bg-gray-1 p-10 text-center text-dark-5 dark:border-dark-3 dark:bg-dark-2">
-          <Icons.Print size={40} className="mx-auto mb-4 opacity-10" />
-          <p className="mt-2 text-sm font-medium text-dark-5">
-            Live billing preview unavailable
-          </p>
-          <button className="mt-6 rounded-lg border-2 border-dark bg-dark px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white">
-            Generate Preview PDF
-          </button>
-        </div>
-      </SectionCard>
-    </div>
+    <SectionCard title={title}>
+      <div className="rounded-lg border-2 border-dashed border-stroke py-10 text-center dark:border-dark-3">
+        <p className="text-sm text-dark-5">Konfigurasi ini akan segera tersedia.</p>
+      </div>
+    </SectionCard>
   );
 }
 
 export function PengaturanBengkel() {
   const [activeTab, setActiveTab] = useState<Tab>("bengkel");
   const [userRole, setUserRole] = useState<Role>("Kasir");
+  const { data: initialSettings, loading, updateSettings } = useSettings();
+  const [localSettings, setLocalSettings] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("auth_user") || sessionStorage.getItem("auth_user");
@@ -690,14 +551,30 @@ export function PengaturanBengkel() {
     }
   }, []);
 
-  // Kasir tidak bisa akses tab Manajemen Akun
+  useEffect(() => {
+    if (initialSettings) {
+      setLocalSettings(initialSettings);
+    }
+  }, [initialSettings]);
+
+  const handleCommit = async () => {
+    try {
+      setSaving(true);
+      await updateSettings(localSettings);
+      toast.success("Pengaturan berhasil disimpan");
+    } catch (err) {
+      toast.error("Gagal menyimpan pengaturan");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const visibleTabs = TABS.filter(
     (t) => t.id !== "akun" || userRole === "Owner" || userRole === "Admin",
   );
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tab Navigation */}
       <div className="flex w-fit gap-1 rounded-lg bg-gray-1 p-1 dark:bg-dark-2">
         {visibleTabs.map(({ id, label, icon: Icon }) => (
           <button
@@ -716,27 +593,50 @@ export function PengaturanBengkel() {
         ))}
       </div>
 
-      {/* Tab Content */}
-      {activeTab === "bengkel" && <ProfilTab />}
+      {activeTab === "bengkel" && (
+        <ProfilTab
+          settings={localSettings}
+          setSettings={setLocalSettings}
+          loading={loading}
+        />
+      )}
       {activeTab === "operasional" && <OperasionalTab />}
-      {activeTab === "invoice" && <InvoiceTab />}
+      {activeTab === "invoice" && <EmptyTab title="Pengaturan Invoice" />}
       {activeTab === "katalog" && <KatalogJasa />}
-      {activeTab === "wa" && <WAGatewayTab />}
+      {activeTab === "wa" && (
+        <WAGatewayTab
+          settings={localSettings}
+          setSettings={setLocalSettings}
+          loading={loading}
+        />
+      )}
       {activeTab === "akun" && <ManajemenAkunTab userRole={userRole} />}
 
-      {/* Save Button — only for form tabs */}
       {activeTab !== "katalog" &&
         activeTab !== "wa" &&
         activeTab !== "akun" && (
           <div className="mt-4 flex justify-end gap-3">
-            <button className="rounded-lg border-2 border-stroke px-6 py-3 text-sm font-bold text-dark transition-all hover:bg-gray-2 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2">
-              Reset Default
-            </button>
-            <button className="rounded-lg border-2 border-dark bg-dark px-10 py-3 text-sm font-bold text-white shadow-none transition-all hover:bg-white hover:text-dark active:scale-100 dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white">
-              Commit Changes
+             <button 
+              disabled={saving}
+              onClick={handleCommit}
+              className="rounded-lg border-2 border-dark bg-dark px-10 py-3 text-sm font-bold text-white shadow-none transition-all hover:bg-white hover:text-dark active:scale-100 disabled:opacity-50 dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white"
+            >
+              {saving ? "Simpan..." : "Simpan Perubahan"}
             </button>
           </div>
         )}
+
+      {activeTab === "wa" && (
+        <div className="flex justify-end mt-4">
+           <button 
+            disabled={saving}
+            onClick={handleCommit}
+            className="rounded-lg border-2 border-dark bg-dark px-10 py-3 text-sm font-bold text-white shadow-none transition-all hover:bg-white hover:text-dark active:scale-100 disabled:opacity-50 dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white"
+          >
+            {saving ? "Simpan..." : "Simpan Gateway"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

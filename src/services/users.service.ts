@@ -6,7 +6,7 @@ import { normalizeRole } from "./auth.service";
 /** Map BE ApiUser → FE Employee */
 export function mapUser(u: ApiUser): Employee {
   return {
-    id: u.id,
+    id: String(u.id),
     name: u.name,
     role: normalizeRole(u.role) as Employee["role"],
     status: u.is_active === false ? "Off" : "Aktif",

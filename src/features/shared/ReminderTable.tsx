@@ -1,22 +1,21 @@
 "use client";
-
 import { useMemo } from "react";
+import { useReminders } from "@/hooks/useReminders";
+import Skeleton from "react-loading-skeleton";
+import { Icons } from "@/components/Icons";
+import { cn } from "@/lib/utils";
+import dayjs from "dayjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
-import { MOCK_REMINDERS, ServiceReminder } from "@/mock/service-history";
-import { Badge } from "@/features/shared";
-import { Icons } from "@/components/Icons";
-import { ActionButton } from "@/features/shared";
-import dayjs from "dayjs";
-import { cn } from "@/lib/utils";
+import { Badge, ActionButton } from "@/features/shared";
 
-const STATUS_VARIANT: Record<ServiceReminder["status"], "success" | "info" | "danger"> = {
+const STATUS_VARIANT: Record<string, "success" | "info" | "danger" | "warning"> = {
   Aktif: "success",
   Terkirim: "info",
   "Lewat Jatuh Tempo": "danger",
 };
 
-const JENIS_ICON: Record<ServiceReminder["jenisReminder"], React.ElementType> = {
+const JENIS_ICON: Record<string, React.ElementType> = {
   "Ganti Oli": Icons.Oil,
   "Service Rutin": Icons.Repair,
   "Cek Rem": Icons.Warning,
@@ -25,13 +24,30 @@ const JENIS_ICON: Record<ServiceReminder["jenisReminder"], React.ElementType> = 
 };
 
 // ─── Summary mini-cards (tetap di atas tabel) ──────────────────────────────────
-function ReminderSummary() {
-  const lewat = MOCK_REMINDERS.filter((r) => r.status === "Lewat Jatuh Tempo").length;
-  const aktif = MOCK_REMINDERS.filter((r) => r.status === "Aktif").length;
+function ReminderSummary({ reminders, loading }: { reminders: any[], loading: boolean }) {
+  const lewat = reminders.filter((r) => r.status === "Lewat Jatuh Tempo").length;
+  const aktif = reminders.filter((r) => r.status === "Aktif").length;
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="rounded-lg border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark flex items-center gap-3 shadow-none animate-pulse">
+            <div className="h-11 w-11 shrink-0 rounded-lg bg-gray-2 dark:bg-dark-3" />
+            <div className="space-y-2">
+              <div className="h-6 w-12 rounded bg-gray-2 dark:bg-dark-3" />
+              <div className="h-3 w-20 rounded bg-gray-2 dark:bg-dark-3" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
       {[
-        { label: "Total Reminder", value: MOCK_REMINDERS.length, icon: Icons.Notification },
+        { label: "Total Reminder", value: reminders.length, icon: Icons.Notification },
         { label: "Aktif", value: aktif, icon: Icons.Success },
         { label: "Lewat Tempo", value: lewat, icon: Icons.Alert, isAlert: true },
       ].map(({ label, value, icon: Icon, isAlert }) => (
@@ -53,7 +69,9 @@ function ReminderSummary() {
 }
 
 export function ReminderTable() {
-  const columns = useMemo<ColumnDef<ServiceReminder>[]>(
+  const { data: reminders, loading, sendWa } = useReminders();
+
+  const columns = useMemo<ColumnDef<any>[]>(
     () => [
       {
         accessorKey: "pelanggan",
@@ -77,7 +95,7 @@ export function ReminderTable() {
         header: "Perihal Reminder",
         cell: ({ row }) => {
           const r = row.original;
-          const JenisIcon = JENIS_ICON[r.jenisReminder];
+          const JenisIcon = JENIS_ICON[r.jenisReminder] || Icons.Repair;
           return (
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-2 dark:bg-dark-3 text-dark-5 border border-stroke dark:border-dark-4">
@@ -120,13 +138,13 @@ export function ReminderTable() {
             <div className="flex w-full flex-col items-center justify-center tabular-nums">
               {r.odometerTarget ? (
                 <p className="font-bold text-sm text-dark dark:text-white leading-none">
-                  {r.odometerTarget.toLocaleString("id-ID")} <span className="text-[11px] font-medium text-dark-5">KM</span>
+                  {Number(r.odometerTarget).toLocaleString("id-ID")} <span className="text-[11px] font-medium text-dark-5">KM</span>
                 </p>
               ) : (
                 <p className="text-dark-5 text-[11px] font-medium">—</p>
               )}
               <p className="text-[11px] font-medium text-dark-5 mt-1">
-                Last: {r.odometerSaat.toLocaleString("id-ID")} km
+                Last: {Number(r.odometerSaat).toLocaleString("id-ID")} km
               </p>
             </div>
           );
@@ -137,7 +155,7 @@ export function ReminderTable() {
         header: () => <div className="w-full text-center">Status</div>,
         cell: ({ row }) => (
           <div className="flex w-full justify-center">
-            <Badge variant={STATUS_VARIANT[row.original.status]}>
+            <Badge variant={STATUS_VARIANT[row.original.status] || "warning"}>
               {row.original.status}
             </Badge>
           </div>
@@ -146,12 +164,13 @@ export function ReminderTable() {
       {
         id: "actions",
         header: () => <div className="w-full text-center">Aksi</div>,
-        cell: () => (
+        cell: ({ row }) => (
           <div className="flex w-full items-center justify-center gap-2">
             <ActionButton 
               icon={<Icons.Whatsapp size={16} />} 
               variant="success" 
               title="Follow Up (Kirim WA)" 
+              onClick={() => sendWa(row.original.id)}
             />
             <ActionButton 
               icon={<Icons.Delete size={16} />} 
@@ -162,25 +181,33 @@ export function ReminderTable() {
         )
       },
     ],
-    []
+    [sendWa]
   );
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
-      <ReminderSummary />
-      <DataTable
-        columns={columns}
-        data={MOCK_REMINDERS}
-        searchable={["pelanggan", "noPolisi", "jenisReminder"]}
-        searchPlaceholder="Cari pelanggan atau plat nomor..."
-        title="Reminder & Follow-up Servis"
-        description="Jadwal pengingat otomatis untuk pelanggan setia"
-        pageSize={5}
-        primaryAction={{
-          label: "Tambah Reminder",
-          onClick: () => {},
-        }}
-      />
+      <ReminderSummary reminders={reminders} loading={loading} />
+      {loading ? (
+         <div className="rounded-lg border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
+            <Skeleton height={40} className="mb-4" />
+            <Skeleton count={5} height={60} className="mb-2" />
+         </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={reminders}
+          searchable={["pelanggan", "noPolisi", "jenisReminder"]}
+          searchPlaceholder="Cari pelanggan atau plat nomor..."
+          title="Reminder & Follow-up Servis"
+          description="Jadwal pengingat otomatis untuk pelanggan setia"
+          pageSize={5}
+          primaryAction={{
+            label: "Tambah Reminder",
+            onClick: () => {},
+          }}
+        />
+      )}
     </div>
   );
 }
+

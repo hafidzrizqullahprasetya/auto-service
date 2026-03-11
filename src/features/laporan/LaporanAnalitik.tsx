@@ -1,51 +1,10 @@
 "use client";
 
-import { MOCK_SERVICE_HISTORY } from "@/mock/service-history";
-import { useTransactions } from "@/hooks/useTransactions";
+import { useEffect, useState } from "react";
 import { formatNumber } from "@/lib/format-number";
 import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
-import { Transaction } from "@/mock/transactions";
-
-// --- Compute top services from service history ---
-function getTopServices() {
-  const counter: Record<string, { count: number; revenue: number }> = {};
-  MOCK_SERVICE_HISTORY.forEach((rec) => {
-    if (!counter[rec.layanan]) counter[rec.layanan] = { count: 0, revenue: 0 };
-    counter[rec.layanan].count += 1;
-    counter[rec.layanan].revenue += rec.totalBiaya;
-  });
-  return Object.entries(counter)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 6);
-}
-
-// --- Compute top spareparts from real transactions ---
-function getTopSpareparts(transactions: Transaction[]) {
-  const counter: Record<string, { qty: number; revenue: number }> = {};
-  transactions.forEach((tx) => {
-    tx.items.forEach((item) => {
-      if (item.name.toLowerCase().startsWith("jasa")) return;
-      if (!counter[item.name]) counter[item.name] = { qty: 0, revenue: 0 };
-      counter[item.name].qty += item.qty;
-      counter[item.name].revenue += item.price * item.qty;
-    });
-  });
-  // Also include service history data
-  MOCK_SERVICE_HISTORY.forEach((rec) => {
-    rec.items.forEach((item) => {
-      if (item.nama.toLowerCase().startsWith("jasa")) return;
-      if (!counter[item.nama]) counter[item.nama] = { qty: 0, revenue: 0 };
-      counter[item.nama].qty += item.qty;
-      counter[item.nama].revenue += item.harga * item.qty;
-    });
-  });
-  return Object.entries(counter)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.qty - a.qty)
-    .slice(0, 6);
-}
+import { api } from "@/lib/api";
 
 interface RankBarProps {
   rank: number;
@@ -104,12 +63,38 @@ function RankBar({
 }
 
 export function LaporanAnalitik() {
-  const { data: transactions } = useTransactions();
-  const topServices = getTopServices();
-  const topSpareparts = getTopSpareparts(transactions);
+  const [topServices, setTopServices] = useState<any[]>([]);
+  const [topSpareparts, setTopSpareparts] = useState<any[]>([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    async function fetchTop() {
+      try {
+        setLoadingServices(true);
+        const { data: svc } = await api.get<any>("/reports/top-services?limit=6");
+        setTopServices(svc || []);
+      } catch (err) {
+        console.error("Failed to load top services", err);
+      } finally {
+        setLoadingServices(false);
+      }
+
+      try {
+        setLoadingProducts(true);
+        const { data: prd } = await api.get<any>("/reports/top-products?limit=6");
+        setTopSpareparts(prd || []);
+      } catch (err) {
+        console.error("Failed to load top products", err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+    fetchTop();
+  }, []);
 
   const maxServiceCount = topServices[0]?.count ?? 1;
-  const maxPartQty = topSpareparts[0]?.qty ?? 1;
+  const maxPartQty = topSpareparts[0]?.total_qty ?? 1;
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -129,14 +114,24 @@ export function LaporanAnalitik() {
           </div>
         </div>
         <div className="space-y-4">
-          {topServices.length > 0 ? (
+          {loadingServices ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-2 dark:bg-dark-3" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-3 w-1/3 animate-pulse rounded bg-gray-2 dark:bg-dark-3" />
+                  <div className="h-2 w-full animate-pulse rounded-full bg-gray-2 dark:bg-dark-3" />
+                </div>
+              </div>
+            ))
+          ) : topServices.length > 0 ? (
             topServices.map((svc, i) => (
               <RankBar
-                key={svc.name}
+                key={`${svc.name}-${i}`}
                 rank={i + 1}
                 name={svc.name}
                 primaryStat={`${svc.count}x`}
-                secondaryStat={`Rp ${formatNumber(svc.revenue)}`}
+                secondaryStat={`Rp ${formatNumber(Number(svc.revenue || 0))}`}
                 pct={Math.round((svc.count / maxServiceCount) * 100)}
                 color="bg-primary"
               />
@@ -165,15 +160,25 @@ export function LaporanAnalitik() {
           </div>
         </div>
         <div className="space-y-4">
-          {topSpareparts.length > 0 ? (
+          {loadingProducts ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="h-7 w-7 animate-pulse rounded-lg bg-gray-2 dark:bg-dark-3" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-3 w-1/3 animate-pulse rounded bg-gray-2 dark:bg-dark-3" />
+                  <div className="h-2 w-full animate-pulse rounded-full bg-gray-2 dark:bg-dark-3" />
+                </div>
+              </div>
+            ))
+          ) : topSpareparts.length > 0 ? (
             topSpareparts.map((part, i) => (
               <RankBar
-                key={part.name}
+                key={`${part.name}-${i}`}
                 rank={i + 1}
                 name={part.name}
-                primaryStat={`${part.qty} UNIT`}
-                secondaryStat={`Rp ${formatNumber(part.revenue)}`}
-                pct={Math.round((part.qty / maxPartQty) * 100)}
+                primaryStat={`${part.total_qty} UNIT`}
+                secondaryStat={`Rp ${formatNumber(Number(part.revenue || 0))}`}
+                pct={Math.round((part.total_qty / (maxPartQty || 1)) * 100)}
                 color="bg-dark dark:bg-white"
               />
             ))
