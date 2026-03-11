@@ -14,6 +14,7 @@ import {
 } from "@/lib/permissions";
 import { SectionCard } from "./SectionCard";
 import { ManajemenAkunTabSkeleton } from "./ManajemenAkunTabSkeleton";
+import { TabSaveButton } from "../shared/TabSaveButton";
 
 function PermissionEditor() {
   const [perms, setPerms] = useState(() => getPermissions());
@@ -108,18 +109,13 @@ function PermissionEditor() {
     </div>
 
     <div className="mt-6 flex items-center gap-4">
-        <button
+        <TabSaveButton
           onClick={handleSave}
-          disabled={isSavingPerms}
-          className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-dark px-8 py-3 text-sm font-bold text-white transition-all hover:bg-opacity-90 disabled:opacity-50 dark:bg-white dark:text-dark"
-        >
-          {isSavingPerms ? (
-            <Icons.RefreshCcw size={16} className="animate-spin" />
-          ) : (
-            <Icons.Success size={18} />
-          )}
-          <span>{isSavingPerms ? "Menyimpan..." : "Simpan Hak Akses"}</span>
-        </button>
+          loading={isSavingPerms}
+          label="Simpan Hak Akses"
+          type="button"
+          className="sm:w-auto px-8"
+        />
         {saved && (
           <span className="flex items-center gap-1.5 text-sm font-bold text-success animate-in fade-in slide-in-from-left-2">
             <Icons.Success size={16} /> Tersimpan

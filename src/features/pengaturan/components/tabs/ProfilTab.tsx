@@ -11,6 +11,7 @@ import { ProfilTabSkeleton } from "./ProfilTabSkeleton";
 import { Notify } from "@/utils/notify";
 import { cn } from "@/lib/utils";
 import { formatWhatsApp } from "@/utils/format-phone";
+import { TabSaveButton } from "../shared/TabSaveButton";
 
 const profileSchema = z.object({
   name: z.string().min(3, "Nama bengkel minimal 3 karakter"),
@@ -84,9 +85,9 @@ export function ProfilTab({ settings, onSave, loading, saving }: ProfilTabProps)
               </p>
               <button
                 type="button"
-                className="mt-3 w-full rounded-lg border-2 border-dark bg-dark px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-white hover:text-dark dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white md:w-auto"
+                className="mt-3 w-full rounded-lg bg-dark px-6 py-2 text-xs font-bold text-white transition-all hover:bg-opacity-90 active:scale-95 dark:bg-white dark:text-dark md:w-auto"
               >
-                GANTI LOGO
+                Ganti Logo
               </button>
             </div>
           </div>
@@ -137,13 +138,10 @@ export function ProfilTab({ settings, onSave, loading, saving }: ProfilTabProps)
         </SectionCard>
 
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full rounded-lg border-2 border-dark bg-dark px-10 py-3 text-sm font-bold text-white shadow-none transition-all hover:bg-white hover:text-dark active:scale-100 disabled:opacity-50 dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white sm:w-auto"
-          >
-            {saving ? "Menyimpan..." : "Simpan Profil"}
-          </button>
+          <TabSaveButton 
+            loading={saving} 
+            label="Simpan Profil" 
+          />
         </div>
       </form>
     </div>

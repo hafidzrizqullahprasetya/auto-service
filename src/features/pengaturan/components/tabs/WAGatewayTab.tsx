@@ -10,6 +10,7 @@ import InputGroup from "@/components/ui/InputGroup";
 import { SectionCard } from "./SectionCard";
 import { WAGatewayTabSkeleton } from "./WAGatewayTabSkeleton";
 import { Notify } from "@/utils/notify";
+import { TabSaveButton } from "../shared/TabSaveButton";
 import { Icons } from "@/components/Icons/index";
 import { cn } from "@/lib/utils";
 import { formatWhatsApp } from "@/utils/format-phone";
@@ -440,13 +441,10 @@ export function WAGatewayTab({
             </div>
 
             <div className="flex justify-end pt-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="w-full rounded-lg bg-dark px-10 py-3 text-sm font-bold text-white transition-all hover:bg-opacity-90 disabled:opacity-50 dark:bg-white dark:text-dark sm:w-auto"
-              >
-                {saving ? "Menyimpan..." : "Simpan Perubahan"}
-              </button>
+              <TabSaveButton 
+                loading={saving} 
+                label="Simpan Perubahan" 
+              />
             </div>
           </form>
         </div>

@@ -9,6 +9,7 @@ import TimePicker from "@/components/ui/TimePicker";
 import { SectionCard } from "./SectionCard";
 import { OperasionalTabSkeleton } from "./OperasionalTabSkeleton";
 import { Notify } from "@/utils/notify";
+import { TabSaveButton } from "../shared/TabSaveButton";
 
 const operationalSchema = z.object({
   open_time: z.string().min(4, "Jam buka harus diisi"),
@@ -164,13 +165,10 @@ export function OperasionalTab({ settings, onSave, loading, saving }: Operasiona
         </SectionCard>
 
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full rounded-lg border-2 border-dark bg-dark px-10 py-3 text-sm font-bold text-white shadow-none transition-all hover:bg-white hover:text-dark active:scale-100 disabled:opacity-50 dark:bg-white dark:text-dark dark:hover:bg-dark dark:hover:text-white sm:w-auto"
-          >
-            {saving ? "Menyimpan..." : "Simpan Operasional"}
-          </button>
+          <TabSaveButton 
+            loading={saving} 
+            label="Simpan Operasional" 
+          />
         </div>
       </form>
     </div>
