@@ -13,7 +13,7 @@ export function useAntrean() {
       setLoading(true);
       setError(null);
       const items = await antreanService.getAll();
-      setData(items);
+      setData(items.sort((a, b) => Number(b.id) - Number(a.id)));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Gagal memuat data antrean",

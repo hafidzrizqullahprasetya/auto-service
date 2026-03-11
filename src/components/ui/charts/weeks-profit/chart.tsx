@@ -1,5 +1,6 @@
 "use client";
 
+import { formatCurrency, formatNumber } from "@/utils/format-number";
 import type { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 
@@ -90,6 +91,14 @@ export function WeeksProfitChart({ data }: PropsType) {
     fill: {
       opacity: 1,
     },
+    tooltip: {
+      y: {
+        formatter: (val, opts) => {
+          if (opts.seriesIndex === 0) return `${formatNumber(val)} Unit`;
+          return formatCurrency(val);
+        }
+      }
+    }
   };
   return (
     <div className="-ml-3.5 mt-3">

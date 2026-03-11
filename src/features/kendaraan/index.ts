@@ -1,2 +1,2 @@
-export { VehicleTable } from "./VehicleTable";
-export { VehicleFormModal } from "./VehicleFormModal";
+export { VehicleTable } from "./components/VehicleTable";
+export { VehicleFormModal } from "./components/VehicleFormModal";

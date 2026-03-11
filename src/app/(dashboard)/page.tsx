@@ -1,13 +1,15 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { OverviewCardsGroup } from "./_components/overview-cards";
-import { OverviewCardsSkeleton } from "./_components/overview-cards/skeleton";
-import { LowStockAlert } from "@/features/dashboard/LowStockAlert";
-import { TopServices } from "@/features/dashboard/TopServices";
-import { RecentActivity } from "@/features/dashboard/RecentActivity";
-import { RevenueAnalysis } from "@/features/dashboard/RevenueAnalysis";
-import { VehicleTypeRatio } from "@/features/dashboard/VehicleTypeRatio";
-import { createTimeFrameExtractor } from "@/lib/timeframe-extractor";
+import { 
+  LowStockAlert,
+  TopServices,
+  RecentActivity,
+  RevenueAnalysis,
+  VehicleTypeRatio,
+  OverviewCardsGroup,
+  OverviewCardsSkeleton
+} from "@/features/dashboard";
+import { createTimeFrameExtractor } from "@/utils/timeframe-extractor";
 
 export const metadata: Metadata = {
   title: "Dashboard — AutoService",

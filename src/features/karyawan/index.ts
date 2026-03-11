@@ -1,2 +1,2 @@
-export { EmployeeTable } from "./EmployeeTable";
-export { EmployeeFormModal } from "./EmployeeFormModal";
+export { EmployeeTable } from "./components/EmployeeTable";
+export { EmployeeFormModal } from "./components/EmployeeFormModal";

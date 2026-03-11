@@ -14,7 +14,7 @@ export function Logo({ onClick }: LogoProps) {
     setMounted(true);
   }, []);
 
-  if (!mounted) return <div className="h-10 w-32" />; // Avoid hydration mismatch
+  if (!mounted) return <div className="h-10 w-32" />; 
 
   return (
     <Link href="/" onClick={onClick} className="flex items-center gap-3 group">

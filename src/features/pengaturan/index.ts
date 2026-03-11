@@ -1,1 +1,1 @@
-export { PengaturanBengkel } from "./PengaturanBengkel";
+export { PengaturanBengkel } from "./components/PengaturanBengkel";

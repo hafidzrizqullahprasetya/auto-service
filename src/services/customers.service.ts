@@ -2,7 +2,6 @@ import { api } from "@/lib/api";
 import { ApiCustomer } from "@/types/api";
 import { Customer } from "@/types/customer";
 
-/** Map BE ApiCustomer → FE Customer */
 export function mapCustomer(c: ApiCustomer): Customer {
   return {
     id: c.id.toString(),

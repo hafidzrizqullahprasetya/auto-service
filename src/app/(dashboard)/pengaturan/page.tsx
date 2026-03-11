@@ -8,10 +8,9 @@ export const metadata: Metadata = {
 
 export default function PengaturanPage() {
   return (
-    <div className="mx-auto max-w-7xl">
+    <>
       <Breadcrumb pageName="Pengaturan" />
-
       <PengaturanBengkel />
-    </div>
+    </>
   );
 }

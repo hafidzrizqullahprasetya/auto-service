@@ -1,3 +1,3 @@
-export { CustomerTable } from "./CustomerTable";
-export { CustomerFormModal } from "./CustomerFormModal";
-export { CustomerDetailModal } from "./CustomerDetailModal";
+export { CustomerTable } from "./components/CustomerTable";
+export { CustomerFormModal } from "./components/CustomerFormModal";
+export { CustomerDetailModal } from "./components/CustomerDetailModal";

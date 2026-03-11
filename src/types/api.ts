@@ -182,6 +182,9 @@ export interface ApiSettings {
   phone?: string;
   wa_gateway_token?: string;
   wa_target_number?: string;
+  open_time?: string;
+  close_time?: string;
+  operational_days?: string; // Comma separated days, e.g. "1,2,3,4,5,6"
 }
 
 // ===== WA Notifications =====

@@ -36,6 +36,12 @@ export const NAV_DATA = [
           { title: "Stok Opname", url: "/inventori/opname", icon: Icons.StockOpname },
         ],
       },
+      {
+        title: "Katalog Jasa",
+        icon: Icons.Repair,
+        url: "/katalog-jasa",
+        items: [],
+      },
     ],
   },
   {

@@ -13,7 +13,7 @@ export function useEmployees() {
       setLoading(true);
       setError(null);
       const employees = await usersService.getAll();
-      setData(employees);
+      setData(employees.sort((a, b) => Number(b.id) - Number(a.id)));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Gagal memuat data karyawan",

@@ -3,11 +3,9 @@
 import { useState } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { TransactionTable } from "@/features/kasir";
-import { CreateTransactionForm } from "@/features/kasir";
-import { FinancialSummary } from "@/features/kasir";
-import { ItemCard } from "@/features/pos/ItemCard";
-import { CartItemRow } from "@/features/pos/CartItem";
-import { OrderSummary } from "@/features/pos/OrderSummary";
+import { TransactionFormModal } from "@/features/kasir";
+import { TransactionSummary } from "@/features/kasir";
+import { ItemCard, CartItemRow, OrderSummary } from "@/features/pos";
 import { InvoiceModal } from "@/features/kasir";
 import { Item } from "@/types/inventory";
 import { Transaction } from "@/types/transaction";
@@ -125,7 +123,7 @@ export default function KasirPage() {
       {/* Tab: Riwayat */}
       {activeTab === "riwayat" && (
         <div className="flex flex-col gap-6">
-          <FinancialSummary />
+          <TransactionSummary />
           <TransactionTable />
         </div>
       )}
@@ -252,9 +250,9 @@ export default function KasirPage() {
 
       {/* Modals */}
       {showCreateForm && (
-        <CreateTransactionForm
+        <TransactionFormModal
           onClose={() => setShowCreateForm(false)}
-          onSave={async (data) => {
+          onSave={async (data: any) => {
             try {
               if (!data.customerId || !data.vehicleId) {
                 Notify.alert("Gagal!", "Pelanggan dan kendaraan wajib dipilih!");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatNumber } from "@/lib/format-number";
+import { formatNumber } from "@/utils/format-number";
 import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";

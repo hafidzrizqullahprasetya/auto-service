@@ -2,7 +2,6 @@ import { api } from "@/lib/api";
 import { ApiSparePart, ApiCategory } from "@/types/api";
 import { Item } from "@/types/inventory";
 
-/** Map BE SparePart → FE Item */
 export function mapSparePart(sp: ApiSparePart): Item {
   const catName = sp.category?.name?.toLowerCase() ?? "";
   let category: Item["category"] = "Part";

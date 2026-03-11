@@ -42,9 +42,15 @@ import {
   ClipboardCheck,
   Lock,
   Tag,
+  ScanBarcode,
+  Send,
+  RefreshCcw,
+  QrCode,
+  Check
 } from "lucide-react";
 
 export const Icons = {
+  Barcode: ScanBarcode,
   Dashboard: LayoutDashboard,
   Antrean: ClipboardList,
   Kasir: ShoppingCart,
@@ -88,4 +94,9 @@ export const Icons = {
   StockOpname: ClipboardCheck,
   Lock: Lock,
   Tag: Tag,
+  Clock: Clock,
+  Send: Send,
+  RefreshCcw: RefreshCcw,
+  QrCode: QrCode,
+  Check: Check
 };

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { canAccess, ROLE_HOME } from "@/lib/permissions";
 import type { Role } from "@/lib/permissions";
+import { Notify } from "@/utils/notify";
 
 export default function DashboardLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
@@ -28,6 +29,11 @@ export default function DashboardLayout({ children }: PropsWithChildren) {
         router.replace(ROLE_HOME[user.role]);
       } else {
         setAllowed(true);
+        const welcomeMsg = sessionStorage.getItem("welcome_toast");
+        if (welcomeMsg) {
+          sessionStorage.removeItem("welcome_toast");
+          setTimeout(() => Notify.toast(welcomeMsg, "success", "top"), 200);
+        }
       }
     } catch {
       router.replace("/auth/sign-in");

@@ -1,5 +1,5 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { StockMovementPage } from "@/features/inventori";
+import { StockMovementTable } from "@/features/inventori";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export default function StokPage() {
   return (
     <div className="mx-auto max-w-7xl">
       <Breadcrumb pageName="Pergerakan Stok" />
-      <StockMovementPage />
+      <StockMovementTable />
     </div>
   );
 }

@@ -270,7 +270,7 @@ export function DataTable<TData, TValue>({
                         <TableHead
                           key={header.id}
                           className={cn(
-                            "group/th text-xs font-bold text-dark-5 transition-colors",
+                            "group/th text-sm font-bold text-dark-5 transition-colors",
                             header.column.getCanSort() &&
                               "cursor-pointer select-none hover:text-dark",
                           )}

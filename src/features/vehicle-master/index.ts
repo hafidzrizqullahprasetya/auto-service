@@ -1,1 +1,1 @@
-export * from "./VehicleMasterTable";
+export * from "./components/VehicleMasterTable";

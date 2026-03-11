@@ -17,6 +17,14 @@ export const Notify = {
           container.style.zIndex = "100000";
         }
       },
+      showClass: {
+        popup: icon === "error" ? "animate-fade-subtle-in" : "animate-fade-in", 
+        backdrop: "swal2-backdrop-show",
+        icon: "swal2-icon-show"
+      },
+      hideClass: {
+        popup: icon === "error" ? "animate-fade-subtle-out" : "animate-fade-out", 
+      },
       customClass: {
         popup: "dark:bg-dark-2 dark:text-white rounded-xl border border-stroke dark:border-dark-3",
         title: "text-dark dark:text-white text-xl",
@@ -25,18 +33,19 @@ export const Notify = {
     });
   },
 
-  toast: (title: string, icon: SweetAlertIcon = "success", position: any = "top-end") => {
+  toast: (title: string, icon: SweetAlertIcon = "success", position: any = "top") => {
     return MySwal.fire({
       toast: true,
       position: position,
       icon,
       title,
       iconColor: "white",
-      background: "#10B981", 
+      background: icon === "error" ? "#EF4444" : icon === "warning" ? "#F59E0B" : icon === "info" ? "#3B82F6" : "#10B981", 
       color: "#ffffff",     
       showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
+      showCloseButton: icon === "error",
+      timer: icon === "error" ? undefined : 3000,
+      timerProgressBar: icon !== "error",
       width: "auto",
       didOpen: () => {
         const container = Swal.getContainer();
@@ -45,13 +54,15 @@ export const Notify = {
         }
       },
       showClass: {
-        popup: "animate-fade-in", 
+        popup: icon === "error" ? "animate-fade-subtle-in" : "animate-fade-in", 
+        backdrop: "swal2-backdrop-show",
+        icon: "swal2-icon-show"
       },
       hideClass: {
-        popup: "animate-fade-out", 
+        popup: icon === "error" ? "animate-fade-subtle-out" : "animate-fade-out", 
       },
       customClass: {
-        popup: `${position === 'center' ? '' : position === 'top' ? 'mt-4' : 'mt-24 mr-4'} !rounded-lg shadow-lg !py-3 !px-4 !flex !items-center`, 
+        popup: `${position === 'top-end' ? 'mt-24 mr-4' : 'mt-4'} !rounded-lg shadow-lg !py-3 !px-4 !flex !items-center`,
         icon: "!m-0 !mr-3 !ml-1 !border-none !flex-shrink-0",
         title: "!m-0 !p-0 text-sm font-medium", 
       },

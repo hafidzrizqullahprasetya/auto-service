@@ -1,6 +1,6 @@
 "use client";
 
-import { compactFormat } from "@/lib/format-number";
+import { compactFormat } from "@/utils/format-number";
 import type { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 
@@ -44,7 +44,7 @@ export function DonutChart({ data }: PropsType) {
             total: {
               show: true,
               showAlways: true,
-              label: "Visitors",
+              label: "Total Unit",
               fontSize: "16px",
               fontWeight: "400",
             },

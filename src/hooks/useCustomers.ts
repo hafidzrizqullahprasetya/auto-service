@@ -13,7 +13,7 @@ export function useCustomers() {
       setLoading(true);
       setError(null);
       const customers = await customersService.getAll();
-      setData(customers);
+      setData(customers.sort((a, b) => Number(b.id) - Number(a.id)));
     } catch (err) {
       const errMsg =
         err instanceof Error ? err.message : "Gagal memuat data pelanggan";

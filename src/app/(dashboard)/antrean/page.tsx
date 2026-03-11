@@ -6,6 +6,7 @@ import {
   AntreanTable,
   KanbanBoard,
   AntreanFormModal,
+  QueueSummary,
 } from "@/features/antrean";
 import { Antrean } from "@/types/antrean";
 import { useAntrean } from "@/hooks/useAntrean";
@@ -69,7 +70,7 @@ export default function AntreanPage() {
     Notify.loading("Menghapus antrean...");
     try {
       await remove(id);
-      Notify.toast("Antrean berhasil dihapus!");
+      Notify.toast("Antrean berhasil dihapus!", "success", "top");
     } catch (err: any) {
       Notify.alert("Gagal!", err.message || "Gagal menghapus antrean");
     } finally {
@@ -84,7 +85,7 @@ export default function AntreanPage() {
     Notify.loading(`Mengubah status ke ${newStatus}...`);
     try {
       await updateStatus(id, newStatus);
-      Notify.toast(`Status berhasil diubah ke ${newStatus}`);
+      Notify.toast(`Status berhasil diubah ke ${newStatus}`, "success", "top");
     } catch (err: any) {
       Notify.alert("Gagal!", err.message || "Gagal mengubah status");
     }
@@ -94,7 +95,7 @@ export default function AntreanPage() {
     Notify.loading(`Menugaskan ${mekanik}...`);
     try {
       await assignMechanic(id, mekanik);
-      Notify.toast(`${mekanik} berhasil ditugaskan`);
+      Notify.toast(`${mekanik} berhasil ditugaskan`, "success", "top");
     } catch (err: any) {
       Notify.alert("Gagal!", err.message || "Gagal menugaskan mekanik");
     }
@@ -118,60 +119,25 @@ export default function AntreanPage() {
         </div>
       )}
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {loading
-          ? Array.from({ length: 4 }).map((_, i) => (
+      <div className="mb-8">
+        {loading ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="flex items-center gap-4 rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark"
+                className="flex items-center gap-4 rounded-2xl border border-stroke bg-white p-5 shadow-sm dark:border-dark-3 dark:bg-gray-dark"
               >
-                <Skeleton className="h-11.5 w-11.5 rounded-full" />
+                <Skeleton className="h-12 w-12 rounded-xl" />
                 <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-              </div>
-            ))
-          : [
-              {
-                label: "Menunggu",
-                count: items.filter((i) => i.status === "Menunggu").length,
-                icon: Icons.Pending,
-              },
-              {
-                label: "Dikerjakan",
-                count: items.filter((i) => i.status === "Dikerjakan").length,
-                icon: Icons.Repair,
-              },
-              {
-                label: "Sparepart",
-                count: items.filter((i) => i.status === "Menunggu Sparepart")
-                  .length,
-                icon: Icons.Inventory,
-              },
-              {
-                label: "Selesai",
-                count: items.filter((i) => i.status === "Selesai").length,
-                icon: Icons.Success,
-              },
-            ].map((s, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 rounded-[10px] border border-stroke bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark lg:gap-6"
-              >
-                <div className="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-2 dark:text-blue-400">
-                  <s.icon size={22} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold leading-none tracking-tight text-dark dark:text-white">
-                    {s.count}
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-dark-5">
-                    {s.label}
-                  </p>
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-6 w-24" />
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <QueueSummary items={items} />
+        )}
       </div>
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -37,4 +37,8 @@ export const vehiclesService = {
     );
     return res.data;
   },
+
+  async delete(vehicleId: string): Promise<void> {
+    await api.delete(`/api/v1/vehicles/${vehicleId}`);
+  },
 };

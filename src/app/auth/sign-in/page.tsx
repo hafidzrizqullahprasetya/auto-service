@@ -1,4 +1,4 @@
-import Signin from "@/features/auth/Signin";
+import { Signin } from "@/features/auth";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

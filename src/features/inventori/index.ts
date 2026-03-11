@@ -1,7 +1,7 @@
-export { InventoryTable } from "./InventoryTable";
-export { InventorySummary } from "./InventorySummary";
-export { InventoryFormModal } from "./InventoryFormModal";
-export { BarcodeExportModal } from "./BarcodeExportModal";
-export { StockMovementForm } from "./StockMovementForm";
-export { StockMovementPage } from "./StockMovementPage";
-export { StockOpnamePage } from "./StockOpnamePage";
+export { InventoryTable } from "./components/InventoryTable";
+export { InventorySummary } from "./components/InventorySummary";
+export { InventoryFormModal } from "./components/InventoryFormModal";
+export { BarcodeExportModal } from "./components/BarcodeExportModal";
+export { StockMovementTable } from "./components/StockMovementTable";
+export { StockMovementForm } from "./components/StockMovementForm";
+export { StockOpnameTable } from "./components/StockOpnameTable";

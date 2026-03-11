@@ -18,7 +18,7 @@ export function useInventory() {
         inventoryService.getAll(),
         inventoryService.getCategories(),
       ]);
-      setData(items);
+      setData(items.sort((a, b) => Number(b.id) - Number(a.id)));
       setCategories(cats);
     } catch (err) {
       setError(

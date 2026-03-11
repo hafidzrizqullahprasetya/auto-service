@@ -1,6 +1,7 @@
 "use client";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { formatCurrency } from "@/utils/format-number";
 import type { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 
@@ -74,6 +75,9 @@ export function PaymentsOverviewChart({ data }: PropsType) {
       marker: {
         show: true,
       },
+      y: {
+        formatter: (val) => formatCurrency(val),
+      },
     },
     xaxis: {
       axisBorder: {
@@ -91,11 +95,11 @@ export function PaymentsOverviewChart({ data }: PropsType) {
         options={options}
         series={[
           {
-            name: "Received",
+            name: "Diterima",
             data: data.received,
           },
           {
-            name: "Due",
+            name: "Tertunda",
             data: data.due,
           },
         ]}

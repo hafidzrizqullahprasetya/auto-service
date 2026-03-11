@@ -34,7 +34,10 @@ export function useVehicles() {
           serviceHistory: [],
         })),
       );
-      setData(vehicles);
+      
+      // Sort by ID descending (newest first)
+      const sortedVehicles = [...vehicles].sort((a, b) => Number(b.id) - Number(a.id));
+      setData(sortedVehicles);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Gagal memuat data kendaraan",
@@ -58,5 +61,18 @@ export function useVehicles() {
     await fetchAll();
   }
 
-  return { data, loading, error, refetch: fetchAll, addVehicle, updateVehicle };
+  async function removeVehicle(vehicleId: string) {
+    await vehiclesService.delete(vehicleId);
+    await fetchAll();
+  }
+
+  return { 
+    data, 
+    loading, 
+    error, 
+    refetch: fetchAll, 
+    addVehicle, 
+    updateVehicle,
+    deleteVehicle: removeVehicle 
+  };
 }

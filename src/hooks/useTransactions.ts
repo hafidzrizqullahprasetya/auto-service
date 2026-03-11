@@ -13,7 +13,7 @@ export function useTransactions() {
       setLoading(true);
       setError(null);
       const txs = await transactionsService.getAll();
-      setData(txs);
+      setData(txs.sort((a, b) => Number(b.id) - Number(a.id)));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Gagal memuat data transaksi",
