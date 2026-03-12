@@ -14,6 +14,7 @@ import { CustomerDetailModal } from "./CustomerDetailModal";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { CustomerTableSkeleton } from "./CustomerTableSkeleton";
 
 export function CustomerTable() {
   const isMobile = useIsMobile();
@@ -21,7 +22,6 @@ export function CustomerTable() {
     data,
     loading,
     error,
-    refetch,
     addCustomer,
     updateCustomer,
     deleteCustomer,
@@ -217,12 +217,13 @@ export function CustomerTable() {
     [handleViewCustomer, handleEditCustomer, handleDeleteCustomer, isMobile],
   );
 
+  if (loading) return <CustomerTableSkeleton />;
+
   return (
     <>
       <DataTable
         columns={columns}
         data={data || []}
-        isLoading={loading}
         searchable={["name", "phone", "vehicles"]}
         searchPlaceholder="Cari nama, HP, atau plat nomor..."
         pageSize={5}

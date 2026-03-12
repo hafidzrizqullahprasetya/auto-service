@@ -1,6 +1,5 @@
 "use client";
 
-import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,19 +7,20 @@ import { NAV_DATA } from "./data";
 import { Icons } from "@/components/Icons";
 import { useSidebarContext } from "./sidebar-context";
 import Link from "next/link";
-import Image from "next/image";
 import { canAccess, type Role } from "@/lib/permissions";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [authUser, setAuthUser] = useState<{
     name: string;
     role: Role;
     username: string;
   } | null>(null);
 
+  // Load auth user and expanded sidebar state
   useEffect(() => {
     const stored = localStorage.getItem("auth_user") || sessionStorage.getItem("auth_user");
     if (stored) {
@@ -28,14 +28,27 @@ export function Sidebar() {
         setAuthUser(JSON.parse(stored));
       } catch {}
     }
+
+    const savedExpanded = localStorage.getItem("sidebar_expanded");
+    if (savedExpanded) {
+      try {
+        setExpandedItems(JSON.parse(savedExpanded));
+      } catch {}
+    }
+    setIsInitialized(true);
   }, []);
 
   const toggleExpanded = (title: string) => {
     if (!isOpen && !isMobile) setIsOpen(true);
-    setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
+    setExpandedItems((prev) => {
+      const newState = prev.includes(title) ? [] : [title];
+      localStorage.setItem("sidebar_expanded", JSON.stringify(newState));
+      return newState;
+    });
   };
-
   useEffect(() => {
+    if (!isInitialized) return;
+    
     NAV_DATA.forEach((section) => {
       section.items.forEach((item) => {
         if (item.items?.length) {
@@ -44,15 +57,18 @@ export function Sidebar() {
               subItem.url === pathname &&
               !expandedItems.includes(item.title)
             ) {
-              setExpandedItems((prev) => [...prev, item.title]);
+              setExpandedItems((prev) => {
+                const newState = Array.from(new Set([...prev, item.title]));
+                localStorage.setItem("sidebar_expanded", JSON.stringify(newState));
+                return newState;
+              });
             }
           });
         }
       });
     });
-  }, [pathname]);
+  }, [pathname, isInitialized]);
 
-  // Filter nav berdasarkan permission role user yang sedang login
   const filteredNav = authUser
     ? NAV_DATA.map((section) => ({
         ...section,
@@ -65,8 +81,6 @@ export function Sidebar() {
           }))
           .filter((item) => {
             const url = (item as any).url as string | undefined;
-            // Item tanpa url = grup parent (e.g. "Katalog Sparepart")
-            // hanya tampil kalau masih ada sub-item yang lolos filter
             if (!url) return (item.items ?? []).length > 0;
             return canAccess(authUser.role, url);
           }),
@@ -77,7 +91,6 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay - hanya muncul di mobile saat sidebar terbuka */}
       {isMobile && isOpen ? (
         <div
           className="fixed inset-0 z-40 bg-black/40"
@@ -97,7 +110,6 @@ export function Sidebar() {
           style={{ width: isMobile ? 280 : isOpen ? 260 : 68 }}
           className="flex h-screen flex-col"
         >
-          {/* ── Logo Header ───────────────────────────────────────────── */}
           <div
             className={cn(
               "flex border-b border-gray-100 py-5 transition-all duration-200",
@@ -132,7 +144,6 @@ export function Sidebar() {
               </div>
             ) : null}
 
-            {/* Toggle button */}
             {!isMobile && (
               <button
                 onClick={toggleSidebar}
@@ -171,7 +182,6 @@ export function Sidebar() {
               </button>
             )}
 
-            {/* Mobile close */}
             {isMobile && isOpen && (
               <button
                 onClick={toggleSidebar}
@@ -192,11 +202,9 @@ export function Sidebar() {
             )}
           </div>
 
-          {/* ── Nav items ─────────────────────────────────────────────── */}
           <div className="custom-scrollbar flex-1 overflow-y-auto py-3">
             {filteredNav.map((section) => (
               <div key={section.label} className="mb-4 last:mb-0">
-                {/* Section label */}
                 {!collapsed && (
                   <p className="mb-2 px-4 pt-4 text-[10px] font-black uppercase tracking-[0.2em] text-dark-5">
                     {section.label}
@@ -252,7 +260,6 @@ export function Sidebar() {
                               )}
                             </button>
 
-                            {/* Sub items */}
                             {!collapsed && isExpanded && (
                               <ul className="ml-7 mt-1 space-y-1 border-l border-gray-100 pb-2 pl-3">
                                 {item.items.map((sub: any) => (
@@ -309,9 +316,7 @@ export function Sidebar() {
             ))}
           </div>
 
-          {/* ── Footer: User + Logout ───────────────────────────────────── */}
           <div className="border-t border-gray-100 p-2">
-            {/* User info */}
             {authUser && !collapsed && (
               <Link
                 href="/profile"

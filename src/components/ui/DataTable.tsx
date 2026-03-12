@@ -111,7 +111,7 @@ export function DataTable<TData, TValue>({
         primaryAction ||
         secondaryAction ||
         extraActions) && (
-        <div className="flex flex-col gap-4 border-b border-stroke p-4 sm:px-8 sm:py-6">
+        <div className="flex flex-col gap-4 border-b border-stroke p-4 sm:flex-row sm:items-end sm:justify-between sm:px-8 sm:py-6">
           <div className="space-y-1">
             {title && (
               <h3 className="text-base font-bold tracking-tight text-dark sm:text-lg">
@@ -123,8 +123,8 @@ export function DataTable<TData, TValue>({
             )}
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            {/* Search */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            {/* Search (Left of actions) */}
             {searchable && (
               <div className="relative w-full sm:w-auto">
                 <Icons.Search
@@ -141,9 +141,8 @@ export function DataTable<TData, TValue>({
               </div>
             )}
 
-            {/* Actions & Extra actions */}
+            {/* Actions & Extra actions (Far Right) */}
             <div className="flex flex-wrap items-center gap-2">
-              {/* Extra actions slot (e.g. ExcelButtons) */}
               {extraActions}
 
               {secondaryAction && (
@@ -392,6 +391,9 @@ export function DataTable<TData, TValue>({
                             : header && "accessorKey" in cell.column.columnDef
                               ? String(cell.column.columnDef.accessorKey || "")
                               : "";
+                        const isHiddenOnMobile = (cell.column.columnDef as any).meta?.hiddenOnMobile;
+                        if (isHiddenOnMobile) return null;
+
                         return (
                           <div
                             key={cell.id}

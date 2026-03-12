@@ -310,7 +310,7 @@ export function TransactionFormModal({
               ) : (
                 <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-1">
                   {cartItems.map((ci, idx) => (
-                    <div key={ci.id} className="flex items-center gap-3 rounded-lg border border-stroke p-3 bg-white dark:border-dark-3 dark:bg-dark-2 shadow-sm">
+                    <div key={ci.id} className="flex items-center gap-3 rounded-lg border border-stroke p-3 bg-white dark:border-dark-3 dark:bg-dark-2">
                       <div className="flex-1">
                         <p className="text-sm font-bold text-dark dark:text-white">{ci.name}</p>
                         <p className="text-xs text-dark-5">Rp {formatNumber(ci.price)} / {ci.unit}</p>
@@ -387,7 +387,7 @@ export function TransactionFormModal({
                     onClick={() => setValue("paymentMethod", m)}
                     className={`rounded-lg border-2 py-3 text-sm font-bold transition-all ${
                       watchAll.paymentMethod === m
-                        ? "border-secondary bg-secondary text-white shadow-md scale-105"
+                        ? "border-secondary bg-secondary text-white"
                         : "border-stroke text-dark-5 hover:border-secondary/50 dark:border-dark-3"
                     }`}
                   >
@@ -410,7 +410,7 @@ export function TransactionFormModal({
                     }}
                     className={`rounded-lg border-2 py-3 text-sm font-bold transition-all ${
                         watchAll.paymentStatus === s
-                        ? "border-secondary bg-secondary text-white shadow-md scale-105"
+                        ? "border-secondary bg-secondary text-white"
                         : "border-stroke text-dark-5 hover:border-secondary/50 dark:border-dark-3"
                     }`}
                   >
@@ -421,7 +421,7 @@ export function TransactionFormModal({
             </div>
 
             {(paymentStatus === "DP" || paymentStatus === "Piutang") && (
-                <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                <div>
                     <InputGroup
                         label={paymentStatus === "DP" ? "Jumlah DP (Bayar Sekarang)" : "Sudah Dibayar"}
                         placeholder="0"

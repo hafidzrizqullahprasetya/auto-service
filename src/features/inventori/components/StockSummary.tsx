@@ -37,7 +37,7 @@ export function StockSummary({ movements, loading = false }: StockSummaryProps) 
   ];
 
   return (
-    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
+    <div className="hidden sm:grid mb-6 grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
       {stats.map(({ label, value, suffix, icon }) => (
         <StatCard
           key={label}

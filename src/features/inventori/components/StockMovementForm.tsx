@@ -5,12 +5,13 @@ import { cn } from "@/lib/utils";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { BaseModal, ActionButton, Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { useInventory } from "@/hooks/useInventory";
 import { Item } from "@/types/inventory";
 import InputGroup from "@/components/ui/InputGroup";
+import { formatNumber } from "@/utils/format-number";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -59,6 +60,36 @@ export function StockMovementForm({
 
   const selectedItemId = watch("itemId");
   const quantity = watch("quantity");
+  const formValues = watch();
+  const hasInitializedDraft = useRef(false);
+  const draftKey = `stock_movement_draft_${type}`;
+
+  // Load Draft
+  useEffect(() => {
+    if (!hasInitializedDraft.current) {
+      const draft = localStorage.getItem(draftKey);
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          Object.keys(parsed).forEach(key => {
+            setValue(key as any, parsed[key]);
+          });
+        } catch {}
+      }
+      hasInitializedDraft.current = true;
+    }
+  }, [setValue, draftKey]);
+
+  // Save Draft
+  useEffect(() => {
+    if (hasInitializedDraft.current) {
+      const timeoutId = setTimeout(() => {
+        localStorage.setItem(draftKey, JSON.stringify(formValues));
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [formValues, draftKey]);
+
   const selectedItem = useMemo(
     () => inventoryItems.find((i) => i.id === selectedItemId),
     [inventoryItems, selectedItemId]
@@ -84,6 +115,7 @@ export function StockMovementForm({
   const onFormSubmit: SubmitHandler<MovementFormValues> = (data) => {
     if (!hasEnoughStock) return;
     onSave(data as any);
+    localStorage.removeItem(draftKey);
   };
 
   const onInvalid = (errors: any) => {
@@ -157,7 +189,7 @@ export function StockMovementForm({
                   <span>
                     <span className="font-mono text-[10px] text-dark-5">{item.sku}</span> · {item.name}
                   </span>
-                  <span className="text-xs font-bold text-dark-5">{item.stock ?? 0} {item.unit}</span>
+                  <span className="text-xs font-bold text-dark-5">{formatNumber(item.stock ?? 0)} {item.unit}</span>
                 </button>
               ))
             ) : (
@@ -176,7 +208,7 @@ export function StockMovementForm({
                 <p className="text-xs text-dark-5">
                   Stok saat ini:{" "}
                   <span className={`font-black ${(selectedItem.stock ?? 0) <= (selectedItem.minimumStock ?? 0) ? "text-red-500" : "text-secondary"}`}>
-                    {selectedItem.stock ?? 0} {selectedItem.unit}
+                    {formatNumber(selectedItem.stock ?? 0)} {selectedItem.unit}
                   </span>
                 </p>
               </div>

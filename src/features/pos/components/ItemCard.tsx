@@ -12,7 +12,7 @@ interface ItemCardProps {
 export function ItemCard({ item, onAdd }: ItemCardProps) {
   return (
     <div 
-      className="flex flex-col rounded-lg border border-stroke bg-white overflow-hidden shadow-sm hover:border-primary/30 dark:border-dark-3 dark:bg-dark-2 cursor-pointer"
+      className="flex flex-col rounded-lg border border-stroke bg-white overflow-hidden hover:border-primary/30 dark:border-dark-3 dark:bg-dark-2 cursor-pointer"
       onClick={() => onAdd(item)}
     >
       <div className="relative h-32 w-full bg-gray-2 dark:bg-dark-3">
@@ -30,7 +30,7 @@ export function ItemCard({ item, onAdd }: ItemCardProps) {
           </div>
         )}
         <div className="absolute top-2 left-2">
-            <Badge variant={item.category === "Service" ? "warning" : "primary"} className="text-[10px] shadow-sm">
+            <Badge variant={item.category === "Service" ? "warning" : "primary"} className="text-[10px]">
                 {item.category}
             </Badge>
         </div>

@@ -34,14 +34,13 @@ export function SidebarProvider({
   const isMobile = useIsMobile();
   const [wasMobile, setWasMobile] = useState(isMobile);
 
-  // Handle resize: close sidebar when switching to mobile, open when to desktop
   useEffect(() => {
     if (wasMobile !== isMobile) {
-      // Only change isOpen when viewport crosses the breakpoint
+
       if (isMobile) {
-        setIsOpen(false); // Switching to mobile: close sidebar
+        setIsOpen(false);
       } else {
-        setIsOpen(true); // Switching to desktop: open sidebar
+        setIsOpen(true);
       }
       setWasMobile(isMobile);
     }

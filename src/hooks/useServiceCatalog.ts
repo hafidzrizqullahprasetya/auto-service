@@ -4,6 +4,7 @@ import { serviceCatalogService, ServiceCatalog as ApiServiceCatalogType } from "
 
 export interface ServiceCatalog {
   id: string;
+  sku: string;
   namaJasa: string;
   kategori: string;
   hargaStandar: number;
@@ -25,10 +26,11 @@ export function useServiceCatalog() {
       const items = await serviceCatalogService.getAll();
       const mapped = items.map((item) => ({
         id: item.id.toString(),
+        sku: item.sku || "SRV-XXXX",
         namaJasa: item.name,
         kategori: item.kategori || "Lainnya",
         hargaStandar: Number(item.standard_price),
-        durasiEstimasi: "1 - 2 Jam", // Mocked since DB doesn't have this
+        durasiEstimasi: "1 - 2 Jam", 
         berlakuUntuk: (item as any).berlaku_untuk || "Keduanya",
         garansi: "1 Bulan", // Mocked
         aktif: (item as any).is_active ?? true,

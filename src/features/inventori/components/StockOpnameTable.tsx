@@ -1,11 +1,9 @@
 "use client";
 
-import Skeleton from "react-loading-skeleton";
 import { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -14,7 +12,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { Badge } from "@/features/shared";
 import { ActionButton } from "@/features/shared";
-import { TableToolbar } from "@/features/shared";
 import { BaseModal } from "@/features/shared";
 import { StockOpnameTableSkeleton } from "./StockOpnameTableSkeleton";
 import { Icons } from "@/components/Icons";
@@ -24,19 +21,46 @@ import { useOpnames } from "@/hooks/useOpnames";
 import dayjs from "dayjs";
 import { Notify } from "@/utils/notify";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/utils/format-number";
+import { useEffect, useRef } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-// ---- Modal Sesi Opname Aktif ----
 function ActiveOpnameModal({
   opname,
   onClose,
-  onClose: _,
   onFinish,
 }: {
   opname: StockOpname;
   onClose: () => void;
-  onFinish: () => void;
+  onFinish: (items: OpnameItem[]) => void;
 }) {
   const [items, setItems] = useState<OpnameItem[]>(opname.items);
+  const hasInitializedDraft = useRef(false);
+  const draftKey = `active_opname_draft_${opname.id}`;
+
+  // Load Draft
+  useEffect(() => {
+    if (!hasInitializedDraft.current) {
+      const draft = localStorage.getItem(draftKey);
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          setItems(parsed);
+        } catch {}
+      }
+      hasInitializedDraft.current = true;
+    }
+  }, [draftKey]);
+
+  // Save Draft
+  useEffect(() => {
+    if (hasInitializedDraft.current) {
+      const timeoutId = setTimeout(() => {
+        localStorage.setItem(draftKey, JSON.stringify(items));
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [items, draftKey]);
 
   const updateCount = (itemId: string, count: number) => {
     setItems((prev) =>
@@ -80,7 +104,7 @@ function ActiveOpnameModal({
               )}
             >
               {totalDiff > 0 ? "+" : ""}
-              {totalDiff} unit
+              {formatNumber(totalDiff)} unit
             </span>
           </p>
           <div className="flex gap-3">
@@ -92,7 +116,10 @@ function ActiveOpnameModal({
             <ActionButton
               variant="primary"
               label="Tutup Sesi & Apply"
-              onClick={onFinish}
+              onClick={() => {
+                onFinish(items);
+                localStorage.removeItem(draftKey);
+              }}
               disabled={!allFilled}
             />
           </div>
@@ -125,7 +152,7 @@ function ActiveOpnameModal({
                   </p>
                 </td>
                 <td className="px-4 text-center font-bold text-dark dark:text-white">
-                  {item.systemStock}
+                  {formatNumber(item.systemStock)}
                 </td>
                 <td className="px-4 text-center">
                   <input
@@ -211,10 +238,10 @@ function DetailOpnameModal({
                   </p>
                 </td>
                 <td className="px-4 text-center font-bold text-dark dark:text-white">
-                  {item.systemStock}
+                  {formatNumber(item.systemStock)}
                 </td>
                 <td className="px-4 text-center font-bold text-secondary">
-                  {item.physicalCount}
+                  {formatNumber(item.physicalCount)}
                 </td>
                 <td className="px-4 text-center">
                   <span
@@ -228,7 +255,7 @@ function DetailOpnameModal({
                     )}
                   >
                     {item.difference > 0 ? "+" : ""}
-                    {item.difference}
+                    {formatNumber(item.difference)}
                   </span>
                 </td>
                 <td className="max-w-[200px] truncate px-4 text-xs text-dark-5">
@@ -243,13 +270,31 @@ function DetailOpnameModal({
   );
 }
 export function StockOpnameTable() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const { data: inventoryItems } = useInventory();
-  const { data: opnames, loading, error } = useOpnames();
+  const { data: opnames, loading, error, refetch } = useOpnames();
   const [showActiveModal, setShowActiveModal] = useState(false);
   const [showStartConfirm, setShowStartConfirm] = useState(false);
   const [selectedOpname, setSelectedOpname] = useState<StockOpname | null>(
     null,
   );
+
+  const modalParam = searchParams.get("modal");
+
+  useEffect(() => {
+    setShowStartConfirm(modalParam === "start-opname");
+    setShowActiveModal(modalParam === "active-opname");
+  }, [modalParam]);
+
+  const updateModalUrl = (type: "start-opname" | "active-opname" | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (type) params.set("modal", type);
+    else params.delete("modal");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Find open opname from data
   const hasOpenSession = opnames.some((o) => o.status === "open");
@@ -306,7 +351,7 @@ export function StockOpnameTable() {
         header: () => <div className="w-full text-center">Total Item</div>,
         cell: ({ row }) => (
           <div className="flex w-full justify-center font-bold text-dark dark:text-white">
-            {row.original.totalItems}
+            {formatNumber(row.original.totalItems)}
           </div>
         ),
       },
@@ -327,7 +372,7 @@ export function StockOpnameTable() {
               )}
             >
               {diff > 0 ? "+" : ""}
-              {diff}
+              {formatNumber(diff)}
             </div>
           );
         },
@@ -366,7 +411,7 @@ export function StockOpnameTable() {
         <div className="rounded-[10px] border border-l-4 border-stroke border-l-secondary bg-white p-5 shadow-1 dark:border-dark-3 dark:bg-gray-dark">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-2 text-primary dark:bg-dark-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-2 text-primary dark:bg-dark-3">
                 <Icons.Inventory size={22} />
               </div>
               <div>
@@ -411,7 +456,7 @@ export function StockOpnameTable() {
           !hasOpenSession
             ? {
                 label: "Mulai Sesi Opname Baru",
-                onClick: () => setShowStartConfirm(true),
+                onClick: () => updateModalUrl("start-opname"),
               }
             : undefined
         }
@@ -430,14 +475,18 @@ export function StockOpnameTable() {
               <ActionButton
                 variant="ghost"
                 label="Batal"
-                onClick={() => setShowStartConfirm(false)}
+                onClick={() => updateModalUrl(null)}
               />
               <ActionButton
                 variant="primary"
                 label="Mulai Sekarang"
                 onClick={() => {
-                  setShowStartConfirm(false);
-                  setShowActiveModal(true);
+                  Notify.loading("Memulai sesi opname baru...");
+                  // Simulate start
+                  setTimeout(() => {
+                    Notify.close();
+                    updateModalUrl("active-opname");
+                  }, 1000);
                 }}
               />
             </div>
@@ -461,10 +510,17 @@ export function StockOpnameTable() {
       {showActiveModal && activeOpname && (
         <ActiveOpnameModal
           opname={activeOpname}
-          onClose={() => setShowActiveModal(false)}
-          onFinish={() => {
-            setShowActiveModal(false);
-            Notify.toast("Sesi opname ditutup & stok diupdate!", "success", "top");
+          onClose={() => updateModalUrl(null)}
+          onFinish={(finalItems) => {
+            Notify.loading("Memproses rekonsiliasi stok...");
+            // Simulate API call
+            setTimeout(() => {
+              console.log("Saving items:", finalItems);
+              Notify.close();
+              updateModalUrl(null);
+              refetch?.();
+              Notify.toast("Sesi opname ditutup & stok diupdate!", "success", "top");
+            }, 1500);
           }}
         />
       )}

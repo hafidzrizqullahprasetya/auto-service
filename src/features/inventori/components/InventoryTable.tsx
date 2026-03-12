@@ -1,12 +1,13 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Notify } from "@/utils/notify";
-import React, { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { Item } from "@/types/inventory";
 import { useInventory } from "@/hooks/useInventory";
-import { formatNumber } from "@/utils/format-number";
+import { formatNumber, formatCurrency } from "@/utils/format-number";
 import { Badge } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { BarcodeLabelModal, ConfirmDeleteModal } from "@/features/shared";
@@ -15,8 +16,7 @@ import { InventoryTableSkeleton } from "./InventoryTableSkeleton";
 import { InventoryFormModal } from "./InventoryFormModal";
 import { BarcodeExportModal } from "./BarcodeExportModal";
 import { InventorySummary } from "./InventorySummary";
-import { useIsMobile } from "@/hooks/use-mobile";
-
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { inventoriToExcelRows } from "@/lib/excel";
 
 const isLowStock = (item: Item) =>
@@ -25,7 +25,10 @@ const isLowStock = (item: Item) =>
   item.stock <= item.minimumStock;
 
 export function InventoryTable() {
-  const isMobile = useIsMobile();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const {
     data: allItems,
     categories,
@@ -34,9 +37,13 @@ export function InventoryTable() {
     addItem,
     updateItem,
     deleteItem,
+    addCategory,
+    refetch,
   } = useInventory();
   
-  
+  const showModalParam = searchParams.get("modal") === "inventory";
+  const editIdParam = searchParams.get("id");
+
   const [barcodeItem, setBarcodeItem] = useState<Item | null>(null);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [deleteItemData, setDeleteItemData] = useState<Item | null>(null);
@@ -49,6 +56,41 @@ export function InventoryTable() {
   const [filterType, setFilterType] = useState<"all" | "Mobil" | "Motor" | "Umum">("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
+  // Sync Modal State with URL
+  useEffect(() => {
+    if (showModalParam) {
+      if (editIdParam) {
+        const item = allItems.find(i => i.id === editIdParam);
+        if (item) {
+          setEditItem(item);
+          setShowAddModal(true);
+        } else if (!loading) {
+          setShowAddModal(false);
+          setEditItem(null);
+        }
+      } else {
+        setEditItem(null);
+        setShowAddModal(true);
+      }
+    } else {
+      setShowAddModal(false);
+      setEditItem(null);
+    }
+  }, [showModalParam, editIdParam, allItems, loading]);
+
+  const updateQueryParams = (show: boolean, id?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (show) {
+      params.set("modal", "inventory");
+      if (id) params.set("id", id);
+      else params.delete("id");
+    } else {
+      params.delete("modal");
+      params.delete("id");
+    }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
   const handleSave = async (formData: any) => {
     setIsSaving(true);
     Notify.loading(editItem ? "Memperbarui data item..." : "Menambahkan item baru...");
@@ -60,8 +102,8 @@ export function InventoryTable() {
         await addItem(formData);
         Notify.toast("Item berhasil ditambahkan!", "success", "top");
       }
-      setShowAddModal(false);
-      setEditItem(null);
+      refetch();
+      updateQueryParams(false);
     } catch (err: any) {
       const errorMsg = err instanceof Error ? err.message : "Gagal menyimpan data";
       Notify.alert("Gagal!", errorMsg, "error");
@@ -76,9 +118,12 @@ export function InventoryTable() {
       setIsDeleting(true);
       Notify.loading("Menghapus item...");
       await deleteItem(deleteItemData.id);
+      Notify.close();
+      refetch();
       Notify.toast("Item berhasil dihapus!", "success", "top");
       setDeleteItemData(null);
     } catch (err: any) {
+      Notify.close();
       const errorMsg = err instanceof Error ? err.message : "Gagal menghapus data";
       Notify.alert("Gagal!", errorMsg, "error");
     } finally {
@@ -88,7 +133,9 @@ export function InventoryTable() {
 
   const filteredData = useMemo(
     () =>
-      allItems.filter((item) => {
+      allItems.filter((item: Item) => {
+        if (item.unit === "jasa") return false;
+        
         const matchType = filterType === "all" || item.type === filterType;
         const matchCat =
           filterCategory === "all" ||
@@ -100,8 +147,7 @@ export function InventoryTable() {
   );
 
   const columns = useMemo<ColumnDef<Item>[]>(
-    () => {
-      const allColumns: ColumnDef<Item>[] = [
+    () => [
       {
         accessorKey: "name",
         header: "Nama Item & SKU",
@@ -121,16 +167,19 @@ export function InventoryTable() {
       },
       {
         accessorKey: "categoryName",
-        header: "Kategori",
+        header: () => <div className="w-full text-center">Kategori</div>,
+        meta: { hiddenOnMobile: true },
         cell: ({ row }) => {
           const categoryName = row.original.categoryName || 
             categories.find(c => String(c.id) === String(row.original.categoryId))?.name || 
             "—";
           
           return (
-            <span className="text-sm font-semibold text-dark-5 dark:text-dark-6">
-              {categoryName}
-            </span>
+            <div className="flex w-full justify-center">
+              <span className="text-sm font-semibold text-dark-5 dark:text-dark-6">
+                {categoryName}
+              </span>
+            </div>
           );
         },
       },
@@ -139,7 +188,7 @@ export function InventoryTable() {
         header: () => <div className="w-full text-right">Harga Jual</div>,
         cell: ({ row }) => (
           <div className="flex w-full justify-end font-bold text-secondary">
-            Rp {formatNumber(row.original.price)}
+            {formatCurrency(row.original.price)}
           </div>
         ),
       },
@@ -163,62 +212,93 @@ export function InventoryTable() {
         header: () => <div className="w-full text-center">Aksi</div>,
         cell: ({ row }) => (
           <div className="flex w-full items-center justify-center gap-2">
-            {!isMobile && (
-              <>
-                <ActionButton
-                  variant="primary"
-                  icon={<Icons.Barcode size={16} />}
-                  title="Cetak Barcode"
-                  onClick={() => setBarcodeItem(row.original)}
-                />
-                <ActionButton
-                  variant="edit"
-                  icon={<Icons.Edit size={16} />}
-                  title="Edit Item"
-                  onClick={() => {
-                    setEditItem(row.original);
-                    setShowAddModal(true);
-                  }}
-                />
-                <ActionButton
-                  variant="delete"
-                  icon={<Icons.Delete size={16} />}
-                  title="Hapus"
-                  onClick={() => setDeleteItemData(row.original)}
-                />
-              </>
-            )}
-            {isMobile && (
+            <div className="hidden sm:flex items-center gap-2">
+              <ActionButton
+                variant="primary"
+                icon={<Icons.Barcode size={16} />}
+                title="Cetak Barcode"
+                onClick={() => setBarcodeItem(row.original)}
+              />
+              <ActionButton
+                variant="edit"
+                icon={<Icons.Edit size={16} />}
+                title="Edit Item"
+                onClick={() => {
+                  updateQueryParams(true, row.original.id);
+                }}
+              />
+              <ActionButton
+                variant="delete"
+                icon={<Icons.Delete size={16} />}
+                title="Hapus"
+                onClick={() => setDeleteItemData(row.original)}
+              />
+            </div>
+            <div className="sm:hidden">
               <ActionButton
                 variant="edit"
                 icon={<Icons.Edit size={16} />}
                 onClick={() => {
-                  setEditItem(row.original);
-                  setShowAddModal(true);
+                  updateQueryParams(true, row.original.id);
                 }}
               />
-            )}
+            </div>
           </div>
         ),
       },
-    ];
-
-    if (isMobile) {
-      return allColumns.filter(col => 
-        (col as any).accessorKey === "name" || 
-        col.id === "actions"
-      );
-    }
-
-    return allColumns;
-  },
-    [isMobile, categories],
+    ],
+    [categories],
   );
-  if (loading) return <InventoryTableSkeleton />;
+
+  if (loading && allItems.length === 0) return <InventoryTableSkeleton />;
 
   return (
     <div className="flex flex-col gap-6">
-      <InventorySummary />
+      <InventorySummary data={allItems} loading={loading} />
+
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2 p-1 bg-gray-1 dark:bg-dark-2 rounded-xl border border-stroke dark:border-dark-3">
+          {(["all", "Mobil", "Motor", "Umum"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setFilterType(t)}
+              className={cn(
+                "px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+                filterType === t
+                  ? "bg-white dark:bg-dark-3 text-primary shadow-sm"
+                  : "text-dark-5 hover:text-dark dark:hover:text-white"
+              )}
+            >
+              {t === "all" ? "Semua Tipe" : t}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="rounded-xl border border-stroke bg-white px-4 py-2 text-xs font-bold text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+        >
+          <option value="all">Semua Kategori</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.name}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+        
+        {(filterType !== "all" || filterCategory !== "all") && (
+          <button 
+            onClick={() => {
+              setFilterType("all");
+              setFilterCategory("all");
+            }}
+            className="text-xs font-bold text-red hover:underline"
+          >
+            Reset Filter
+          </button>
+        )}
+      </div>
 
       <DataTable
         columns={columns}
@@ -231,8 +311,7 @@ export function InventoryTable() {
         primaryAction={{
           label: "Tambah Item",
           onClick: () => {
-            setEditItem(null);
-            setShowAddModal(true);
+            updateQueryParams(true);
           },
         }}
         extraActions={
@@ -250,11 +329,12 @@ export function InventoryTable() {
       {/* Modals */}
       {showAddModal && (
         <InventoryFormModal
-          onClose={() => setShowAddModal(false)}
+          onClose={() => updateQueryParams(false)}
           onSave={handleSave}
           initialData={editItem}
           categories={categories}
           isLoading={isSaving}
+          onAddCategory={addCategory}
         />
       )}
 

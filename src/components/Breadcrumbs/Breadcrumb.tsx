@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HomeIcon } from "@/assets/icons";
+import { Icons } from "@/components/Icons";
 
 interface BreadcrumbProps {
   pageName: string;
@@ -7,20 +7,20 @@ interface BreadcrumbProps {
 
 const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
   return (
-    <div className="mb-4 flex items-center justify-between sm:mb-6">
+    <div className="mb-4 sm:mb-6">
       <nav>
-        <ol className="flex items-center gap-1 text-xs sm:gap-2 sm:text-sm">
+        <ol className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-dark-5">
           <li>
             <Link
-              className="font-medium text-dark-5 hover:text-dark"
+              className="flex items-center gap-1 transition-colors hover:text-primary"
               href="/"
             >
-              <HomeIcon width={14} height={14} className="inline-block sm:hidden" />
-              <span className="hidden sm:inline">Dashboard</span>
+              <Icons.Dashboard size={12} />
+              <span>Dashboard</span>
             </Link>
           </li>
-          <li className="text-dark-5">/</li>
-          <li className="font-medium text-primary">{pageName}</li>
+          <li>-</li>
+          <li className="text-primary">{pageName}</li>
         </ol>
       </nav>
     </div>

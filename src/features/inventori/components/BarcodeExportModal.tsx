@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import Barcode from "react-barcode";
 import { Printer, X, Package } from "lucide-react";
 import { Item } from "@/types/inventory";

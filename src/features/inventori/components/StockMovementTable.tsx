@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { StockMovement } from "@/types/stock-movement";
@@ -12,15 +13,36 @@ import { useStockMovements } from "@/hooks/useStockMovements";
 import { stockMovementService } from "@/services/stock-movements.service";
 import dayjs from "dayjs";
 import { Notify } from "@/utils/notify";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { formatNumber } from "@/utils/format-number";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { ActionButton, BaseModal } from "@/features/shared";
+import { Icons } from "@/components/Icons";
 
 export function StockMovementTable() {
-  const isMobile = useIsMobile();
   const { data: movements, loading, error, refetch } = useStockMovements();
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const [showMasukForm, setShowMasukForm] = useState(false);
   const [showKeluarForm, setShowKeluarForm] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState<StockMovement | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  const modalParam = searchParams.get("modal");
+
+  useEffect(() => {
+    setShowMasukForm(modalParam === "stock-in");
+    setShowKeluarForm(modalParam === "stock-out");
+  }, [modalParam]);
+
+  const updateModalUrl = (type: "stock-in" | "stock-out" | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (type) params.set("modal", type);
+    else params.delete("modal");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
     if (error) {
@@ -77,11 +99,11 @@ export function StockMovementTable() {
   }, [refetch]);
 
   const columns = useMemo<ColumnDef<StockMovement>[]>(
-    () => {
-      const allColumns: ColumnDef<StockMovement>[] = [
+    () => [
       {
         accessorKey: "createdAt",
         header: "Tanggal",
+        meta: { hiddenOnMobile: true },
         cell: ({ row }) => (
           <span className="text-sm font-medium text-dark-5">
             {dayjs(row.original.createdAt).format("DD/MM/YYYY HH:mm")}
@@ -106,6 +128,7 @@ export function StockMovementTable() {
       {
         accessorKey: "type",
         header: () => <div className="w-full text-center">Tipe</div>,
+        meta: { hiddenOnMobile: true },
         cell: ({ row }) => {
           const t = row.original.type;
           return (
@@ -141,7 +164,7 @@ export function StockMovementTable() {
               className={`flex w-full justify-center text-sm font-black ${qty > 0 ? "text-green-600" : "text-red-500"}`}
             >
               {qty > 0 ? "+" : ""}
-              {qty}
+              {formatNumber(qty)}
             </div>
           );
         },
@@ -149,15 +172,17 @@ export function StockMovementTable() {
       {
         accessorKey: "stockAfter",
         header: () => <div className="w-full text-center">Stok Akhir</div>,
+        meta: { hiddenOnMobile: true },
         cell: ({ row }) => (
           <div className="flex w-full justify-center text-sm font-bold text-dark dark:text-white">
-            {row.original.stockAfter}
+            {formatNumber(row.original.stockAfter)}
           </div>
         ),
       },
       {
         accessorKey: "note",
         header: "Keterangan",
+        meta: { hiddenOnMobile: true },
         cell: ({ row }) => (
           <span className="block max-w-[150px] truncate text-xs font-medium text-dark-5 italic">
             {row.original.note || "—"}
@@ -167,32 +192,38 @@ export function StockMovementTable() {
       {
         accessorKey: "createdBy",
         header: "Oleh",
+        meta: { hiddenOnMobile: true },
         cell: ({ row }) => (
           <span className="text-xs font-bold text-dark-5">
             {row.original.createdBy}
           </span>
         ),
       },
-    ];
-
-    if (isMobile) {
-      return allColumns.filter(col => 
-        (col as any).accessorKey === "sparePartName" || 
-        (col as any).accessorKey === "quantityChange" ||
-        (col as any).accessorKey === "type"
-      );
-    }
-
-    return allColumns;
-  },
-    [isMobile],
+      {
+        id: "actions",
+        header: () => <div className="w-full text-center">Aksi</div>,
+        cell: ({ row }) => (
+          <div className="flex w-full justify-center">
+            <ActionButton
+              variant="view"
+              icon={<Icons.Eye size={16} />}
+              title="Lihat Detail"
+              onClick={() => setSelectedDetail(row.original)}
+            />
+          </div>
+        ),
+      },
+    ],
+    [],
   );
 
   if (loading) return <StockMovementTableSkeleton />;
 
   return (
     <div className="flex flex-col gap-6">
-      <StockSummary movements={movements || []} />
+      <div className="hidden sm:block">
+        <StockSummary movements={movements || []} />
+      </div>
 
       <DataTable
         columns={columns}
@@ -204,11 +235,11 @@ export function StockMovementTable() {
         pageSize={10}
         primaryAction={{
           label: "Tambah Stok (Masuk)",
-          onClick: () => setShowMasukForm(true),
+          onClick: () => updateModalUrl("stock-in"),
         }}
         secondaryAction={{
           label: "Kurang Stok (Keluar)",
-          onClick: () => setShowKeluarForm(true),
+          onClick: () => updateModalUrl("stock-out"),
           variant: "danger",
         }}
       />
@@ -216,7 +247,7 @@ export function StockMovementTable() {
       {showMasukForm && (
         <StockMovementForm
           type="masuk"
-          onClose={() => setShowMasukForm(false)}
+          onClose={() => updateModalUrl(null)}
           onSave={handleStockIn}
           isLoading={isSaving}
         />
@@ -224,10 +255,63 @@ export function StockMovementTable() {
       {showKeluarForm && (
         <StockMovementForm
           type="keluar"
-          onClose={() => setShowKeluarForm(false)}
+          onClose={() => updateModalUrl(null)}
           onSave={handleStockOut}
           isLoading={isSaving}
         />
+      )}
+
+      {selectedDetail && (
+        <BaseModal
+          title="Detail Pergerakan Stok"
+          description="Informasi lengkap mengenai transaksi stok ini"
+          icon={<Icons.History size={20} />}
+          onClose={() => setSelectedDetail(null)}
+          maxWidth="sm"
+        >
+          <div className="space-y-4">
+            <div className="rounded-xl border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-dark-5">Item</p>
+              <p className="text-sm font-black text-dark dark:text-white mt-1">{selectedDetail.sparePartName}</p>
+              <p className="font-mono text-[10px] text-dark-5 mt-0.5">{selectedDetail.sku}</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-xl border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-dark-5">Tipe</p>
+                <div className="mt-1">
+                  <Badge 
+                    variant={selectedDetail.type === 'masuk' ? 'success' : selectedDetail.type === 'keluar' ? 'danger' : 'warning'}
+                    outline
+                  >
+                    {selectedDetail.type}
+                  </Badge>
+                </div>
+              </div>
+              <div className="rounded-xl border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-dark-5">Jumlah</p>
+                <p className={cn(
+                  "text-lg font-black mt-1",
+                  selectedDetail.quantityChange > 0 ? "text-green-600" : "text-red-500"
+                )}>
+                  {selectedDetail.quantityChange > 0 ? "+" : ""}{formatNumber(selectedDetail.quantityChange)}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-dark-5">Keterangan</p>
+              <p className="text-sm font-medium text-dark dark:text-white mt-1 italic italic">
+                {selectedDetail.note || "Tidak ada catatan"}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between text-[10px] text-dark-5 px-1 font-bold">
+              <span>Oleh: {selectedDetail.createdBy}</span>
+              <span>{dayjs(selectedDetail.createdAt).format("DD MMMM YYYY HH:mm")}</span>
+            </div>
+          </div>
+        </BaseModal>
       )}
     </div>
   );

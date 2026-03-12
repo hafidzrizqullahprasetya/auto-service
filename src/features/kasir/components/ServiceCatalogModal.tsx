@@ -1,6 +1,7 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useState, useEffect, useRef } from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { BaseModal, ActionButton } from "@/features/shared";
@@ -10,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Notify } from "@/utils/notify";
 
 const serviceSchema = z.object({
+  sku: z.string().min(1, "SKU wajib diisi"),
   name: z.string().min(3, "Nama jasa minimal 3 karakter"),
   kategori: z.string().min(1, "Kategori wajib dipilih"),
   standard_price: z.number().min(0, "Harga tidak boleh negatif"),
@@ -43,6 +45,7 @@ export function ServiceCatalogModal({ onClose, onSave, initialData }: ServiceCat
   } = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
+      sku: initialData?.sku || "",
       name: initialData?.namaJasa || "",
       kategori: initialData?.kategori || "Lainnya",
       standard_price: initialData?.hargaStandar || 0,
@@ -53,13 +56,63 @@ export function ServiceCatalogModal({ onClose, onSave, initialData }: ServiceCat
   });
 
   const berlakuUntuk = watch("berlaku_untuk");
+  const formValues = watch();
+  const hasInitializedDraft = useRef(false);
+  const draftKey = "service_catalog_draft";
+
+  // Load Draft (Add Mode Only)
+  useEffect(() => {
+    if (!initialData && !hasInitializedDraft.current) {
+      const draft = localStorage.getItem(draftKey);
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          Object.keys(parsed).forEach((key) => {
+            setValue(key as any, parsed[key]);
+          });
+        } catch {}
+      }
+      hasInitializedDraft.current = true;
+    }
+  }, [initialData, setValue]);
+
+  // Save Draft (Add Mode Only)
+  useEffect(() => {
+    if (!initialData && hasInitializedDraft.current) {
+      const timeoutId = setTimeout(() => {
+        localStorage.setItem(draftKey, JSON.stringify(formValues));
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [formValues, initialData]);
+
+  // Auto SKU
+  useEffect(() => {
+    if (!initialData && !watch("sku")) {
+      const date = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+      const random = Math.floor(1000 + Math.random() * 9000);
+      setValue("sku", `SRV-${date}-${random}`);
+    }
+  }, [initialData, setValue, watch]);
+
+  const onInvalid = (errs: any) => {
+    const firstError = Object.values(errs)[0] as any;
+    if (firstError?.message) {
+      Notify.alert("Form Belum Lengkap", firstError.message, "error");
+    }
+  };
 
   const onSubmit = async (data: ServiceFormValues) => {
     try {
+      Notify.loading("Menyimpan jasa...");
       await onSave(data);
+      if (!initialData) localStorage.removeItem(draftKey);
+      Notify.close();
+      Notify.toast(initialData ? "Jasa berhasil diperbarui" : "Jasa baru berhasil ditambahkan", "success");
       onClose();
-    } catch (error) {
-       // handled by parent usually
+    } catch (error: any) {
+      Notify.close();
+      Notify.alert("Gagal", error.message || "Gagal menyimpan jasa", "error");
     }
   };
 
@@ -70,14 +123,25 @@ export function ServiceCatalogModal({ onClose, onSave, initialData }: ServiceCat
       icon={<Icons.Plus size={20} />}
       maxWidth="lg"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <InputGroup
-          label="Nama Jasa / Layanan"
-          required
-          placeholder="Contoh: Service Berkala 10.000km"
-          {...register("name")}
-          error={errors.name?.message}
-        />
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4" noValidate>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputGroup
+            label="SKU / Kode Jasa"
+            placeholder="SRV-XXXX"
+            {...register("sku")}
+            error={errors.sku?.message}
+            readOnly={!!initialData}
+            required
+            className="font-mono uppercase"
+          />
+          <InputGroup
+            label="Nama Jasa / Layanan"
+            required
+            placeholder="Contoh: Service Berkala 10.000km"
+            {...register("name")}
+            error={errors.name?.message}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">

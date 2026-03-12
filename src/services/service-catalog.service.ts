@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 
 export interface ServiceCatalog {
   id: number;
+  sku: string;
   name: string;
   description?: string;
   kategori?: string;

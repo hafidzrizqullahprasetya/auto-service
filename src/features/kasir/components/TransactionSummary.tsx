@@ -1,9 +1,12 @@
 import { Icons } from "@/components/Icons";
 import { useTransactions } from "@/hooks/useTransactions";
 import { StatCard } from "@/features/shared";
+import { TransactionSummarySkeleton } from "./TransactionSummarySkeleton";
 
 export function TransactionSummary() {
-  const { data: transactions } = useTransactions();
+  const { data: transactions, loading } = useTransactions();
+
+  if (loading) return <TransactionSummarySkeleton />;
 
   const totalRevenue = transactions.reduce((a, t) => a + t.total, 0);
   const totalTax = transactions.reduce((a, t) => a + (t.tax || 0), 0);
@@ -47,7 +50,7 @@ export function TransactionSummary() {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="hidden sm:grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, idx) => (
         <StatCard key={idx} {...stat} />
       ))}

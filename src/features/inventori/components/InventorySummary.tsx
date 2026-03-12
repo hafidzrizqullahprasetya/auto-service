@@ -2,10 +2,14 @@
 
 import { StatCard } from "@/features/shared";
 import { Icons } from "@/components/Icons";
-import { useInventory } from "@/hooks/useInventory";
+import { Item } from "@/types/inventory";
 
-export function InventorySummary() {
-  const { data, loading } = useInventory();
+interface InventorySummaryProps {
+  data: Item[];
+  loading?: boolean;
+}
+
+export function InventorySummary({ data, loading = false }: InventorySummaryProps) {
   
   const totalItems = data.filter((item) => item.category !== "Service").length;
   const lowStockItems = data.filter(
@@ -52,7 +56,7 @@ export function InventorySummary() {
   ];
 
   return (
-    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
+    <div className="hidden sm:grid mb-6 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
       {stats.map(({ label, value, icon, isMoney }) => (
         <StatCard
           key={label}

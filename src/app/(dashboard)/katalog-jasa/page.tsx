@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function KatalogJasaPage() {
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto">
       <Breadcrumb pageName="Katalog Jasa" />
       <KatalogJasa />
     </div>

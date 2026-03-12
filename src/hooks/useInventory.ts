@@ -19,7 +19,7 @@ export function useInventory() {
         inventoryService.getCategories(),
       ]);
       setData(items.sort((a, b) => Number(b.id) - Number(a.id)));
-      setCategories(cats);
+      setCategories(cats.sort((a, b) => Number(b.id) - Number(a.id)));
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Gagal memuat data inventori",
@@ -53,6 +53,23 @@ export function useInventory() {
     setData((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
+  const addCategory = useCallback(async (name: string) => {
+    const newCat = await inventoryService.createCategory(name);
+    setCategories((prev) => [newCat, ...prev]);
+    return newCat;
+  }, []);
+
+  const updateCategory = useCallback(async (id: number, name: string) => {
+    const updatedCat = await inventoryService.updateCategory(id, name);
+    setCategories((prev) => prev.map((c) => (c.id === id ? updatedCat : c)));
+    return updatedCat;
+  }, []);
+
+  const deleteCategory = useCallback(async (id: number) => {
+    await inventoryService.deleteCategory(id);
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
   return {
     data,
     categories,
@@ -62,5 +79,8 @@ export function useInventory() {
     addItem,
     updateItem,
     deleteItem,
+    addCategory,
+    updateCategory,
+    deleteCategory,
   };
 }

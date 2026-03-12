@@ -4,7 +4,7 @@ export function InventoryTableSkeleton() {
   return (
     <div className="flex flex-col gap-6">
       {/* InventorySummary Skeleton */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
+      <div className="hidden sm:grid mb-6 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}

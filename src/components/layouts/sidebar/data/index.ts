@@ -32,6 +32,7 @@ export const NAV_DATA = [
         icon: Icons.Inventory,
         items: [
           { title: "Daftar Item", url: "/inventori", icon: Icons.Boxes },
+          { title: "Kategori & Satuan", url: "/inventori/kategori", icon: Icons.Tag },
           { title: "Stok Masuk / Keluar", url: "/inventori/stok", icon: Icons.StockInOut },
           { title: "Stok Opname", url: "/inventori/opname", icon: Icons.StockOpname },
         ],

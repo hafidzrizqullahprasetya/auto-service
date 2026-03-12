@@ -35,7 +35,6 @@ export function mapSparePart(sp: ApiSparePart): Item {
   };
 }
 
-/** Map FE Item → BE create body */
 export interface SparePartBody {
   category_id: number | null;
   name: string;
@@ -77,7 +76,6 @@ export const inventoryService = {
     await api.delete(`/api/v1/spare-parts/${id}`);
   },
 
-  /** Get raw spare part by id (with stock history) */
   async getById(id: string): Promise<ApiSparePart> {
     const res = await api.get<ApiSparePart>(`/api/v1/spare-parts/${id}`);
     return res.data;
@@ -91,5 +89,14 @@ export const inventoryService = {
   async createCategory(name: string): Promise<ApiCategory> {
     const res = await api.post<ApiCategory>("/api/v1/categories", { name });
     return res.data;
+  },
+
+  async updateCategory(id: number, name: string): Promise<ApiCategory> {
+    const res = await api.put<ApiCategory>(`/api/v1/categories/${id}`, { name });
+    return res.data;
+  },
+
+  async deleteCategory(id: number): Promise<void> {
+    await api.delete(`/api/v1/categories/${id}`);
   },
 };

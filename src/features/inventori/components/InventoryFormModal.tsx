@@ -7,21 +7,23 @@ import { ActionButton, BaseModal } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { Item } from "@/types/inventory";
 import { ApiCategory } from "@/types/api";
-import { formatNumber, stripFormatting } from "@/utils/format-number";
+import { formatNumber, stripFormatting, formatCurrency } from "@/utils/format-number";
 import InputGroup from "@/components/ui/InputGroup";
 import { cn } from "@/lib/utils";
 import { Notify } from "@/utils/notify";
+import { CategoryFormModal } from "./CategoryFormModal";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 const inventorySchema = z.object({
-  sku: z.string().optional(),
+  sku: z.string().min(1, "SKU wajib diisi"),
   name: z.string().min(3, "Nama minimal 3 karakter"),
   category_id: z.coerce.number().min(1, "Kategori wajib dipilih"),
   type: z.string(),
-  cost_price: z.string(),
-  sell_price: z.string(),
-  current_stock: z.string(),
-  minimum_stock: z.string(),
-  unit: z.string(),
+  cost_price: z.string().min(1, "Harga modal wajib diisi"),
+  sell_price: z.string().min(1, "Harga jual wajib diisi"),
+  current_stock: z.string().optional(),
+  minimum_stock: z.string().optional(),
+  unit: z.string().min(1, "Satuan wajib diisi"),
 });
 
 type InventoryFormValues = z.infer<typeof inventorySchema>;
@@ -32,6 +34,7 @@ interface InventoryFormModalProps {
   initialData?: Item | null;
   categories?: ApiCategory[];
   isLoading?: boolean;
+  onAddCategory?: (name: string) => Promise<ApiCategory>;
 }
 
 export function InventoryFormModal({
@@ -40,8 +43,11 @@ export function InventoryFormModal({
   initialData,
   categories = [],
   isLoading = false,
+  onAddCategory,
 }: InventoryFormModalProps) {
   const isEdit = !!initialData;
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   const {
     register,
@@ -58,13 +64,54 @@ export function InventoryFormModal({
       type: initialData?.type ?? "Mobil",
       cost_price: initialData?.costPrice ? formatNumber(initialData.costPrice) : "",
       sell_price: initialData?.price ? formatNumber(initialData.price) : "",
-      current_stock: initialData?.stock !== undefined ? formatNumber(initialData.stock) : "",
+      current_stock: initialData?.stock !== undefined ? formatNumber(initialData.stock) : "0",
       minimum_stock: initialData?.minimumStock !== undefined ? formatNumber(initialData.minimumStock) : "5",
       unit: initialData?.unit ?? "pcs",
     },
   });
 
   const formValues = watch();
+
+  const hasInitializedDraft = useRef(false);
+
+  // Load and save Draft
+  useEffect(() => {
+    if (!isEdit && !hasInitializedDraft.current) {
+      const draft = localStorage.getItem("inventory_form_draft");
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          Object.keys(parsed).forEach(key => {
+            setValue(key as any, parsed[key]);
+          });
+        } catch {}
+      }
+      hasInitializedDraft.current = true;
+    }
+  }, [isEdit, setValue]);
+
+  useEffect(() => {
+    if (!isEdit && hasInitializedDraft.current) {
+      const timeoutId = setTimeout(() => {
+        localStorage.setItem("inventory_form_draft", JSON.stringify(formValues));
+      }, 500); // Debounce save
+      return () => clearTimeout(timeoutId);
+    }
+  }, [formValues, isEdit]);
+
+  // Handle Automatic SKU
+  const generateSKU = () => {
+    const prefix = "ASP"; 
+    const date = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `${prefix}-${date}-${random}`;
+  };
+
+  useEffect(() => {
+    if (!isEdit && !watch("sku")) {
+      setValue("sku", generateSKU());
+    }
+  }, [isEdit, setValue, watch]);
 
   const handleNumericChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -87,11 +134,12 @@ export function InventoryFormModal({
       sku: data.sku,
       cost_price: stripFormatting(data.cost_price),
       sell_price: stripFormatting(data.sell_price),
-      current_stock: stripFormatting(data.current_stock),
-      minimum_stock: stripFormatting(data.minimum_stock),
+      current_stock: stripFormatting(data.current_stock || "0"),
+      minimum_stock: stripFormatting(data.minimum_stock || "0"),
       unit: data.unit,
       type: data.type,
     });
+    if (!isEdit) localStorage.removeItem("inventory_form_draft");
   };
 
   const sellPriceNum = stripFormatting(formValues.sell_price);
@@ -103,7 +151,7 @@ export function InventoryFormModal({
       description={
         isEdit
           ? `Edit data dan stok untuk ${initialData?.name}`
-          : "Masukkan data sparepart atau jasa baru ke sistem"
+          : "Masukkan data sparepart baru ke sistem"
       }
       icon={<Icons.Inventory size={20} />}
       onClose={onClose}
@@ -111,47 +159,62 @@ export function InventoryFormModal({
       hideFooter
     >
       <form 
-        onSubmit={handleSubmit(onFormSubmit, onInvalid) as any} 
+        onSubmit={handleSubmit(onFormSubmit, onInvalid)} 
         className="space-y-4"
         noValidate
       >
-        <InputGroup
-          label="SKU / Kode Barang"
-          placeholder="Contoh: OL-SMX-1L"
-          className="font-mono uppercase"
-          {...register("sku")}
-          error={errors.sku?.message}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputGroup
+            label="SKU / Kode Barang"
+            placeholder="Contoh: ASP-2403-1234"
+            className="font-mono uppercase"
+            {...register("sku")}
+            error={errors.sku?.message}
+            required
+            readOnly={isEdit}
+          />
 
-        <InputGroup
-          label="Nama Item / Jasa"
-          placeholder="Contoh: Oli Yamalube Sport 1L"
-          {...register("name")}
-          error={errors.name?.message}
-          required
-        />
+          <InputGroup
+            label="Nama Item"
+            placeholder="Contoh: Oli Yamalube Sport 1L"
+            {...register("name")}
+            error={errors.name?.message}
+            required
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
               Kategori <span className="text-red">*</span>
             </label>
-            <select
-              {...register("category_id")}
-              className={cn(
-                "w-full rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-bold text-dark outline-none transition-all focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white",
-                errors.category_id && "!border-red-500 focus:!border-red-500"
-              )}
-            >
-              <option value={0} disabled>
-                Pilih Kategori
-              </option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
+            <div className="flex gap-2">
+              <select
+                {...register("category_id")}
+                className={cn(
+                  "flex-1 rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-bold text-dark outline-none transition-all focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white",
+                  errors.category_id && "!border-red-500 focus:!border-red-500"
+                )}
+              >
+                <option value={0} disabled>
+                  Pilih Kategori
                 </option>
-              ))}
-            </select>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <ActionButton
+                variant="ghost"
+                icon={<Icons.Plus size={18} />}
+                className="h-[46px] w-[46px] border-2 border-stroke dark:border-dark-3"
+                onClick={() => setShowQuickAdd(true)}
+                type="button"
+                title="Tambah Kategori baru"
+                disabled={!onAddCategory}
+              />
+            </div>
             {errors.category_id && (
               <p className="mt-1 text-xs font-medium text-red-500">{errors.category_id.message}</p>
             )}
@@ -192,22 +255,31 @@ export function InventoryFormModal({
           />
         </div>
 
-        {formValues.unit !== "jasa" && (
-          <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-1">
             <InputGroup
-              label="Stok Awal"
+              label={isEdit ? "Stok Saat Ini" : "Stok Awal"}
               placeholder="0"
               {...register("current_stock")}
               onChange={handleNumericChange}
               error={errors.current_stock?.message}
+              disabled={isEdit}
+              className={cn(isEdit && "bg-gray-1 dark:bg-dark-3 opacity-70 cursor-not-allowed font-bold text-dark-5")}
             />
-            <InputGroup
-              label="Min. Stok"
-              placeholder="5"
-              {...register("minimum_stock")}
-              onChange={handleNumericChange}
-              error={errors.minimum_stock?.message}
-            />
+            {isEdit && (
+              <p className="text-[10px] text-dark-5 italic leading-tight px-1">
+                * Update stok via menu <strong>Pergerakan Stok</strong>
+              </p>
+            )}
+          </div>
+          <InputGroup
+            label="Min. Stok"
+            placeholder="5"
+            {...register("minimum_stock")}
+            onChange={handleNumericChange}
+            error={errors.minimum_stock?.message}
+          />
+          <div className="col-span-1">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
                 Satuan <span className="text-red">*</span>
@@ -216,22 +288,24 @@ export function InventoryFormModal({
                 {...register("unit")}
                 className="w-full rounded-lg border-2 border-stroke bg-white px-4 py-3 text-sm font-bold text-dark outline-none transition-all focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
               >
-                <option value="pcs">pcs</option>
-                <option value="liter">liter</option>
-                <option value="set">set</option>
-                <option value="unit">unit</option>
-                <option value="jasa">jasa</option>
+                {(() => {
+                  const saved = typeof window !== "undefined" ? localStorage.getItem("master_units") : null;
+                  const unitList = saved ? JSON.parse(saved).map((u: any) => u.name) : ["pcs", "liter", "set", "unit", "botol", "box"];
+                  return unitList.map((u: string) => (
+                    <option key={u} value={u}>{u}</option>
+                  ));
+                })()}
               </select>
             </div>
           </div>
-        )}
+        </div>
 
         {sellPriceNum > 0 && costPriceNum > 0 && (
           <div className="rounded-xl border border-secondary/20 bg-secondary/5 px-4 py-3 dark:border-secondary/30">
             <p className="text-xs font-bold text-dark-5 dark:text-dark-6">
               Estimasi Margin:{" "}
               <span className="text-secondary text-sm ml-1">
-                Rp {formatNumber(sellPriceNum - costPriceNum)}{" "}
+                {formatCurrency(sellPriceNum - costPriceNum)}{" "}
                 <span className="text-xs font-medium opacity-70">
                   ({Math.round(((sellPriceNum - costPriceNum) / sellPriceNum) * 100)}%)
                 </span>
@@ -256,6 +330,23 @@ export function InventoryFormModal({
           />
         </div>
       </form>
+
+      {showQuickAdd && onAddCategory && (
+        <CategoryFormModal
+          onClose={() => setShowQuickAdd(false)}
+          onSave={async (name) => {
+            try {
+              const newCat = await onAddCategory(name);
+              setValue("category_id", newCat.id);
+              setShowQuickAdd(false);
+              Notify.toast("Kategori baru berhasil ditambahkan", "success");
+            } catch (err: any) {
+              Notify.alert("Gagal", err.message || "Gagal menambah kategori", "error");
+              throw err;
+            }
+          }}
+        />
+      )}
     </BaseModal>
   );
 }

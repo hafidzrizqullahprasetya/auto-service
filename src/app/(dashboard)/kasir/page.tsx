@@ -12,7 +12,6 @@ import { Transaction } from "@/types/transaction";
 import { useInventory } from "@/hooks/useInventory";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
-import dayjs from "dayjs";
 import { Notify } from "@/utils/notify";
 
 type Tab = "riwayat" | "buat" | "pos";
@@ -23,7 +22,7 @@ interface CartState {
 }
 
 export default function KasirPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("riwayat");
+  const [activeTab, setActiveTab] = useState<Tab>("buat");
   const { data: allItems } = useInventory();
 
   // POS State
@@ -92,13 +91,13 @@ export default function KasirPage() {
   };
 
   const TABS = [
-    { id: "riwayat" as Tab, label: "Riwayat Transaksi", icon: Icons.Database },
     { id: "buat" as Tab, label: "Buat Nota Servis", icon: Icons.Print },
     { id: "pos" as Tab, label: "POS Cepat", icon: Icons.Kasir },
+    { id: "riwayat" as Tab, label: "Riwayat Transaksi", icon: Icons.Database },
   ];
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto">
       <Breadcrumb pageName="Kasir & Transaksi" />
 
       {/* Tab Navigation */}
@@ -108,10 +107,10 @@ export default function KasirPage() {
             key={id}
             onClick={() => setActiveTab(id)}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold",
+              "flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all",
               activeTab === id
                 ? "bg-secondary text-white"
-                : "text-dark-5 hover:text-dark dark:hover:text-white",
+                : "text-dark-5 hover:text-dark dark:hover:text-white hover:bg-gray-2 dark:hover:bg-dark-3",
             )}
           >
             <Icon size={16} />
@@ -120,43 +119,34 @@ export default function KasirPage() {
         ))}
       </div>
 
-      {/* Tab: Riwayat */}
-      {activeTab === "riwayat" && (
-        <div className="flex flex-col gap-6">
-          <TransactionSummary />
-          <TransactionTable />
-        </div>
-      )}
-
-      {/* Tab: Buat Nota Servis */}
+      {/* Tab: Buat Nota Servis (Utama) */}
       {activeTab === "buat" && (
         <div className="flex flex-col gap-6">
           <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h4 className="text-xl font-bold text-dark dark:text-white">
                   Buat Nota Servis Baru
                 </h4>
                 <p className="text-sm text-dark-5">
-                  Catat transaksi servis lengkap dengan data customer &
-                  kendaraan
+                  Catat transaksi servis lengkap dengan data customer & kendaraan
                 </p>
               </div>
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="flex items-center gap-2 rounded-xl bg-secondary px-6 py-3 text-sm font-bold text-white hover:bg-opacity-90"
+                className="flex items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3.5 text-sm font-bold text-white hover:bg-opacity-90 transition-all active:scale-95"
               >
-                <Icons.Plus size={18} />
+                <Icons.Plus size={20} />
                 Buat Transaksi Baru
               </button>
             </div>
 
-            <div className="rounded-xl border-2 border-dashed border-stroke bg-gray-1 py-20 text-center dark:border-dark-3 dark:bg-dark-2">
+            <div className="rounded-xl border-2 border-dashed border-stroke bg-gray-1 py-16 text-center dark:border-dark-3 dark:bg-dark-2">
               <Icons.Print
                 size={48}
                 className="mx-auto mb-3 text-dark-5 opacity-20"
               />
-              <p className="font-bold text-dark-5">
+              <p className="font-bold text-dark dark:text-white">
                 Klik tombol di atas untuk mulai membuat nota baru
               </p>
               <p className="mt-1 text-sm text-dark-5">
@@ -165,8 +155,15 @@ export default function KasirPage() {
             </div>
           </div>
 
-          {/* Riwayat recent */}
-          <TransactionTable />
+          <div className="mt-2">
+            <div className="mb-4 flex items-center justify-between">
+                <h4 className="text-lg font-bold text-dark dark:text-white">Transaksi Hari Ini</h4>
+                <button onClick={() => setActiveTab("riwayat")} className="text-sm font-bold text-secondary hover:underline">
+                    Lihat Semua &rarr;
+                </button>
+            </div>
+            <TransactionTable />
+          </div>
         </div>
       )}
 
@@ -189,10 +186,11 @@ export default function KasirPage() {
                   <input
                     type="text"
                     placeholder="Cari item atau scan barcode..."
-                    className="w-full rounded-md border border-stroke px-5 py-2.5 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 sm:w-[250px]"
+                    className="w-full rounded-xl border border-stroke bg-gray-1 px-5 py-2.5 outline-none focus:border-secondary dark:border-dark-3 dark:bg-dark-2 sm:w-[250px] text-sm"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
+                   <Icons.Search size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-dark-5"/>
                 </div>
               </div>
 
@@ -204,6 +202,7 @@ export default function KasirPage() {
 
               {filteredItems.length === 0 && (
                 <div className="py-20 text-center">
+                  <Icons.Search size={48} className="mx-auto mb-3 opacity-10" />
                   <p className="text-dark-5 dark:text-dark-6">
                     Item tidak ditemukan.
                   </p>
@@ -214,9 +213,12 @@ export default function KasirPage() {
 
           {/* Kanan: Keranjang */}
           <div className="sticky top-25 col-span-12 h-fit rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5 xl:col-span-4">
-            <h4 className="mb-6 text-xl font-bold text-dark dark:text-white">
-              Detail Pesanan
-            </h4>
+            <div className="flex items-center gap-2 mb-6">
+                <Icons.Kasir size={20} className="text-secondary"/>
+                <h4 className="text-xl font-bold text-dark dark:text-white">
+                    Keranjang
+                </h4>
+            </div>
 
             <div className="custom-scrollbar mb-10 max-h-[400px] overflow-y-auto pr-2">
               {cart.length > 0 ? (
@@ -230,8 +232,11 @@ export default function KasirPage() {
                 ))
               ) : (
                 <div className="py-10 text-center">
-                  <p className="text-sm italic text-dark-5">
-                    Belum ada item dipilih.
+                  <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gray-1 dark:bg-dark-2">
+                    <Icons.Kasir size={24} className="text-dark-5 opacity-20" />
+                  </div>
+                  <p className="text-sm font-medium text-dark-5">
+                    Belum ada item dipilih
                   </p>
                 </div>
               )}
@@ -245,6 +250,14 @@ export default function KasirPage() {
               disabled={cart.length === 0}
             />
           </div>
+        </div>
+      )}
+
+      {/* Tab: Riwayat (Audit View) */}
+      {activeTab === "riwayat" && (
+        <div className="flex flex-col gap-6">
+          <TransactionSummary />
+          <TransactionTable />
         </div>
       )}
 
@@ -287,7 +300,6 @@ export default function KasirPage() {
               if (res.data) {
                 Notify.toast("Transaksi berhasil disimpan!", "success", "top");
                 setShowCreateForm(false);
-                // Can trigger reload of transactions logic here
               }
             } catch (err: any) {
               const errorMsg = err.response?.data?.message || err.message || "Terjadi kesalahan saat menyimpan transaksi";

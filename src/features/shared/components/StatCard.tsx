@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/utils/format-number";
+import { formatCurrency, formatNumber } from "@/utils/format-number";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface StatCardProps {
@@ -25,7 +25,7 @@ export function StatCard({
   value,
   icon,
   color = "text-dark dark:text-white",
-  bg = "bg-gray-2 dark:bg-white/5",
+  bg = "bg-gray-2 dark:bg-white",
   isMoney = false,
   suffix,
   growth,
@@ -33,7 +33,9 @@ export function StatCard({
   className,
   loading = false,
 }: StatCardProps) {
-  const displayValue = isMoney ? formatCurrency(Number(value)) : value;
+  const displayValue = isMoney 
+    ? formatCurrency(Number(value)) 
+    : (typeof value === 'number' ? formatNumber(value) : value);
 
   if (variant === "vertical") {
     return (
