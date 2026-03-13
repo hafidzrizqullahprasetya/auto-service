@@ -8,9 +8,9 @@ export function TransactionSummary() {
 
   if (loading) return <TransactionSummarySkeleton />;
 
-  const totalRevenue = transactions.reduce((a, t) => a + t.total, 0);
+  const totalRevenue = transactions.reduce((a, t) => a + (t.total || 0), 0);
   const totalTax = transactions.reduce((a, t) => a + (t.tax || 0), 0);
-  const totalSubtotal = totalRevenue - totalTax;
+  const totalSubtotal = transactions.reduce((a, t) => a + (t.subtotal || 0), 0);
   const txCount = transactions.length;
 
   const stats = [
@@ -18,39 +18,39 @@ export function TransactionSummary() {
       label: "Total Pendapatan",
       value: totalRevenue,
       icon: <Icons.Kasir size={24} />,
-      color: "text-secondary",
-      bg: "bg-secondary/10",
+      color: "text-slate-600",
+      bg: "bg-slate-100",
       isMoney: true,
     },
     {
       label: "Nilai Sebelum Pajak",
       value: totalSubtotal,
       icon: <Icons.Chart size={24} />,
-      color: "text-primary",
-      bg: "bg-primary/10",
+      color: "text-slate-600",
+      bg: "bg-slate-100",
       isMoney: true,
     },
     {
       label: "Total PPN (11%)",
       value: totalTax,
       icon: <Icons.Tag size={24} />,
-      color: "text-warning",
-      bg: "bg-warning/10",
+      color: "text-slate-600",
+      bg: "bg-slate-100",
       isMoney: true,
     },
     {
       label: "Volume Transaksi",
       value: txCount,
       icon: <Icons.Print size={24} />,
-      color: "text-success",
-      bg: "bg-success/10",
+      color: "text-slate-600",
+      bg: "bg-slate-100",
       suffix: "Nota",
       isMoney: false,
     },
   ];
 
   return (
-    <div className="hidden sm:grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="hidden grid-cols-1 gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, idx) => (
         <StatCard key={idx} {...stat} />
       ))}

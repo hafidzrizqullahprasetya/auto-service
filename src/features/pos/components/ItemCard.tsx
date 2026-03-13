@@ -24,9 +24,8 @@ export function ItemCard({ item, onAdd }: ItemCardProps) {
             className="object-cover"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-gray-2 text-dark-5 dark:bg-dark-3">
-            <Icons.Inventory size={32} className="opacity-20 mb-1" />
-            <span className="text-[10px] font-medium opacity-50">No Image</span>
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gray-2 text-dark-5 transition-colors group-hover:bg-gray-3 dark:bg-dark-3 dark:text-dark-6">
+            <Icons.Inventory size={48} className="opacity-20" />
           </div>
         )}
         <div className="absolute top-2 left-2">

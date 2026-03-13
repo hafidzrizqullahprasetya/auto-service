@@ -14,7 +14,6 @@ import { Icons } from "@/components/Icons";
 import { QueueFormModal } from "./QueueFormModal";
 import { SPKModal } from "./SPKModal";
 import { antreanToExcelRows } from "@/lib/excel";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const getStatusVariant = (status: Antrean["status"]) => {
   switch (status) {
@@ -39,7 +38,6 @@ interface QueueTableProps {
 }
 
 export function QueueTable({ data, onUpdate, onDelete, isLoading = false }: QueueTableProps) {
-  const isMobile = useIsMobile();
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -139,53 +137,39 @@ export function QueueTable({ data, onUpdate, onDelete, isLoading = false }: Queu
         header: () => <div className="w-full text-center">Opsi</div>,
         cell: ({ row }) => (
           <div className="flex w-full items-center justify-center gap-1.5">
-            {!isMobile && (
-              <>
-                {row.original.waPelanggan && (
-                  <ActionButton
-                    icon={<Icons.Whatsapp size={16} />}
-                    variant="success"
-                    onClick={() => alert(`Mengirim progres ke ${row.original.waPelanggan}...`)}
-                    title="WhatsApp Progres"
-                  />
-                )}
-                <ActionButton
-                  icon={<Icons.Print size={16} />}
-                  variant="view"
-                  onClick={() => handleAction(row.original, "print")}
-                  title="Cetak SPK"
-                />
-              </>
+            {row.original.waPelanggan && (
+              <ActionButton
+                icon={<Icons.Whatsapp size={16} />}
+                variant="success"
+                onClick={() => alert(`Mengirim progres ke ${row.original.waPelanggan}...`)}
+                title="WhatsApp Progres"
+              />
             )}
+            <ActionButton
+              icon={<Icons.Print size={16} />}
+              variant="view"
+              onClick={() => handleAction(row.original, "print")}
+              title="Cetak SPK"
+            />
             <ActionButton
               icon={<Icons.Repair size={16} />}
               variant="edit"
               onClick={() => handleAction(row.original, "edit")}
               title="Edit"
             />
-            {!isMobile && (
-              <ActionButton
-                icon={<Icons.Delete size={16} />}
-                variant="delete"
-                onClick={() => handleAction(row.original, "delete")}
-                title="Hapus"
-              />
-            )}
+            <ActionButton
+              icon={<Icons.Delete size={16} />}
+              variant="delete"
+              onClick={() => handleAction(row.original, "delete")}
+              title="Hapus"
+            />
           </div>
         ),
       },
     ];
 
-    if (isMobile) {
-      return allColumns.filter(col => 
-        (col as any).accessorKey === "noPolisi" || 
-        (col as any).accessorKey === "status" ||
-        col.id === "actions"
-      );
-    }
-
     return allColumns;
-  }, [isMobile]);
+  }, []);
 
   return (
     <>

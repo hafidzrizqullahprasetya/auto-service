@@ -12,32 +12,32 @@ export function QueueSummary({ items }: QueueSummaryProps) {
       label: "Menunggu",
       value: items.filter((i) => i.status === "Menunggu").length,
       icon: <Icons.Pending size={24} />,
-      color: "text-red",
-      bg: "bg-red/10",
+      color: "text-dark dark:text-white",
+      bg: "bg-gray-2 dark:bg-dark-2",
       suffix: "Unit"
     },
     {
       label: "Dikerjakan",
       value: items.filter((i) => i.status === "Dikerjakan").length,
       icon: <Icons.Repair size={24} />,
-      color: "text-primary",
-      bg: "bg-primary/10",
+      color: "text-dark dark:text-white",
+      bg: "bg-gray-2 dark:bg-dark-2",
       suffix: "Unit"
     },
     {
       label: "Sparepart",
       value: items.filter((i) => i.status === "Menunggu Sparepart").length,
       icon: <Icons.Inventory size={24} />,
-      color: "text-warning",
-      bg: "bg-warning/10",
+      color: "text-dark dark:text-white",
+      bg: "bg-gray-2 dark:bg-dark-2",
       suffix: "Unit"
     },
     {
       label: "Selesai",
       value: items.filter((i) => i.status === "Selesai").length,
       icon: <Icons.Success size={24} />,
-      color: "text-green",
-      bg: "bg-green/10",
+      color: "text-dark dark:text-white",
+      bg: "bg-gray-2 dark:bg-dark-2",
       suffix: "Unit"
     },
   ];

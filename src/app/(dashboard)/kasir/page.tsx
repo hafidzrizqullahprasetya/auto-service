@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { TransactionTable } from "@/features/kasir";
 import { TransactionFormModal } from "@/features/kasir";
@@ -13,6 +14,7 @@ import { useInventory } from "@/hooks/useInventory";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
 import { Notify } from "@/utils/notify";
+import { CameraScanner } from "@/components/Scanner/CameraScanner";
 
 type Tab = "riwayat" | "buat" | "pos";
 
@@ -22,8 +24,23 @@ interface CartState {
 }
 
 export default function KasirPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>("buat");
-  const { data: allItems } = useInventory();
+  const { data: allItems, loading } = useInventory();
+
+  useEffect(() => {
+    const tabParam = searchParams.get("tab") as Tab | null;
+    if (tabParam && ["buat", "pos", "riwayat"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  // Update URL when tab changes
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    router.push(`?tab=${tab}`, { scroll: false });
+  };
 
   // POS State
   const [cart, setCart] = useState<CartState[]>([]);
@@ -32,6 +49,8 @@ export default function KasirPage() {
   const [lastTransaction, setLastTransaction] = useState<Transaction | null>(
     null,
   );
+  const [posItems, setPosItems] = useState<any[]>([]);
+  const [showScanner, setShowScanner] = useState(false);
 
   // Create Transaction State
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -76,18 +95,21 @@ export default function KasirPage() {
   const total = subtotal + tax;
 
   const handleCheckout = async () => {
-    try {
-      Notify.loading("Memproses pembayaran...");
-
-      if (cart.length === 0) {
-        throw new Error("Keranjang kosong!");
-      }
-      throw new Error("Gunakan fitur 'Buat Nota Servis' untuk mencatat pelanggan dan kendaraan.");
-      
-    } catch (err: any) {
-      const errorMsg = err instanceof Error ? err.message : "Gagal memproses pembayaran";
-      Notify.alert("Gagal!", errorMsg);
+    if (cart.length === 0) {
+      Notify.alert("Gagal!", "Keranjang kosong!");
+      return;
     }
+    const items = cart.map((c) => ({
+      itemId: c.item.id,
+      isJasa: c.item.category === "Service" || c.item.type === "service",
+      name: c.item.name,
+      price: c.item.price,
+      quantity: c.quantity,
+      unit: c.item.unit || "pcs",
+    }));
+
+    setPosItems(items);
+    setShowCreateForm(true);
   };
 
   const TABS = [
@@ -105,12 +127,12 @@ export default function KasirPage() {
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
-            onClick={() => setActiveTab(id)}
+            onClick={() => handleTabChange(id)}
             className={cn(
               "flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all",
               activeTab === id
                 ? "bg-secondary text-white"
-                : "text-dark-5 hover:text-dark dark:hover:text-white hover:bg-gray-2 dark:hover:bg-dark-3",
+                : "text-dark-5 hover:bg-gray-2 hover:text-dark dark:hover:bg-dark-3 dark:hover:text-white",
             )}
           >
             <Icon size={16} />
@@ -123,18 +145,19 @@ export default function KasirPage() {
       {activeTab === "buat" && (
         <div className="flex flex-col gap-6">
           <div className="rounded-xl border border-stroke bg-white p-6 dark:border-dark-3 dark:bg-gray-dark">
-            <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h4 className="text-xl font-bold text-dark dark:text-white">
                   Buat Nota Servis Baru
                 </h4>
                 <p className="text-sm text-dark-5">
-                  Catat transaksi servis lengkap dengan data customer & kendaraan
+                  Catat transaksi servis lengkap dengan data customer &
+                  kendaraan
                 </p>
               </div>
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="flex items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3.5 text-sm font-bold text-white hover:bg-opacity-90 transition-all active:scale-95"
+                className="flex items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-opacity-90 active:scale-95"
               >
                 <Icons.Plus size={20} />
                 Buat Transaksi Baru
@@ -157,10 +180,15 @@ export default function KasirPage() {
 
           <div className="mt-2">
             <div className="mb-4 flex items-center justify-between">
-                <h4 className="text-lg font-bold text-dark dark:text-white">Transaksi Hari Ini</h4>
-                <button onClick={() => setActiveTab("riwayat")} className="text-sm font-bold text-secondary hover:underline">
-                    Lihat Semua &rarr;
-                </button>
+              <h4 className="text-lg font-bold text-dark dark:text-white">
+                Transaksi Hari Ini
+              </h4>
+              <button
+                onClick={() => handleTabChange("riwayat")}
+                className="text-sm font-bold text-secondary hover:underline"
+              >
+                Lihat Semua &rarr;
+              </button>
             </div>
             <TransactionTable />
           </div>
@@ -182,46 +210,110 @@ export default function KasirPage() {
                     Pilih item untuk ditambahkan ke keranjang
                   </p>
                 </div>
-                <div className="relative">
+                <div className="relative flex w-full sm:w-[300px]">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <Icons.Search size={18} className="text-dark-5" />
+                  </div>
                   <input
                     type="text"
-                    placeholder="Cari item atau scan barcode..."
-                    className="w-full rounded-xl border border-stroke bg-gray-1 px-5 py-2.5 outline-none focus:border-secondary dark:border-dark-3 dark:bg-dark-2 sm:w-[250px] text-sm"
+                    placeholder="Cari nama atau scan SKU..."
+                    className="w-full rounded-xl border border-stroke bg-gray-1 py-3 pl-11 pr-12 text-sm outline-none transition-all focus:border-secondary focus:bg-white dark:border-dark-3 dark:bg-dark-2 dark:focus:border-white"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && search) {
+                        const exactMatch = allItems.find(
+                          (i) => i.sku.toLowerCase() === search.toLowerCase(),
+                        );
+                        if (exactMatch) {
+                          addToCart(exactMatch);
+                          setSearch("");
+                          Notify.toast("Item ditambahkan", "success", "top");
+                        }
+                      }
+                    }}
                   />
-                   <Icons.Search size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-dark-5"/>
+                  <div className="absolute inset-y-0 right-2 flex items-center">
+                    <button
+                      onClick={() => setShowScanner(true)}
+                      title="Buka Kamera Scanner"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-dark-5 shadow-sm transition-all hover:bg-secondary hover:text-white dark:bg-dark-3 dark:text-dark-6"
+                    >
+                      <Icons.Barcode size={20} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredItems.map((item) => (
-                  <ItemCard key={item.id} item={item} onAdd={addToCart} />
-                ))}
-              </div>
-
-              {filteredItems.length === 0 && (
-                <div className="py-20 text-center">
-                  <Icons.Search size={48} className="mx-auto mb-3 opacity-10" />
-                  <p className="text-dark-5 dark:text-dark-6">
-                    Item tidak ditemukan.
-                  </p>
+              {loading ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex flex-col rounded-lg border border-stroke bg-white overflow-hidden dark:border-dark-3 dark:bg-dark-2"
+                    >
+                      <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-32 w-full" />
+                      <div className="p-4 space-y-3">
+                        <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-3 w-12" />
+                        <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-4 w-full" />
+                        <div className="flex justify-between pt-2">
+                          <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-6 w-24" />
+                          <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-4 w-10" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {filteredItems.map((item) => (
+                      <ItemCard key={item.id} item={item} onAdd={addToCart} />
+                    ))}
+                  </div>
+
+                  {filteredItems.length === 0 && (
+                    <div className="py-20 text-center">
+                      <Icons.Search
+                        size={48}
+                        className="mx-auto mb-3 opacity-10"
+                      />
+                      <p className="text-dark-5 dark:text-dark-6">
+                        Item tidak ditemukan.
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
 
           {/* Kanan: Keranjang */}
           <div className="sticky top-25 col-span-12 h-fit rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark sm:p-7.5 xl:col-span-4">
-            <div className="flex items-center gap-2 mb-6">
-                <Icons.Kasir size={20} className="text-secondary"/>
-                <h4 className="text-xl font-bold text-dark dark:text-white">
-                    Keranjang
-                </h4>
+            <div className="mb-6 flex items-center gap-2">
+              <Icons.Kasir size={20} className="text-secondary" />
+              <h4 className="text-xl font-bold text-dark dark:text-white">
+                Keranjang
+              </h4>
             </div>
 
             <div className="custom-scrollbar mb-10 max-h-[400px] overflow-y-auto pr-2">
-              {cart.length > 0 ? (
+              {loading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between border-b border-stroke py-3 last:border-0 dark:border-dark-3"
+                    >
+                      <div className="flex-1 space-y-2">
+                        <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-4 w-3/4" />
+                        <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-3 w-1/4" />
+                      </div>
+                      <div className="animate-pulse bg-gray-2 dark:bg-dark-3 h-8 w-16 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : cart.length > 0 ? (
                 cart.map((cartItem) => (
                   <CartItemRow
                     key={cartItem.item.id}
@@ -242,13 +334,31 @@ export default function KasirPage() {
               )}
             </div>
 
-            <OrderSummary
-              subtotal={subtotal}
-              tax={tax}
-              total={total}
-              onCheckout={handleCheckout}
-              disabled={cart.length === 0}
-            />
+            {loading ? (
+              <div className="rounded-[10px] border border-stroke bg-gray-2 p-4 space-y-4 dark:border-dark-3 dark:bg-dark-3">
+                <div className="flex justify-between">
+                  <div className="animate-pulse bg-gray-3 dark:bg-dark-4 h-4 w-12" />
+                  <div className="animate-pulse bg-gray-3 dark:bg-dark-4 h-4 w-20" />
+                </div>
+                <div className="flex justify-between">
+                  <div className="animate-pulse bg-gray-3 dark:bg-dark-4 h-4 w-12" />
+                  <div className="animate-pulse bg-gray-3 dark:bg-dark-4 h-4 w-20" />
+                </div>
+                <div className="border-t border-stroke pt-4 flex justify-between dark:border-dark-4">
+                  <div className="animate-pulse bg-gray-3 dark:bg-dark-4 h-6 w-16" />
+                  <div className="animate-pulse bg-gray-3 dark:bg-dark-4 h-8 w-32" />
+                </div>
+                <div className="animate-pulse bg-gray-3 dark:bg-dark-4 h-12 w-full rounded-xl" />
+              </div>
+            ) : (
+              <OrderSummary
+                subtotal={subtotal}
+                tax={tax}
+                total={total}
+                onCheckout={handleCheckout}
+                disabled={cart.length === 0}
+              />
+            )}
           </div>
         </div>
       )}
@@ -264,11 +374,18 @@ export default function KasirPage() {
       {/* Modals */}
       {showCreateForm && (
         <TransactionFormModal
-          onClose={() => setShowCreateForm(false)}
+          initialItems={posItems}
+          onClose={() => {
+            setShowCreateForm(false);
+            setPosItems([]);
+          }}
           onSave={async (data: any) => {
             try {
               if (!data.customerId || !data.vehicleId) {
-                Notify.alert("Gagal!", "Pelanggan dan kendaraan wajib dipilih!");
+                Notify.alert(
+                  "Gagal!",
+                  "Pelanggan dan kendaraan wajib dipilih!",
+                );
                 return;
               }
               if (data.items.length === 0) {
@@ -278,31 +395,37 @@ export default function KasirPage() {
 
               Notify.loading("Menyimpan transaksi...");
               const { api } = await import("@/lib/api");
-              
+
               const payload = {
                 customer_id: data.customerId,
                 vehicle_id: data.vehicleId,
                 transaction_date: new Date().toISOString(),
                 payment_method: data.paymentMethod,
-                payment_status: data.paymentStatus === "Lunas" ? "lunas" : "belum_bayar",
+                payment_status:
+                  data.paymentStatus === "Lunas" ? "lunas" : "belum_bayar",
                 notes: data.notes || undefined,
                 items: data.items.map((cartItem: any) => ({
                   item_type: cartItem.isJasa ? "jasa" : "spare_part",
-                  spare_part_id: cartItem.isJasa ? null : cartItem.item.id,
-                  item_name: cartItem.isJasa ? cartItem.jasaName : cartItem.item.name,
+                  spare_part_id: cartItem.isJasa ? null : cartItem.itemId,
+                  item_name: cartItem.name,
                   quantity: cartItem.quantity,
-                  unit_price: cartItem.isJasa ? cartItem.jasaPrice : cartItem.item.price
-                }))
+                  unit_price: cartItem.price,
+                })),
               };
 
               const res = await api.post<any>("/api/v1/transactions", payload);
-              
+
               if (res.data) {
                 Notify.toast("Transaksi berhasil disimpan!", "success", "top");
                 setShowCreateForm(false);
+                setCart([]); // Clear POS cart
+                setPosItems([]); // Clear draft
               }
             } catch (err: any) {
-              const errorMsg = err.response?.data?.message || err.message || "Terjadi kesalahan saat menyimpan transaksi";
+              const errorMsg =
+                err.response?.data?.message ||
+                err.message ||
+                "Terjadi kesalahan saat menyimpan transaksi";
               Notify.alert("Gagal Menyimpan!", errorMsg);
             }
           }}
@@ -313,6 +436,23 @@ export default function KasirPage() {
         <InvoiceModal
           onClose={() => setShowReceipt(false)}
           transaction={lastTransaction}
+        />
+      )}
+      {showScanner && (
+        <CameraScanner
+          onScan={(sku) => {
+            const item = allItems.find(
+              (i) => i.sku.toLowerCase() === sku.toLowerCase()
+            );
+            if (item) {
+              addToCart(item);
+              Notify.toast(`Berhasil scan: ${item.name}`, "success", "top");
+              // Kita tidak tutup scanner supaya bisa scan banyak item sekaligus
+            } else {
+              Notify.toast(`Barcode tidak dikenal: ${sku}`, "error", "top");
+            }
+          }}
+          onClose={() => setShowScanner(false)}
         />
       )}
     </div>

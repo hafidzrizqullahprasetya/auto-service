@@ -36,6 +36,9 @@ export default function SigninWithPassword() {
   });
 
   const onSubmit = async (data: SigninFormValues) => {
+    Notify.loading("Memverifikasi kredensial...");
+    await new Promise(resolve => setTimeout(resolve, 800));
+
     try {
       const result = await authService.login(data.username, data.password);
       const role = normalizeRole(result.user.role);

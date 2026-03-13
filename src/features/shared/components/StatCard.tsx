@@ -34,17 +34,17 @@ export function StatCard({
   loading = false,
 }: StatCardProps) {
   const displayValue = isMoney 
-    ? formatCurrency(Number(value)) 
+    ? `Rp ${formatNumber(Number(value))}` 
     : (typeof value === 'number' ? formatNumber(value) : value);
 
   if (variant === "vertical") {
     return (
       <div className={cn(
-        "rounded-[10px] border border-stroke bg-white p-4 shadow-1 transition-all hover:shadow-md dark:border-dark-3 dark:bg-gray-dark md:p-6",
+        "rounded-[10px] border border-stroke bg-white p-4 dark:border-dark-3 dark:bg-gray-dark md:p-6",
         className
       )}>
         <div className="flex items-center justify-between">
-          <div className={cn("flex h-11.5 w-11.5 items-center justify-center rounded-full text-primary", bg, color)}>
+          <div className={cn("flex h-11.5 w-11.5 items-center justify-center rounded-full", bg, color)}>
             {icon}
           </div>
         </div>
@@ -90,15 +90,15 @@ export function StatCard({
   // Horizontal variant (Icon Left)
   return (
     <div className={cn(
-      "group relative overflow-hidden rounded-2xl border border-stroke bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-dark-3 dark:bg-gray-dark",
+      "group relative overflow-hidden rounded-2xl border border-stroke bg-white p-5 dark:border-dark-3 dark:bg-gray-dark",
       className
     )}>
       <div className="flex items-center gap-4">
-        <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110", bg, color)}>
+        <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl", bg, color)}>
           {icon}
         </div>
         <div>
-          <h4 className="text-xl font-black text-dark dark:text-white">
+          <h4 className="text-xl font-black text-dark dark:text-white tabular-nums">
             {loading ? <Skeleton className="h-7 w-20" /> : (
               <>
                 {displayValue} {suffix && <span className="text-xs font-medium text-dark-5">{suffix}</span>}
@@ -115,7 +115,7 @@ export function StatCard({
         </div>
       </div>
       {/* Decorative background icon */}
-      <div className={cn("absolute -bottom-2 -right-2 h-16 w-16 opacity-[0.03] transition-transform group-hover:scale-125", color)}>
+      <div className={cn("absolute -bottom-2 -right-2 h-16 w-16 opacity-[0.03]", color)}>
         {icon}
       </div>
     </div>

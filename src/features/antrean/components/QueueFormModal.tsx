@@ -54,6 +54,7 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<QueueFormValues>({
     resolver: zodResolver(antreanSchema) as any,
@@ -70,10 +71,49 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
     }
   });
 
+  const allFields = watch();
   const watchKendaraan = watch("kendaraan");
   const watchPelanggan = watch("pelanggan");
   const watchLayanan = watch("layanan");
   const watchMenginap = watch("menginap");
+
+  // Load draft or initial item
+  useEffect(() => {
+    if (item) {
+      reset({
+        noPolisi: item.noPolisi || "",
+        tipe: item.tipe || "Mobil",
+        kendaraan: item.kendaraan || "",
+        pelanggan: item.pelanggan || "",
+        waPelanggan: item.waPelanggan || "",
+        layanan: item.layanan || "",
+        keluhan: item.keluhan || "",
+        estimasiBiaya: Number(item.estimasiBiaya || 0),
+        menginap: !!item.menginap,
+      });
+    } else {
+      const draft = localStorage.getItem("antrean_draft");
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          reset(parsed);
+          Notify.toast("Draft antrean dipulihkan", "success", "top");
+        } catch (e) {
+          console.error("Failed to parse draft", e);
+        }
+      }
+    }
+  }, [item, reset]);
+
+  // Save draft
+  useEffect(() => {
+    if (!isEdit) {
+      const timeout = setTimeout(() => {
+        localStorage.setItem("antrean_draft", JSON.stringify(allFields));
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [allFields, isEdit]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,20 +132,6 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
     };
     fetchData();
   }, []);
-
-  useEffect(() => {
-    if (item) {
-      setValue("noPolisi", item.noPolisi || "");
-      setValue("tipe", item.tipe || "Mobil");
-      setValue("kendaraan", item.kendaraan || "");
-      setValue("pelanggan", item.pelanggan || "");
-      setValue("waPelanggan", item.waPelanggan || "");
-      setValue("layanan", item.layanan || "");
-      setValue("keluhan", item.keluhan || "");
-      setValue("estimasiBiaya", Number(item.estimasiBiaya || 0));
-      setValue("menginap", !!item.menginap);
-    }
-  }, [item, setValue]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

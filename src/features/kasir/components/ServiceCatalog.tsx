@@ -24,7 +24,7 @@ export function ServiceCatalog() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { data: items, loading, toggleAktif, refetch } = useServiceCatalog();
+  const { data: items, loading, toggleAktif, deleteItem, refetch } = useServiceCatalog();
   const [searchTerm, setSearchTerm] = useState("");
   const [editingItem, setEditingItem] = useState<any>(null);
 
@@ -175,12 +175,31 @@ export function ServiceCatalog() {
                   <p className="font-black text-base text-secondary">
                     Rp {formatNumber(svc.hargaStandar)}
                   </p>
-                  <button 
-                    onClick={() => updateModalUrl("edit", svc.id)}
-                    className="rounded-lg p-1.5 text-dark-5 hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors"
-                  >
-                    <Icons.Settings size={14} />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => updateModalUrl("edit", svc.id)}
+                      className="rounded-lg p-1.5 text-dark-5 hover:bg-gray-2 dark:hover:bg-dark-3 transition-colors"
+                    >
+                      <Icons.Settings size={14} />
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        const confirmed = await Notify.confirm(
+                          "Hapus Jasa?",
+                          `Apakah Anda yakin ingin menghapus "${svc.namaJasa}"? Tindakan ini tidak dapat dibatalkan.`,
+                          "Ya, Hapus"
+                        );
+                        
+                        if (confirmed) {
+                          deleteItem(svc.id);
+                          Notify.toast("Jasa berhasil dihapus", "success");
+                        }
+                      }}
+                      className="rounded-lg p-1.5 text-red hover:bg-red-light-1 transition-colors"
+                    >
+                      <Icons.Delete size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -197,6 +216,7 @@ export function ServiceCatalog() {
 
       {modalParam && (
         <ServiceCatalogModal
+          key={editingItem?.id || modalParam}
           onClose={() => updateModalUrl(null)}
           onSave={handleSave}
           initialData={editingItem}

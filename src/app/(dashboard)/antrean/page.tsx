@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import {
   AntreanTable,
   KanbanBoard,
   AntreanFormModal,
   QueueSummary,
+  QueueSummarySkeleton,
+  QueueTableSkeleton,
+  QueueKanbanSkeleton,
 } from "@/features/antrean";
 import { Antrean } from "@/types/antrean";
 import { useAntrean } from "@/hooks/useAntrean";
@@ -19,8 +23,13 @@ import { Notify } from "@/utils/notify";
 type ViewType = "kanban" | "table";
 
 export default function AntreanPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const modalParam = searchParams.get("modal");
+
   const [activeView, setActiveView] = useState<ViewType>("table");
-  const [showModal, setShowModal] = useState(false);
+  const showModal = modalParam === "create";
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -36,13 +45,24 @@ export default function AntreanPage() {
     refetch,
   } = useAntrean();
 
+  const setShowModal = (val: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) {
+      params.set("modal", "create");
+    } else {
+      params.delete("modal");
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const handleCreate = async (data: any) => {
     setIsSaving(true);
     Notify.loading("Sedang membuat antrean...");
     try {
       await create(data);
-      Notify.toast("Antrean baru berhasil dibuat!", "success", "top");
+      Notify.toast("Unit berhasil masuk antrean!", "success", "top");
       setShowModal(false);
+      localStorage.removeItem("antrean_draft");
     } catch (err: any) {
       Notify.alert("Gagal!", err.message || "Gagal membuat antrean");
     } finally {
@@ -107,7 +127,7 @@ export default function AntreanPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto">
       <Breadcrumb pageName="Manajemen Antrean" />
 
       {error && (
@@ -120,24 +140,7 @@ export default function AntreanPage() {
       )}
 
       <div className="mb-8">
-        {loading ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 rounded-2xl border border-stroke bg-white p-5 shadow-sm dark:border-dark-3 dark:bg-gray-dark"
-              >
-                <Skeleton className="h-12 w-12 rounded-xl" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-6 w-24" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <QueueSummary items={items} />
-        )}
+        {loading ? <QueueSummarySkeleton /> : <QueueSummary items={items} />}
       </div>
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -169,23 +172,35 @@ export default function AntreanPage() {
       </div>
 
       {activeView === "kanban" ? (
-        <div className="rounded-xl border border-stroke bg-white p-6 shadow-sm dark:border-dark-3 dark:bg-gray-dark">
-          <KanbanBoard
-            items={items}
-            isLoading={loading}
-            onStatusChange={handleStatusChange}
-            onMechanicAssign={handleMechanicAssign}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
-          />
-        </div>
+        <>
+          {loading ? (
+            <div className="rounded-xl border border-stroke bg-white p-6 shadow-sm dark:border-dark-3 dark:bg-gray-dark">
+              <QueueKanbanSkeleton />
+            </div>
+          ) : (
+            <div className="rounded-xl border border-stroke bg-white p-6 shadow-sm dark:border-dark-3 dark:bg-gray-dark">
+              <KanbanBoard
+                items={items}
+                onStatusChange={handleStatusChange}
+                onMechanicAssign={handleMechanicAssign}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}
+              />
+            </div>
+          )}
+        </>
       ) : (
-        <AntreanTable
-          data={items}
-          isLoading={loading}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
-        />
+        <>
+          {loading ? (
+            <QueueTableSkeleton />
+          ) : (
+            <AntreanTable
+              data={items}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+            />
+          )}
+        </>
       )}
 
       {showModal && (

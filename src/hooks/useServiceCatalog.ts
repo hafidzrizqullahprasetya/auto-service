@@ -24,16 +24,16 @@ export function useServiceCatalog() {
       setLoading(true);
       setError(null);
       const items = await serviceCatalogService.getAll();
-      const mapped = items.map((item) => ({
+      const mapped = items.map((item: any) => ({
         id: item.id.toString(),
-        sku: item.sku || "SRV-XXXX",
+        sku: item.sku || `SRV-${item.id}`,
         namaJasa: item.name,
         kategori: item.kategori || "Lainnya",
         hargaStandar: Number(item.standard_price),
-        durasiEstimasi: "1 - 2 Jam", 
-        berlakuUntuk: (item as any).berlaku_untuk || "Keduanya",
-        garansi: "1 Bulan", // Mocked
-        aktif: (item as any).is_active ?? true,
+        durasiEstimasi: item.durasi_estimasi || "-", 
+        berlakuUntuk: item.berlaku_untuk || "Keduanya",
+        garansi: item.garansi || "-", 
+        aktif: item.is_active ?? true,
       }));
       setData(mapped);
     } catch (err) {

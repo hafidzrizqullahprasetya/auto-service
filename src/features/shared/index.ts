@@ -2,6 +2,7 @@ export { ActionButton } from "./components/ActionButton";
 export { Badge } from "./components/Badge";
 export { BaseModal } from "./components/BaseModal";
 export { BarcodeLabelModal } from "./components/BarcodeLabelModal";
+export { CustomSelect } from "./components/CustomSelect";
 export { ExcelButtons } from "./components/ExcelButtons";
 export { ServiceBookModal } from "./components/ServiceBookModal";
 export { ServiceHistoryModal } from "./components/ServiceHistoryModal";

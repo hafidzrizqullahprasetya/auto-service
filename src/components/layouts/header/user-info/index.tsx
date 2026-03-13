@@ -44,11 +44,27 @@ export function UserInfo() {
 
   const handleLogout = async () => {
     setIsOpen(false);
+
+    const confirmed = await Notify.confirm(
+      "Konfirmasi Keluar",
+      "Apakah Anda yakin ingin mengakhiri sesi ini?",
+      "Ya, Keluar"
+    );
+
+    if (!confirmed) return;
+
+    Notify.loading("Sedang keluar...");
+    
+    // Beri jeda sedikit agar loading notify terlihat
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     try {
       await authService.logout();
-      Notify.toast("Logout berhasil!", "success", "top");
+      // Tutup loading sebelum pindah halaman
+      Notify.close();
       router.push("/auth/sign-in");
     } catch (err) {
+      Notify.close();
       router.push("/auth/sign-in");
     }
   };
