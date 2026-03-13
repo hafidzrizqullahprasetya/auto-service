@@ -61,9 +61,10 @@ export default function KasirPage() {
 
   // Load Settings
   useEffect(() => {
-    const { settingsService } = require("@/services/settings.service");
-    settingsService.get().then((s: any) => {
-      if (s?.tax_percentage !== undefined) setTaxRate(Number(s.tax_percentage));
+    import("@/services/settings.service").then(({ settingsService }) => {
+      settingsService.get().then((s: any) => {
+        if (s?.tax_percentage !== undefined) setTaxRate(Number(s.tax_percentage));
+      });
     });
   }, []);
 

@@ -1,7 +1,5 @@
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL;
-
-const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || "v1";
 
 // Track if we're already refreshing to avoid race conditions (multiple requests expiring at once)
 let isRefreshing = false;

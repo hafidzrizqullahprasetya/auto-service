@@ -48,7 +48,7 @@ export function OperasionalTab({ settings, onSave, loading, saving }: Operasiona
     control,
     formState: { errors },
   } = useForm<OperationalFormValues>({
-    resolver: zodResolver(operationalSchema),
+    resolver: zodResolver(operationalSchema) as any,
     defaultValues: {
       open_time: settings?.open_time ?? "08:00",
       close_time: settings?.close_time ?? "17:00",
@@ -65,7 +65,7 @@ export function OperasionalTab({ settings, onSave, loading, saving }: Operasiona
         close_time: settings.close_time || "17:00",
         operational_days: daysStr,
         tax_percentage: Number(settings.tax_percentage ?? 0),
-      });
+      } as OperationalFormValues); // Added type casting here
       setSelectedDays(daysStr.split(","));
     }
   }, [settings, reset]);
@@ -96,7 +96,7 @@ export function OperasionalTab({ settings, onSave, loading, saving }: Operasiona
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit(onSubmit as any, onInvalid as any)} noValidate className="flex flex-col gap-6">
         <SectionCard title="Jam Operasional Bengkel">
           <div className="mb-4 rounded-lg border border-stroke bg-gray-1 p-3 text-xs text-dark-5 dark:border-dark-3 dark:bg-dark-2">
             <p>

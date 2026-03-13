@@ -8,6 +8,7 @@ export function mapUser(u: ApiUser): Employee {
   return {
     id: String(u.id),
     name: u.name,
+    username: u.username,
     role: normalizeRole(u.role) as Employee["role"],
     status: u.is_active === false ? "Off" : "Aktif",
     joinDate: "",
