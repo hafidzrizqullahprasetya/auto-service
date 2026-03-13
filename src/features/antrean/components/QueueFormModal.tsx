@@ -97,7 +97,6 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
         try {
           const parsed = JSON.parse(draft);
           reset(parsed);
-          Notify.toast("Draft antrean dipulihkan", "success", "top");
         } catch (e) {
           console.error("Failed to parse draft", e);
         }
@@ -474,6 +473,10 @@ const onInvalid = (errors: any) => {
           <InputGroup
             label="Estimasi Biaya"
             type="number"
+            min={0}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e") e.preventDefault();
+            }}
             placeholder="Rp."
             {...register("estimasiBiaya")}
             error={errors.estimasiBiaya?.message}

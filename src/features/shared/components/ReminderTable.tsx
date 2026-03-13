@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useReminders } from "@/hooks/useReminders";
 import Skeleton from "react-loading-skeleton";
 import { Icons } from "@/components/Icons";
@@ -8,6 +8,8 @@ import dayjs from "dayjs";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/DataTable";
 import { Badge, ActionButton } from "@/features/shared";
+import { ReminderFormModal } from "./ReminderFormModal";
+import { Notify } from "@/utils/notify";
 
 const STATUS_VARIANT: Record<string, "success" | "info" | "danger" | "warning"> = {
   Aktif: "success",
@@ -69,7 +71,47 @@ function ReminderSummary({ reminders, loading }: { reminders: any[], loading: bo
 }
 
 export function ReminderTable() {
-  const { data: reminders, loading, sendWa } = useReminders();
+  const { data: reminders, loading, sendWa, createReminder, updateReminder, deleteReminder } = useReminders();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+
+  const handleOpenAdd = () => {
+    setSelectedItem(null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (item: any) => {
+    setSelectedItem(item);
+    setModalOpen(true);
+  };
+
+  const handleSave = async (payload: any) => {
+    try {
+      setIsSubmitLoading(true);
+      if (selectedItem) {
+        await updateReminder(selectedItem.id, payload);
+      } else {
+        await createReminder(payload);
+      }
+      setModalOpen(false);
+    } catch (err) {
+      // Error handled in hook
+    } finally {
+      setIsSubmitLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const isConfirmed = await Notify.confirm(
+      "Hapus Reminder",
+      "Apakah Anda yakin ingin menghapus pengingat ini? Tindakan ini tidak dapat dibatalkan.",
+      "Ya, Hapus"
+    );
+    if (isConfirmed) {
+      await deleteReminder(id);
+    }
+  };
 
   const columns = useMemo<ColumnDef<any>[]>(
     () => [
@@ -173,9 +215,16 @@ export function ReminderTable() {
               onClick={() => sendWa(row.original.id)}
             />
             <ActionButton 
+              icon={<Icons.Edit size={16} />} 
+              variant="ghost" 
+              title="Edit Reminder" 
+              onClick={() => handleOpenEdit(row.original)}
+            />
+            <ActionButton 
               icon={<Icons.Delete size={16} />} 
               variant="delete"
-              title="Batalkan Reminder"
+              title="Hapus Reminder"
+              onClick={() => handleDelete(row.original.id)}
             />
           </div>
         )
@@ -203,11 +252,19 @@ export function ReminderTable() {
           pageSize={5}
           primaryAction={{
             label: "Tambah Reminder",
-            onClick: () => {},
+            onClick: handleOpenAdd,
           }}
+        />
+      )}
+
+      {modalOpen && (
+        <ReminderFormModal
+          onClose={() => setModalOpen(false)}
+          onSave={handleSave}
+          item={selectedItem}
+          isLoading={isSubmitLoading}
         />
       )}
     </div>
   );
 }
-

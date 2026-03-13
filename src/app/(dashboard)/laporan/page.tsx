@@ -1,6 +1,5 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { LaporanKeuangan } from "@/features/laporan";
-import { LaporanAnalitik } from "@/features/laporan";
+import { LaporanKeuangan, LaporanAnalitik, LaporanStok } from "@/features/laporan";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,6 +13,7 @@ export default function LaporanPage() {
       <div className="flex flex-col gap-6">
         <LaporanKeuangan />
         <LaporanAnalitik />
+        <LaporanStok />
       </div>
     </div>
   );

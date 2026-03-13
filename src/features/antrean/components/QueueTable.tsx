@@ -11,6 +11,7 @@ import {
   ExcelButtons,
 } from "@/features/shared";
 import { Icons } from "@/components/Icons";
+import { Notify } from "@/utils/notify";
 import { QueueFormModal } from "./QueueFormModal";
 import { SPKModal } from "./SPKModal";
 import { antreanToExcelRows } from "@/lib/excel";
@@ -34,10 +35,11 @@ interface QueueTableProps {
   data: Antrean[];
   onUpdate: (id: string, data: any) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onPay: (item: Antrean) => void;
   isLoading?: boolean;
 }
 
-export function QueueTable({ data, onUpdate, onDelete, isLoading = false }: QueueTableProps) {
+export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false }: QueueTableProps) {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -133,6 +135,23 @@ export function QueueTable({ data, onUpdate, onDelete, isLoading = false }: Queu
         ),
       },
       {
+        accessorKey: "payment_status",
+        header: () => <div className="w-full text-center">Pembayaran</div>,
+        cell: ({ row }) => {
+          const status = row.original.payment_status;
+          return (
+            <div className="flex w-full justify-center">
+              <Badge
+                variant={status === "Lunas" ? "success" : status === "Piutang" ? "warning" : "neutral"}
+                className="py-0.5 text-[10px] font-black uppercase tracking-wider"
+              >
+                {status || "Belum Bayar"}
+              </Badge>
+            </div>
+          );
+        },
+      },
+      {
         id: "actions",
         header: () => <div className="w-full text-center">Opsi</div>,
         cell: ({ row }) => (
@@ -141,7 +160,51 @@ export function QueueTable({ data, onUpdate, onDelete, isLoading = false }: Queu
               <ActionButton
                 icon={<Icons.Whatsapp size={16} />}
                 variant="success"
-                onClick={() => alert(`Mengirim progres ke ${row.original.waPelanggan}...`)}
+                onClick={async () => {
+                  const item = row.original;
+                  const confirmed = await Notify.confirm(
+                    "Kirim Progres?",
+                    `Kirim update status "${item.status}" ke ${item.pelanggan} via WhatsApp?`,
+                  );
+
+                  if (!confirmed) return;
+
+                  Notify.loading("Mengirim progres...");
+                    
+                    const message = `
+*Update Progres Servis - AutoService* 🛠️
+
+Halo Bapak/Ibu *${item.pelanggan}*,
+Kendaraan Anda dengan plat nomor *${item.noPolisi}* (${item.kendaraan}) saat ini:
+
+🚩 *STATUS: ${item.status.toUpperCase()}*
+
+*Detail:*
+Layanan: ${item.layanan}
+Mekanik: ${item.mekanik || "-"}
+Estimasi: ${item.estimasiSelesai || "-"}
+
+Kami akan mengabari kembali jika pengerjaan telah selesai. Terima kasih atas kepercayaan Anda. 🙏
+`.trim();
+
+                    const phoneNumber = item.waPelanggan!.startsWith("+")
+                      ? item.waPelanggan!
+                      : `+62${item.waPelanggan!.startsWith("0") ? item.waPelanggan!.slice(1) : item.waPelanggan!}`;
+
+                    try {
+                    const { api } = await import("@/lib/api");
+                    await api.post("/api/v1/notifications/wa/send", {
+                      phone: phoneNumber,
+                      message: message,
+                    });
+
+                    Notify.toast("Update progres berhasil dikirim!", "success");
+                  } catch (error: any) {
+                    Notify.alert("Gagal Kirim", error.message || "Gagal mengirim progres via WA", "error");
+                  } finally {
+                    Notify.close();
+                  }
+                }}
                 title="WhatsApp Progres"
               />
             )}
@@ -162,6 +225,20 @@ export function QueueTable({ data, onUpdate, onDelete, isLoading = false }: Queu
               variant="delete"
               onClick={() => handleAction(row.original, "delete")}
               title="Hapus"
+            />
+            <ActionButton
+              icon={<Icons.Kasir size={16} />}
+              variant="primary"
+              onClick={async () => {
+                if (row.original.payment_status === "Lunas") {
+                  Notify.toast("Transaksi ini sudah lunas", "success");
+                  return;
+                }
+                Notify.loading("Menyiapkan Kasir...");
+                onPay(row.original);
+              }}
+              title={row.original.payment_status === "Lunas" ? "Sudah Lunas" : "Bayar / Ke Kasir"}
+              disabled={row.original.payment_status === "Lunas"}
             />
           </div>
         ),

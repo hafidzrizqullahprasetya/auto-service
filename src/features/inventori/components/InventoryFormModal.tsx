@@ -13,16 +13,17 @@ import { cn } from "@/lib/utils";
 import { Notify } from "@/utils/notify";
 import { CategoryFormModal } from "./CategoryFormModal";
 import { useState, useMemo, useEffect, useRef } from "react";
+import { Controller } from "react-hook-form";
 
 const inventorySchema = z.object({
   sku: z.string().min(1, "SKU wajib diisi"),
   name: z.string().min(3, "Nama minimal 3 karakter"),
   category_id: z.coerce.number().min(1, "Kategori wajib dipilih"),
   type: z.string(),
-  cost_price: z.string().min(1, "Harga modal wajib diisi"),
-  sell_price: z.string().min(1, "Harga jual wajib diisi"),
-  current_stock: z.string().optional(),
-  minimum_stock: z.string().optional(),
+  cost_price: z.number().min(0, "Harga modal wajib diisi"),
+  sell_price: z.number().min(0, "Harga jual wajib diisi"),
+  current_stock: z.number().optional(),
+  minimum_stock: z.number().optional(),
   unit: z.string().min(1, "Satuan wajib diisi"),
 });
 
@@ -55,6 +56,7 @@ export function InventoryFormModal({
     setValue,
     watch,
     formState: { errors },
+    control,
   } = useForm<InventoryFormValues>({
     resolver: zodResolver(inventorySchema) as any,
     defaultValues: {
@@ -62,10 +64,10 @@ export function InventoryFormModal({
       name: initialData?.name ?? "",
       category_id: initialData?.categoryId ?? (categories.length > 0 ? categories[0].id : 0),
       type: initialData?.type ?? "Mobil",
-      cost_price: initialData?.costPrice ? formatNumber(initialData.costPrice) : "",
-      sell_price: initialData?.price ? formatNumber(initialData.price) : "",
-      current_stock: initialData?.stock !== undefined ? formatNumber(initialData.stock) : "0",
-      minimum_stock: initialData?.minimumStock !== undefined ? formatNumber(initialData.minimumStock) : "5",
+      cost_price: initialData?.costPrice || 0,
+      sell_price: initialData?.price || 0,
+      current_stock: initialData?.stock || 0,
+      minimum_stock: initialData?.minimumStock || 5,
       unit: initialData?.unit ?? "pcs",
     },
   });
@@ -123,27 +125,30 @@ export function InventoryFormModal({
   const onInvalid = (errs: any) => {
     const firstError = Object.values(errs)[0] as any;
     if (firstError?.message) {
-      Notify.alert("Form Belum Lengkap", firstError.message, "error");
+      Notify.alert("Form Belum Lengkap", firstError.message, "error", "320px");
     }
   };
 
-  const onFormSubmit: SubmitHandler<InventoryFormValues> = (data) => {
-    onSave({
-      category_id: Number(data.category_id),
-      name: data.name,
-      sku: data.sku,
-      cost_price: stripFormatting(data.cost_price),
-      sell_price: stripFormatting(data.sell_price),
-      current_stock: stripFormatting(data.current_stock || "0"),
-      minimum_stock: stripFormatting(data.minimum_stock || "0"),
-      unit: data.unit,
-      type: data.type,
-    });
-    if (!isEdit) localStorage.removeItem("inventory_form_draft");
+  const onFormSubmit: SubmitHandler<InventoryFormValues> = async (data) => {
+    try {
+      await onSave({
+        ...data,
+        category_id: Number(data.category_id),
+        cost_price: data.cost_price,
+        sell_price: data.sell_price,
+        current_stock: data.current_stock,
+        minimum_stock: data.minimum_stock,
+      });
+      
+      if (!isEdit) {
+        localStorage.removeItem("inventory_form_draft");
+      }
+    } catch (error) {
+    }
   };
 
-  const sellPriceNum = stripFormatting(formValues.sell_price);
-  const costPriceNum = stripFormatting(formValues.cost_price);
+  const sellPriceNum = formValues.sell_price;
+  const costPriceNum = formValues.cost_price;
 
   return (
     <BaseModal
@@ -236,35 +241,71 @@ export function InventoryFormModal({
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <InputGroup
-            label="Harga Modal (Rp)"
-            placeholder="0"
-            leftIcon={<span className="text-sm font-bold text-dark-5">Rp</span>}
-            {...register("cost_price")}
-            onChange={handleNumericChange}
-            error={errors.cost_price?.message}
+          <Controller
+            name="cost_price"
+            control={control}
+            render={({ field: { onChange, value, ...field } }) => (
+              <InputGroup
+                label="Harga Modal (Rp)"
+                placeholder="0"
+                type="number"
+                min={0}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault();
+                }}
+                leftIcon={<span className="text-sm font-bold text-dark-5">Rp</span>}
+                value={formatNumber(value)}
+                onChange={(e) => onChange(stripFormatting(e.target.value))}
+                error={errors.cost_price?.message}
+                {...field}
+              />
+            )}
           />
-          <InputGroup
-            label="Harga Jual (Rp)"
-            placeholder="0"
-            leftIcon={<span className="text-sm font-bold text-dark-5">Rp</span>}
-            className="text-secondary font-bold"
-            {...register("sell_price")}
-            onChange={handleNumericChange}
-            error={errors.sell_price?.message}
+          <Controller
+            name="sell_price"
+            control={control}
+            render={({ field: { onChange, value, ...field } }) => (
+              <InputGroup
+                label="Harga Jual (Rp)"
+                placeholder="0"
+                type="number"
+                min={0}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault();
+                }}
+                leftIcon={<span className="text-sm font-bold text-dark-5">Rp</span>}
+                className="text-secondary font-bold"
+                value={formatNumber(value)}
+                onChange={(e) => onChange(stripFormatting(e.target.value))}
+                error={errors.sell_price?.message}
+                {...field}
+              />
+            )}
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1">
-            <InputGroup
-              label={isEdit ? "Stok Saat Ini" : "Stok Awal"}
-              placeholder="0"
-              {...register("current_stock")}
-              onChange={handleNumericChange}
-              error={errors.current_stock?.message}
-              disabled={isEdit}
-              className={cn(isEdit && "bg-gray-1 dark:bg-dark-3 opacity-70 cursor-not-allowed font-bold text-dark-5")}
+            <Controller
+              name="current_stock"
+              control={control}
+              render={({ field: { onChange, value, ...field } }) => (
+                <InputGroup
+                  label={isEdit ? "Stok Saat Ini" : "Stok Awal"}
+                  placeholder="0"
+                  type="number"
+                  min={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") e.preventDefault();
+                  }}
+                  value={formatNumber(value)}
+                  onChange={(e) => onChange(stripFormatting(e.target.value))}
+                  error={errors.current_stock?.message}
+                  disabled={isEdit}
+                  className={cn(isEdit && "bg-gray-1 dark:bg-dark-3 opacity-70 cursor-not-allowed font-bold text-dark-5")}
+                  {...field}
+                />
+              )}
             />
             {isEdit && (
               <p className="text-[10px] text-dark-5 italic leading-tight px-1">
@@ -272,12 +313,24 @@ export function InventoryFormModal({
               </p>
             )}
           </div>
-          <InputGroup
-            label="Min. Stok"
-            placeholder="5"
-            {...register("minimum_stock")}
-            onChange={handleNumericChange}
-            error={errors.minimum_stock?.message}
+          <Controller
+            name="minimum_stock"
+            control={control}
+            render={({ field: { onChange, value, ...field } }) => (
+              <InputGroup
+                label="Min. Stok"
+                placeholder="5"
+                type="number"
+                min={0}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault();
+                }}
+                value={formatNumber(value)}
+                onChange={(e) => onChange(stripFormatting(e.target.value))}
+                error={errors.minimum_stock?.message}
+                {...field}
+              />
+            )}
           />
           <div className="col-span-1">
             <div className="space-y-2">

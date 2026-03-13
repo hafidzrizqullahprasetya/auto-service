@@ -71,7 +71,6 @@ export function CategoryFormModal({
       onClose();
     } catch (err) {
       Notify.close();
-      // Error usually handled by onSave via Notify.alert/toast
     } finally {
       setInternalLoading(false);
     }
@@ -80,7 +79,7 @@ export function CategoryFormModal({
   const onInvalid = (errs: any) => {
     const firstError = Object.values(errs)[0] as any;
     if (firstError?.message) {
-      Notify.alert("Form Belum Lengkap", firstError.message, "error");
+      Notify.alert("Form Belum Lengkap", firstError.message, "error", "320px");
     }
   };
 

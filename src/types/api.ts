@@ -184,7 +184,8 @@ export interface ApiSettings {
   wa_target_number?: string;
   open_time?: string;
   close_time?: string;
-  operational_days?: string; // Comma separated days, e.g. "1,2,3,4,5,6"
+  operational_days?: string;
+  tax_percentage?: number;
 }
 
 // ===== WA Notifications =====

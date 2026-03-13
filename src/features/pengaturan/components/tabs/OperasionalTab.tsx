@@ -15,6 +15,7 @@ const operationalSchema = z.object({
   open_time: z.string().min(4, "Jam buka harus diisi"),
   close_time: z.string().min(4, "Jam tutup harus diisi"),
   operational_days: z.string().min(1, "Minimal satu hari operasional dipilih"),
+  tax_percentage: z.coerce.number().min(0, "Pajak tidak boleh negatif").max(100, "Pajak maksimal 100%"),
 });
 
 type OperationalFormValues = z.infer<typeof operationalSchema>;
@@ -52,6 +53,7 @@ export function OperasionalTab({ settings, onSave, loading, saving }: Operasiona
       open_time: settings?.open_time ?? "08:00",
       close_time: settings?.close_time ?? "17:00",
       operational_days: settings?.operational_days ?? "1,2,3,4,5,6",
+      tax_percentage: Number(settings?.tax_percentage ?? 0),
     },
   });
 
@@ -62,6 +64,7 @@ export function OperasionalTab({ settings, onSave, loading, saving }: Operasiona
         open_time: settings.open_time || "08:00",
         close_time: settings.close_time || "17:00",
         operational_days: daysStr,
+        tax_percentage: Number(settings.tax_percentage ?? 0),
       });
       setSelectedDays(daysStr.split(","));
     }
@@ -161,6 +164,36 @@ export function OperasionalTab({ settings, onSave, loading, saving }: Operasiona
                 {errors.operational_days.message}
               </p>
             )}
+          </div>
+          <div className="mt-8 border-t border-stroke pt-6 dark:border-dark-3">
+             <label className="mb-3 block text-sm font-semibold text-dark dark:text-white">
+                Pajak & Biaya
+             </label>
+             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="relative">
+                  <label className="mb-2 block text-xs font-bold uppercase text-dark-5">
+                    Persentase PPN (%)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.1"
+                      {...register("tax_percentage")}
+                      placeholder="Contoh: 11"
+                      className="w-full rounded-lg border-2 border-stroke bg-white px-4 py-2.5 pr-10 text-sm font-black text-dark outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
+                    />
+                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-dark-5">
+                      %
+                    </div>
+                  </div>
+                  {errors.tax_percentage && (
+                    <p className="mt-1 text-xs font-medium text-red-500">{errors.tax_percentage.message}</p>
+                  )}
+                  <p className="mt-2 text-[10px] font-medium text-dark-5">
+                    Set ke 0 jika tidak ada pajak yang dikenakan pada transaksi.
+                  </p>
+                </div>
+             </div>
           </div>
         </SectionCard>
 

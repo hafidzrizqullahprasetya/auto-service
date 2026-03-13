@@ -23,7 +23,6 @@ function getRefreshToken(): string | null {
 }
 
 function saveNewToken(token: string) {
-  // Save to whichever storage currently has the session
   if (localStorage.getItem("auth_refresh_token")) {
     localStorage.setItem("auth_token", token);
   } else {
@@ -166,7 +165,6 @@ async function request<T>(
 }
 
 function apiPath(path: string): string {
-  // Normalize path: remove any leading /api/v1 or /v1 prefix if present
   const baseCleanPath = path.replace(/^\/(api\/v1|v1)\//, "/").replace(/^\/(api\/v1|v1)$/, "/");
   const cleanPath = baseCleanPath.startsWith("/") ? baseCleanPath : `/${baseCleanPath}`;
   const version = API_VERSION.replace(/\/+$/, "");

@@ -191,8 +191,17 @@ export function ServiceCatalog() {
                         );
                         
                         if (confirmed) {
-                          deleteItem(svc.id);
-                          Notify.toast("Jasa berhasil dihapus", "success");
+                          try {
+                            Notify.loading("Menghapus jasa...");
+                            await deleteItem(svc.id);
+                            // Beri waktu sebentar agar loading terlihat
+                            await new Promise(r => setTimeout(r, 800));
+                            Notify.close();
+                            Notify.toast("Jasa berhasil dihapus", "success");
+                          } catch (error) {
+                            Notify.close();
+                            Notify.alert("Gagal", "Terjadi kesalahan saat menghapus jasa", "error");
+                          }
                         }
                       }}
                       className="rounded-lg p-1.5 text-red hover:bg-red-light-1 transition-colors"

@@ -34,12 +34,24 @@ export function mapWorkOrder(wo: ApiWorkOrder): Antrean {
     estimasiBiaya: Number(wo.estimasi_biaya ?? 0),
     waPelanggan: customer?.phone,
     menginap: wo.menginap,
+    customer_id: wo.customer_id ?? undefined,
+    vehicle_id: wo.vehicle_id ?? undefined,
+    payment_status: (wo as any).transactions?.[0] ? 
+      (PAYMENT_STATUS_MAP_ANTREAN[(wo as any).transactions[0].payment_status] || "Belum Bayar") : 
+      "Belum Bayar",
   };
 }
 
+const PAYMENT_STATUS_MAP_ANTREAN: Record<string, Antrean["payment_status"]> = {
+  lunas: "Lunas",
+  dp: "DP",
+  piutang: "Piutang",
+};
+
 export interface WorkOrderBody {
-  customer_id: number;
-  vehicle_id: number;
+  customer_id?: number;
+  vehicle_id?: number;
+  payment_status?: "Lunas" | "DP" | "Piutang" | "Belum Bayar";
   layanan: string;
   keluhan?: string;
   estimasi_biaya?: number;

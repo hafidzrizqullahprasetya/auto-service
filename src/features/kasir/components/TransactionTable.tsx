@@ -12,9 +12,10 @@ import dayjs from "dayjs";
 import { InvoiceModal } from "@/features/kasir";
 import { ActionButton } from "@/features/shared";
 import { TransactionTableSkeleton } from "./TransactionTableSkeleton";
+import { Notify } from "@/utils/notify";
 
 export function TransactionTable() {
-  const { data: transactions, loading } = useTransactions();
+  const { data: transactions, loading, deleteTransaction } = useTransactions();
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
@@ -122,12 +123,88 @@ export function TransactionTable() {
         id: "actions",
         header: () => <div className="w-full text-center">Opsi</div>,
         cell: ({ row }) => (
-          <div className="flex w-full items-center justify-center">
+          <div className="flex w-full items-center justify-center gap-1">
             <ActionButton
               onClick={() => setSelectedTx(row.original)}
               variant="view"
               icon={<Icons.Print size={16} />}
               title="Lihat Invoice"
+            />
+            {row.original.customerPhone && (
+              <ActionButton
+                variant="success"
+                icon={<Icons.Whatsapp size={16} />}
+                onClick={async () => {
+                  const tx = row.original;
+                  const confirmed = await Notify.confirm(
+                    "Kirim Invoice?",
+                    `Kirim invoice ${tx.invoiceNo} ke ${tx.customerName} via WhatsApp?`
+                  );
+                  if (!confirmed) return;
+
+                  try {
+                    Notify.loading("Mengirim invoice...");
+                    
+                    // Format message (reuse logic or keep simple)
+                    const itemsList = tx.items
+                      .map(i => `• ${i.name} (x${i.qty})`)
+                      .join("\n");
+                    
+                    const message = `
+*NOTA SERVIS* 📋
+No: ${tx.invoiceNo}
+Pelanggan: ${tx.customerName}
+Total: Rp ${formatNumber(tx.total)}
+Status: ${tx.paymentStatus}
+
+Detail:
+${itemsList}
+
+Terima kasih! 🙏
+`.trim();
+
+                    const phoneNumber = tx.customerPhone!.startsWith("+")
+                      ? tx.customerPhone!
+                      : `+62${tx.customerPhone!.startsWith("0") ? tx.customerPhone!.slice(1) : tx.customerPhone!}`;
+
+                    const { api } = await import("@/lib/api");
+                    await api.post("/api/v1/notifications/wa/send", {
+                      phone: phoneNumber,
+                      message: message,
+                    });
+
+                    Notify.toast("Invoice dikirim!", "success");
+                  } catch (err: any) {
+                    Notify.alert("Gagal!", err.message);
+                  } finally {
+                    Notify.close();
+                  }
+                }}
+                title="Kirim WA"
+              />
+            )}
+            <ActionButton
+              onClick={async () => {
+                const isConfirmed = await Notify.confirm(
+                  "Hapus Transaksi?",
+                  `Transaksi ${row.original.invoiceNo} akan dihapus permanen.`,
+                  "Ya, Hapus"
+                );
+                if (isConfirmed) {
+                  try {
+                    Notify.loading("Menghapus...");
+                    await deleteTransaction(row.original.id);
+                    Notify.toast("Transaksi dihapus", "success");
+                  } catch (err: any) {
+                    Notify.alert("Gagal!", err.message || "Gagal menghapus");
+                  } finally {
+                    Notify.close();
+                  }
+                }
+              }}
+              variant="delete"
+              icon={<Icons.Delete size={16} />}
+              title="Hapus Transaksi"
             />
           </div>
         ),

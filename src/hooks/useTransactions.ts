@@ -27,5 +27,10 @@ export function useTransactions() {
     fetchAll();
   }, [fetchAll]);
 
-  return { data, loading, error, refetch: fetchAll, setData };
+  const deleteTransaction = useCallback(async (id: string) => {
+    await transactionsService.delete(id);
+    setData((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  return { data, loading, error, refetch: fetchAll, deleteTransaction, setData };
 }

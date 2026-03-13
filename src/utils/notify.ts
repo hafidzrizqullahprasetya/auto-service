@@ -3,12 +3,12 @@ import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 export const Notify = {
-  alert: (title: string, text: string, icon: SweetAlertIcon = "error") => {
+  alert: (title: string, text: string, icon: SweetAlertIcon = "error", width: string = "400px") => {
     return MySwal.fire({
       title,
       text,
       icon,
-      width: "400px",
+      width,
       confirmButtonText: "Tutup",
       confirmButtonColor: icon === "error" ? "#EF4444" : "#3C50E0",
       didOpen: () => {

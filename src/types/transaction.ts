@@ -3,6 +3,7 @@ export interface Transaction {
   invoiceNo: string;
   date: string;
   customerName: string;
+  customerPhone?: string;
   vehiclePlate: string;
   items: TransactionItem[];
   subtotal: number;
@@ -12,6 +13,7 @@ export interface Transaction {
   type: "Service" | "Sparepart Only";
   paymentStatus: "Lunas" | "DP" | "Piutang";
   dpAmount?: number;
+  taxPercentage: number;
 }
 
 export interface TransactionItem {

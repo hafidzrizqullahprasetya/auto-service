@@ -121,6 +121,22 @@ export default function AntreanPage() {
     }
   };
 
+  const handlePayment = (item: Antrean) => {
+    // Redirect ke kasir dengan parameter lengkap
+    const params = new URLSearchParams();
+    params.set("tab", "buat");
+    params.set("wo_id", item.id);
+    params.set("customer_id", item.customer_id?.toString() || "");
+    params.set("customer_name", item.pelanggan || "");
+    params.set("vehicle_id", item.vehicle_id?.toString() || "");
+    params.set("plate_number", item.noPolisi || "");
+    params.set("layanan", item.layanan || "");
+    params.set("biaya", item.estimasiBiaya?.toString() || "0");
+    params.set("notes", item.keluhan || "");
+    
+    router.push(`/kasir?${params.toString()}`);
+  };
+
   const TABS = [
     { id: "kanban" as ViewType, label: "Kanban Board", icon: LayoutGrid },
     { id: "table" as ViewType, label: "Tabel Antrean", icon: LayoutList },
@@ -185,6 +201,7 @@ export default function AntreanPage() {
                 onMechanicAssign={handleMechanicAssign}
                 onUpdate={handleUpdate}
                 onDelete={handleDelete}
+                onPay={handlePayment}
               />
             </div>
           )}
@@ -198,6 +215,7 @@ export default function AntreanPage() {
               data={items}
               onUpdate={handleUpdate}
               onDelete={handleDelete}
+              onPay={handlePayment}
             />
           )}
         </>

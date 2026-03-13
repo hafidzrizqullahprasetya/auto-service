@@ -9,6 +9,7 @@ import { Icons } from "@/components/Icons";
 import InputGroup from "@/components/ui/InputGroup";
 import { cn } from "@/lib/utils";
 import { Notify } from "@/utils/notify";
+import { formatNumber, stripFormatting } from "@/utils/format-number";
 
 const serviceSchema = z.object({
   sku: z.string().min(1, "SKU wajib diisi"),
@@ -158,12 +159,26 @@ export function ServiceCatalogModal({ onClose, onSave, initialData }: ServiceCat
               <option value="Lainnya">Lainnya</option>
             </select>
           </div>
-          <InputGroup
-            label="Harga Standar (Rp)"
-            type="number"
-            required
-            {...register("standard_price", { valueAsNumber: true })}
-            error={errors.standard_price?.message}
+          <Controller
+            name="standard_price"
+            control={control}
+            render={({ field: { onChange, value, ...field } }) => (
+              <InputGroup
+                label="Harga Standar (Rp)"
+                type="text"
+                required
+                placeholder="0"
+                value={formatNumber(value)}
+                onChange={(e) => {
+                  const rawValue = stripFormatting(e.target.value);
+                  onChange(rawValue);
+                }}
+                error={errors.standard_price?.message}
+                leftIcon={<span className="text-sm font-bold text-dark-5">Rp</span>}
+                className="font-bold"
+                {...field}
+              />
+            )}
           />
         </div>
 

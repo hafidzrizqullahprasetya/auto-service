@@ -8,7 +8,7 @@ import * as z from "zod";
 import { BaseModal, ActionButton, CustomSelect } from "@/features/shared";
 import { Icons } from "@/components/Icons";
 import { Item } from "@/types/inventory";
-import { formatNumber } from "@/utils/format-number";
+import { formatNumber, stripFormatting } from "@/utils/format-number";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useInventory } from "@/hooks/useInventory";
 import { vehiclesService, ApiVehicle } from "@/services/vehicles.service";
@@ -32,8 +32,8 @@ const transactionSchema = z.object({
       }),
     )
     .min(1, "Minimal pilih 1 item"),
-  paymentMethod: z.string().default("Cash"),
-  paymentStatus: z.string().default("Lunas"),
+  paymentMethod: z.string().min(1, "Metode pembayaran wajib dipilih"),
+  paymentStatus: z.string().min(1, "Status pembayaran wajib dipilih"),
   paidAmount: z.number().default(0),
 });
 
@@ -41,15 +41,20 @@ type TransactionFormValues = z.infer<typeof transactionSchema>;
 
 interface TransactionFormModalProps {
   onClose: () => void;
-  onSave: (data: any) => void;
-  initialItems?: Array<{
-    itemId: string;
-    isJasa: boolean;
-    name: string;
-    price: number;
-    quantity: number;
-    unit: string;
-  }>;
+  onSave: (data: any) => Promise<void>;
+  initialData?: {
+    customerId?: string;
+    vehicleId?: string;
+    notes?: string;
+    items?: Array<{
+      itemId: string;
+      isJasa: boolean;
+      name: string;
+      price: number;
+      quantity: number;
+      unit: string;
+    }>;
+  };
 }
 
 const DRAFT_KEY = "kasir_transaction_draft";
@@ -57,7 +62,7 @@ const DRAFT_KEY = "kasir_transaction_draft";
 export function TransactionFormModal({
   onClose,
   onSave,
-  initialItems,
+  initialData,
 }: TransactionFormModalProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -90,16 +95,22 @@ export function TransactionFormModal({
       vehicleId: "",
       notes: "",
       items: [],
-      paymentMethod: "Cash",
-      paymentStatus: "Lunas",
+      paymentMethod: "",
+      paymentStatus: "",
       paidAmount: 0,
     },
   });
 
-  // Load draft or initialItems from POS
+  // Load initialData or draft
   useEffect(() => {
-    if (initialItems && initialItems.length > 0) {
-      setValue("items", initialItems);
+    if (initialData) {
+      if (initialData.customerId)
+        setValue("customerId", initialData.customerId);
+      if (initialData.vehicleId) setValue("vehicleId", initialData.vehicleId);
+      if (initialData.notes) setValue("notes", initialData.notes);
+      if (initialData.items && initialData.items.length > 0) {
+        setValue("items", initialData.items);
+      }
       return;
     }
 
@@ -114,15 +125,20 @@ export function TransactionFormModal({
         console.error("Failed to load draft:", e);
       }
     }
-  }, [setValue, initialItems]);
+  }, [setValue, initialData]);
 
-  // Auto-save draft to localStorage
   const watchAll = watch();
   useEffect(() => {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(watchAll));
   }, [watchAll]);
 
-  // Simulate customers loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Notify.close();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     setCustomersLoading(false);
   }, []);
@@ -152,16 +168,22 @@ export function TransactionFormModal({
     setVehiclesLoading(true);
     vehiclesService
       .getByCustomer(customerId)
-      .then((data) => {
-        setCustomerVehicles(data);
+      .then((res) => {
+        setCustomerVehicles(res);
         setVehiclesLoading(false);
+        // Auto-select vehicle if it's in initialData
+        if (initialData?.vehicleId) {
+          setValue("vehicleId", String(initialData.vehicleId));
+        } else if (res.length === 1) {
+          // If customer only has 1 vehicle, auto-select it
+          setValue("vehicleId", String(res[0].id));
+        }
       })
       .catch(() => {
         setCustomerVehicles([]);
         setVehiclesLoading(false);
       });
-    setValue("vehicleId", "");
-  }, [customerId, setValue]);
+  }, [customerId, setValue, initialData]);
 
   const selectedCustomer = customers.find((c) => c.id === customerId);
   const selectedVehicle = customerVehicles.find(
@@ -169,11 +191,11 @@ export function TransactionFormModal({
   );
 
   const jasaItems = useMemo(
-    () => allItems.filter((i) => i.category === "jasa" || i.type === "service"),
+    () => allItems.filter((i) => i.category === "Service"),
     [allItems],
   );
   const sparePartItems = useMemo(
-    () => allItems.filter((i) => i.category !== "jasa" && i.type !== "service"),
+    () => allItems.filter((i) => i.category !== "Service"),
     [allItems],
   );
 
@@ -247,10 +269,10 @@ export function TransactionFormModal({
   );
   const sisa = subtotal - paidAmount;
 
+
   const onInvalid = (errors: any) => {
-    const firstError = Object.values(errors)[0] as any;
-    // Jika error ada di array items
-    if (errors.items && Array.isArray(errors.items)) {
+    // We'll handle payment alerts specifically during submit
+    if (errors.items) {
       Notify.alert(
         "Item Belum Lengkap",
         "Minimal tambahkan 1 item produk atau jasa",
@@ -258,33 +280,32 @@ export function TransactionFormModal({
       );
       return;
     }
+    
+    const firstError = Object.values(errors)[0] as any;
     if (firstError?.message) {
       Notify.alert("Form Belum Lengkap", firstError.message, "error");
     }
   };
 
   const onFormSubmit: SubmitHandler<TransactionFormValues> = async (data) => {
+    if (step === 1) {
+      if (cartItems.length > 0) setStep(2);
+      return;
+    }
     try {
       setLoading(true);
-      const loadingId = Notify.loading("Menyimpan transaksi...");
-
-      await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate API call
-
-      // Call onSave
-      onSave({
+      await onSave({
         ...data,
         subtotal,
         paidAmount: data.paymentStatus === "Lunas" ? subtotal : data.paidAmount,
       });
-
-      // Clear draft and close modal
-      localStorage.removeItem(DRAFT_KEY);
-      Notify.close();
       Notify.toast("Transaksi berhasil disimpan!", "success", "top");
+      localStorage.removeItem(DRAFT_KEY);
+      router.refresh();
       router.push("?tab=riwayat", { scroll: false });
       onClose();
-    } catch (error) {
-      Notify.toast("Gagal menyimpan transaksi", "error", "top");
+    } catch (error: any) {
+      Notify.alert("Gagal!", error.message || "Gagal menyimpan transaksi");
       console.error(error);
     } finally {
       setLoading(false);
@@ -302,6 +323,20 @@ export function TransactionFormModal({
     >
       <form
         onSubmit={handleSubmit(onFormSubmit, onInvalid) as any}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+              if (step === 1) {
+                e.preventDefault();
+                if (watchAll.customerId && cartItems.length > 0) {
+                  setStep(2);
+                }
+              } else {
+                e.preventDefault();
+              }
+            }
+          }
+        }}
         className="space-y-6"
         noValidate
       >
@@ -593,17 +628,24 @@ export function TransactionFormModal({
                   <button
                     key={m}
                     type="button"
-                    onClick={() => setValue("paymentMethod", m)}
+                    onClick={() => setValue("paymentMethod", m, { shouldValidate: true })}
                     className={`rounded-lg border-2 py-3 text-sm font-bold transition-all ${
                       watchAll.paymentMethod === m
                         ? "border-secondary bg-secondary text-white"
-                        : "border-stroke text-dark-5 hover:border-secondary/50 dark:border-dark-3"
+                        : errors.paymentMethod 
+                          ? "border-red-500 bg-red-50 text-red-500 hover:border-red-600"
+                          : "border-stroke text-dark-5 hover:border-secondary/50 dark:border-dark-3"
                     }`}
                   >
                     {m}
                   </button>
                 ))}
               </div>
+              {errors.paymentMethod && (
+                <p className="text-xs font-bold text-red-500 mt-1">
+                  * {errors.paymentMethod.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-3">
@@ -614,22 +656,33 @@ export function TransactionFormModal({
                     key={s}
                     type="button"
                     onClick={() => {
-                      setValue("paymentStatus", s);
-                      if (s === "Lunas") setValue("paidAmount", subtotal);
+                      setValue("paymentStatus", s, { shouldValidate: true });
+                      if (s === "Lunas") {
+                        setValue("paidAmount", subtotal);
+                      } else if (s === "Piutang") {
+                        setValue("paidAmount", 0);
+                      }
                     }}
                     className={`rounded-lg border-2 py-3 text-sm font-bold transition-all ${
                       watchAll.paymentStatus === s
                         ? "border-secondary bg-secondary text-white"
-                        : "border-stroke text-dark-5 hover:border-secondary/50 dark:border-dark-3"
+                        : errors.paymentStatus
+                          ? "border-red-500 bg-red-50 text-red-500 hover:border-red-600"
+                          : "border-stroke text-dark-5 hover:border-secondary/50 dark:border-dark-3"
                     }`}
                   >
                     {s}
                   </button>
                 ))}
               </div>
+              {errors.paymentStatus && (
+                <p className="text-xs font-bold text-red-500 mt-1">
+                  * {errors.paymentStatus.message}
+                </p>
+              )}
             </div>
 
-            {(paymentStatus === "DP" || paymentStatus === "Piutang") && (
+            {paymentStatus === "DP" && (
               <div>
                 <InputGroup
                   label={
@@ -638,11 +691,16 @@ export function TransactionFormModal({
                       : "Sudah Dibayar"
                   }
                   placeholder="0"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   leftIcon={
                     <span className="text-sm font-bold text-dark-5">Rp</span>
                   }
-                  {...register("paidAmount", { valueAsNumber: true })}
+                  value={paidAmount === 0 ? "" : formatNumber(paidAmount)}
+                  onChange={(e) => {
+                    const raw = stripFormatting(e.target.value);
+                    setValue("paidAmount", raw, { shouldValidate: true });
+                  }}
                   error={errors.paidAmount?.message}
                 />
                 {paidAmount > 0 && (
@@ -669,7 +727,13 @@ export function TransactionFormModal({
                 variant="primary"
                 label="Lanjut ke Pembayaran →"
                 onClick={() => {
-                  if (cartItems.length > 0) setStep(2);
+                  if (watchAll.customerId && cartItems.length > 0) {
+                    setStep(2);
+                  } else if (!watchAll.customerId) {
+                    Notify.toast("Pilih pelanggan dulu", "warning");
+                  } else {
+                    Notify.toast("Keranjang masih kosong", "warning");
+                  }
                 }}
                 disabled={cartItems.length === 0}
                 type="button"
@@ -678,8 +742,18 @@ export function TransactionFormModal({
               <ActionButton
                 variant="primary"
                 label={loading ? "Menyimpan..." : "Simpan Transaksi"}
-                type="submit"
+                onClick={() => {
+                  if (!watchAll.paymentMethod || !watchAll.paymentStatus) {
+                    Notify.alert(
+                      "Pembayaran Belum Lengkap",
+                      "Silakan pilih Metode Pembayaran dan Status Pembayaran terlebih dahulu.",
+                      "warning"
+                    );
+                  }
+                  handleSubmit(onFormSubmit, onInvalid)();
+                }}
                 disabled={loading}
+                type="button"
               />
             )}
           </div>

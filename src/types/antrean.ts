@@ -8,12 +8,13 @@ export interface Antrean {
   status: "Menunggu" | "Dikerjakan" | "Menunggu Sparepart" | "Selesai";
   waktuMasuk: string;
   mekanik?: string;
-  estimasiSelesai?: string; // e.g. "2 jam"
+  estimasiSelesai?: string; 
   keluhan?: string;
   estimasiBiaya?: number;
   waPelanggan?: string;
   menginap?: boolean;
+  customer_id?: number;
+  vehicle_id?: number;
+  payment_status?: "Lunas" | "DP" | "Piutang" | "Belum Bayar";
 }
-
-/** Alias for compatibility with newer service naming */
 export type WorkOrder = Antrean;

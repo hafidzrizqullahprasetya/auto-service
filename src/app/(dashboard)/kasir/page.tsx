@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { TransactionTable } from "@/features/kasir";
 import { TransactionFormModal } from "@/features/kasir";
@@ -11,6 +11,7 @@ import { InvoiceModal } from "@/features/kasir";
 import { Item } from "@/types/inventory";
 import { Transaction } from "@/types/transaction";
 import { useInventory } from "@/hooks/useInventory";
+import { useCustomers } from "@/hooks/useCustomers";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
 import { Notify } from "@/utils/notify";
@@ -26,8 +27,10 @@ interface CartState {
 export default function KasirPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<Tab>("buat");
   const { data: allItems, loading } = useInventory();
+  const { data: customers } = useCustomers();
 
   useEffect(() => {
     const tabParam = searchParams.get("tab") as Tab | null;
@@ -52,8 +55,61 @@ export default function KasirPage() {
   const [posItems, setPosItems] = useState<any[]>([]);
   const [showScanner, setShowScanner] = useState(false);
 
-  // Create Transaction State
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [initialFormData, setInitialFormData] = useState<any>(null);
+  const [taxRate, setTaxRate] = useState(11);
+
+  // Load Settings
+  useEffect(() => {
+    const { settingsService } = require("@/services/settings.service");
+    settingsService.get().then((s: any) => {
+      if (s?.tax_percentage !== undefined) setTaxRate(Number(s.tax_percentage));
+    });
+  }, []);
+
+  // Handle Work Order from URL
+  useEffect(() => {
+    const woId = searchParams.get("wo_id");
+    if (woId && allItems.length > 0 && customers.length > 0) {
+      const customerId = searchParams.get("customer_id");
+      const customerName = searchParams.get("customer_name");
+      const vehicleId = searchParams.get("vehicle_id");
+      const plateNumber = searchParams.get("plate_number");
+      const layanan = searchParams.get("layanan");
+      const biaya = Number(searchParams.get("biaya") || 0);
+      const notes = searchParams.get("notes") || "";
+
+      // Fallback: If ID is missing but name exists, find in master data
+      let finalCustomerId = customerId;
+      if (!finalCustomerId && customerName) {
+        const foundC = customers.find(c => c.name.toLowerCase() === customerName.toLowerCase());
+        if (foundC) finalCustomerId = foundC.id;
+      }
+
+      let finalVehicleId = vehicleId;
+      // We'll let the Modal handle fetching vehicles once Customer ID is set
+      
+      const items = [];
+      if (layanan) {
+        items.push({
+          itemId: null, // Custom item from WO
+          isJasa: true,
+          name: layanan,
+          price: biaya,
+          quantity: 1,
+          unit: "jasa"
+        });
+      }
+
+      setInitialFormData({
+        customerId: finalCustomerId,
+        vehicleId: finalVehicleId,
+        notes: notes,
+        items: items
+      });
+      setShowCreateForm(true);
+    }
+  }, [searchParams, allItems, customers]);
 
   const filteredItems = allItems.filter(
     (item) =>
@@ -91,8 +147,11 @@ export default function KasirPage() {
     (acc, current) => acc + current.item.price * current.quantity,
     0,
   );
-  const tax = subtotal * 0.11;
-  const total = subtotal + tax;
+  
+  // LOGIC: Total is inclusive of Tax (matches user screenshot and Form logic)
+  const total = subtotal;
+  const taxFactor = taxRate / 100;
+  const tax = Math.round(total - (total / (1 + taxFactor)));
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
@@ -101,7 +160,7 @@ export default function KasirPage() {
     }
     const items = cart.map((c) => ({
       itemId: c.item.id,
-      isJasa: c.item.category === "Service" || c.item.type === "service",
+      isJasa: c.item.category === "Service",
       name: c.item.name,
       price: c.item.price,
       quantity: c.quantity,
@@ -374,10 +433,15 @@ export default function KasirPage() {
       {/* Modals */}
       {showCreateForm && (
         <TransactionFormModal
-          initialItems={posItems}
+          initialData={initialFormData || { items: posItems }}
           onClose={() => {
             setShowCreateForm(false);
             setPosItems([]);
+            setInitialFormData(null);
+
+            if (searchParams.get("wo_id")) {
+              router.push(pathname, { scroll: false });
+            }
           }}
           onSave={async (data: any) => {
             try {
@@ -393,19 +457,24 @@ export default function KasirPage() {
                 return;
               }
 
-              Notify.loading("Menyimpan transaksi...");
+              const loadingId = Notify.loading("Menyimpan transaksi...");
               const { api } = await import("@/lib/api");
 
+              // Get customer and vehicle data for invoice
+              const customer = customers.find((c) => c.id === data.customerId);
+              
               const payload = {
                 customer_id: data.customerId,
                 vehicle_id: data.vehicleId,
                 transaction_date: new Date().toISOString(),
                 payment_method: data.paymentMethod,
-                payment_status:
-                  data.paymentStatus === "Lunas" ? "lunas" : "belum_bayar",
+                payment_status: 
+                  data.paymentStatus === "Lunas" ? "lunas" : 
+                  data.paymentStatus === "DP" ? "dp" : "piutang",
+                paid_amount: Number(data.paidAmount || 0),
                 notes: data.notes || undefined,
                 items: data.items.map((cartItem: any) => ({
-                  item_type: cartItem.isJasa ? "jasa" : "spare_part",
+                  item_type: cartItem.isJasa ? "service" : "spare_part",
                   spare_part_id: cartItem.isJasa ? null : cartItem.itemId,
                   item_name: cartItem.name,
                   quantity: cartItem.quantity,
@@ -415,13 +484,26 @@ export default function KasirPage() {
 
               const res = await api.post<any>("/api/v1/transactions", payload);
 
+              Notify.close();
+
               if (res.data) {
-                Notify.toast("Transaksi berhasil disimpan!", "success", "top");
+                // Use the central mapping service to ensure consistency
+                const { mapTransaction } = await import("@/services/transactions.service");
+                const transaction = mapTransaction(res.data, taxRate);
+                
+                // Force current time for the invoice right after creation
+                transaction.date = new Date().toISOString();
+
+                setLastTransaction(transaction);
+                setShowReceipt(true);
                 setShowCreateForm(false);
                 setCart([]); // Clear POS cart
                 setPosItems([]); // Clear draft
+
+                Notify.toast("Transaksi berhasil disimpan!", "success", "top");
               }
             } catch (err: any) {
+              Notify.close();
               const errorMsg =
                 err.response?.data?.message ||
                 err.message ||
@@ -434,7 +516,10 @@ export default function KasirPage() {
 
       {showReceipt && lastTransaction && (
         <InvoiceModal
-          onClose={() => setShowReceipt(false)}
+          onClose={() => {
+            setShowReceipt(false);
+            window.location.href = window.location.pathname + "?tab=riwayat";
+          }}
           transaction={lastTransaction}
         />
       )}

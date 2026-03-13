@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Notify } from "@/utils/notify";
 import { Antrean } from "@/types/antrean";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
@@ -37,6 +38,7 @@ interface KanbanCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onPrint: () => void;
+  onPay: () => void;
 }
 
 function KanbanCard({
@@ -46,6 +48,7 @@ function KanbanCard({
   onEdit,
   onDelete,
   onPrint,
+  onPay,
 }: KanbanCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showMechanicMenu, setShowMechanicMenu] = useState(false);
@@ -113,6 +116,16 @@ function KanbanCard({
               >
                 <Icons.Delete size={12} />
                 Hapus Antrean
+              </button>
+              <button
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-secondary transition-colors hover:bg-secondary/10"
+                onClick={() => {
+                  onPay();
+                  setShowMenu(false);
+                }}
+              >
+                <Icons.Kasir size={12} />
+                Lanjut ke Kasir
               </button>
             </div>
 
@@ -209,6 +222,7 @@ interface KanbanBoardProps {
   onMechanicAssign: (id: string, mekanik: string) => void;
   onUpdate: (id: string, data: any) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onPay: (item: Antrean) => void;
   isLoading?: boolean;
 }
 
@@ -218,6 +232,7 @@ export function QueueKanban({
   onMechanicAssign,
   onUpdate,
   onDelete,
+  onPay,
   isLoading = false,
 }: KanbanBoardProps) {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -295,6 +310,10 @@ export function QueueKanban({
                         onEdit={() => handleEdit(item)}
                         onDelete={() => handleDelete(item)}
                         onPrint={() => handlePrint(item)}
+                        onPay={async () => {
+                          Notify.loading("Menyiapkan Kasir...");
+                          onPay(item);
+                        }}
                       />
                     ))}
                     {colItems.length === 0 && (
