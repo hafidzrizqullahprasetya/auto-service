@@ -1,17 +1,36 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Icons } from "@/components/Icons";
 import { Antrean } from "@/types/antrean";
 import dayjs from "dayjs";
 import { BaseModal, ActionButton } from "@/features/shared";
+import { antreanService } from "@/services/antrean.service";
 
 interface SPKModalProps {
   item: Antrean;
   onClose: () => void;
+  onChecklistUpdate?: (updatedItem: Antrean) => void;
 }
 
-export function SPKModal({ item, onClose }: SPKModalProps) {
+export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
+  const [checklists, setChecklists] = useState(item.checklists ?? []);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
+
+  const handleToggleChecklist = async (checklistId: number, currentDone: boolean) => {
+    setUpdatingId(checklistId);
+    try {
+      await antreanService.updateChecklist(item.id, checklistId, !currentDone);
+      setChecklists((prev) =>
+        prev.map((c) => (c.id === checklistId ? { ...c, is_done: !currentDone } : c))
+      );
+    } catch (e) {
+      console.error("Gagal update checklist", e);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -59,7 +78,14 @@ export function SPKModal({ item, onClose }: SPKModalProps) {
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-widest text-dark-5">Data Kendaraan</p>
             <p className="text-lg font-black text-dark dark:text-white tracking-widest uppercase">{item.noPolisi}</p>
-            <p className="text-xs font-medium text-dark-5">{item.kendaraan} ({item.tipe})</p>
+            <p className="text-xs font-medium text-dark-5">
+              {item.kendaraan ? item.kendaraan : '(Detail Kendaraan Belum Ada)'} ({item.tipe})
+            </p>
+            {item.noRangka && (
+              <p className="text-[10px] font-bold text-dark-5 uppercase tracking-tighter mt-1 bg-white/50 px-1.5 py-0.5 rounded border border-stroke dark:border-dark-3 inline-block">
+                VIN: {item.noRangka}
+              </p>
+            )}
           </div>
           <div className="text-right space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-widest text-dark-5">Pemilik / Customer</p>
@@ -87,6 +113,17 @@ export function SPKModal({ item, onClose }: SPKModalProps) {
               </p>
             </div>
           </div>
+          {item.complaintLog && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Icons.Edit size={16} className="text-dark-5" />
+                <h4 className="text-xs font-black uppercase tracking-widest text-dark dark:text-white">Log Keluhan Detail</h4>
+              </div>
+              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 dark:bg-dark-2 dark:border-dark-3">
+                <p className="text-sm font-medium text-dark dark:text-gray-4">{item.complaintLog}</p>
+              </div>
+            </div>
+          )}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Icons.Repair size={16} className="text-dark-5" />
@@ -108,7 +145,49 @@ export function SPKModal({ item, onClose }: SPKModalProps) {
           </div>
         ) : null}
 
-        {/* Checklist & Catatan Mekanik */}
+        {/* Checklist dari Service Bundle */}
+        {checklists.length > 0 && (
+          <div className="space-y-3 border-t border-stroke pt-4 dark:border-dark-3">
+            <div className="flex items-center gap-2">
+              <Icons.Inventory size={16} className="text-dark-5" />
+              <h4 className="text-xs font-black uppercase tracking-widest text-dark dark:text-white">
+                Checklist Pekerjaan
+                <span className="ml-2 text-dark-5 font-normal normal-case">
+                  ({checklists.filter((c) => c.is_done).length}/{checklists.length} selesai)
+                </span>
+              </h4>
+            </div>
+            <div className="space-y-2">
+              {checklists.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  disabled={updatingId === c.id}
+                  onClick={() => handleToggleChecklist(c.id, c.is_done)}
+                  className="flex w-full items-center gap-3 rounded-lg border border-stroke px-3 py-2 text-left transition-colors hover:bg-gray-1 dark:border-dark-3 dark:hover:bg-dark-3 no-print-interactive"
+                >
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors ${
+                    c.is_done
+                      ? "border-secondary bg-secondary text-white"
+                      : "border-stroke dark:border-dark-3"
+                  }`}>
+                    {c.is_done && <Icons.Check size={12} />}
+                    {updatingId === c.id && (
+                      <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
+                  </div>
+                  <span className={`text-sm font-medium ${
+                    c.is_done ? "text-dark-5 line-through" : "text-dark dark:text-white"
+                  }`}>
+                    {c.task_name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Catatan Mekanik (empty area for print) */}
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2 border-b border-stroke pb-2 dark:border-dark-3">

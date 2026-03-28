@@ -31,11 +31,15 @@ export function mapWorkOrder(wo: ApiWorkOrder): Antrean {
     mekanik: wo.mekanik,
     estimasiSelesai: wo.estimasi_selesai,
     keluhan: wo.keluhan,
+    noRangka: vehicle?.frame_number || "",
+    complaintLog: wo.complaint_log,
     estimasiBiaya: Number(wo.estimasi_biaya ?? 0),
     waPelanggan: customer?.phone,
     menginap: wo.menginap,
     customer_id: wo.customer_id ?? undefined,
     vehicle_id: wo.vehicle_id ?? undefined,
+    service_bundle_id: wo.service_bundle_id ?? null,
+    checklists: wo.checklists,
     payment_status: (wo as any).transactions?.[0] ? 
       (PAYMENT_STATUS_MAP_ANTREAN[(wo as any).transactions[0].payment_status] || "Belum Bayar") : 
       "Belum Bayar",
@@ -51,12 +55,20 @@ const PAYMENT_STATUS_MAP_ANTREAN: Record<string, Antrean["payment_status"]> = {
 export interface WorkOrderBody {
   customer_id?: number;
   vehicle_id?: number;
+  noPolisi?: string;
+  noRangka?: string;
+  tipe?: string;
+  kendaraan?: string;
+  pelanggan?: string;
+  waPelanggan?: string;
   payment_status?: "Lunas" | "DP" | "Piutang" | "Belum Bayar";
   layanan: string;
   keluhan?: string;
+  complaint_log?: string;
   estimasi_biaya?: number;
   estimasi_selesai?: string;
   menginap?: boolean;
+  service_bundle_id?: number | null;
 }
 
 export const antreanService = {
@@ -96,5 +108,16 @@ export const antreanService = {
 
   async delete(id: string): Promise<void> {
     await api.delete(`/api/v1/work-orders/${id}`);
+  },
+
+  async updateChecklist(
+    workOrderId: string,
+    checklistId: number,
+    is_done: boolean
+  ): Promise<void> {
+    await api.patch(
+      `/api/v1/work-orders/${workOrderId}/checklist/${checklistId}`,
+      { is_done }
+    );
   },
 };

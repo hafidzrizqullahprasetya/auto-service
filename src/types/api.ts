@@ -38,6 +38,34 @@ export interface ApiVehicle {
   brand: string;
   model: string;
   year: number;
+  frame_number?: string | null;
+}
+
+// ===== Service Bundles =====
+export interface ApiServiceBundleItem {
+  id: number;
+  bundle_id: number;
+  task_name: string;
+}
+
+export interface ApiServiceBundle {
+  id: number;
+  name: string;
+  description?: string | null;
+  price: number | string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  items: ApiServiceBundleItem[];
+}
+
+// ===== Work Order Checklist =====
+export interface ApiWorkOrderChecklist {
+  id: number;
+  work_order_id: number;
+  task_name: string;
+  is_done: boolean;
+  updated_at: string;
 }
 
 // ===== Categories =====
@@ -133,6 +161,7 @@ export interface ApiWorkOrder {
   vehicles?: ApiVehicle;
   layanan: string;
   keluhan?: string;
+  complaint_log?: string | null;
   estimasi_biaya?: number | string;
   estimasi_selesai?: string;
   menginap?: boolean;
@@ -140,6 +169,9 @@ export interface ApiWorkOrder {
   mekanik?: string;
   waktu_masuk?: string;
   created_at: string;
+  service_bundle_id?: number | null;
+  service_bundles?: ApiServiceBundle | null;
+  checklists?: ApiWorkOrderChecklist[];
 }
 
 // ===== Reports =====

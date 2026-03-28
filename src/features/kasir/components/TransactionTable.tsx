@@ -48,15 +48,22 @@ export function TransactionTable() {
         accessorKey: "customerName",
         header: "Pelanggan",
         cell: ({ row }) => {
-          const tx = row.original;
+          const t = row.original;
           return (
             <div className="flex flex-col gap-0.5">
               <p className="text-sm font-bold leading-tight text-dark dark:text-white">
-                {tx.customerName}
+                {t.customerName}
               </p>
-              <span className="text-[10px] font-black uppercase text-dark-5">
-                {tx.vehiclePlate}
-              </span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="font-bold text-secondary text-xs uppercase bg-secondary/5 px-1.5 py-0.5 rounded border border-secondary/20 leading-none">
+                  {t.vehiclePlate}
+                </span>
+                {(t.vehicleBrand || t.vehicleModel) && (
+                  <span className="text-[10px] font-medium text-dark-5 dark:text-dark-6 bg-gray-1 dark:bg-dark-3 px-1.5 py-0.5 rounded border border-stroke dark:border-dark-4 leading-none">
+                    {t.vehicleBrand} {t.vehicleModel}
+                  </span>
+                )}
+              </div>
             </div>
           );
         },

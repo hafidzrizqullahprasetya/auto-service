@@ -44,6 +44,8 @@ export function mapTransaction(tx: ApiTransaction, taxRate: number = 11): Transa
     customerName: tx.customers?.name ?? "Pelanggan",
     customerPhone: tx.customers?.phone ?? "",
     vehiclePlate: tx.vehicles?.plate_number ?? "Tanpa Plat",
+    vehicleBrand: tx.vehicles?.brand ?? "",
+    vehicleModel: tx.vehicles?.model ?? "",
     items: items.map((i) => ({
       name: i.item_name,
       price: Number(i.unit_price),

@@ -7,6 +7,7 @@ interface OrderSummaryProps {
   total: number;
   onCheckout: () => void;
   disabled?: boolean;
+  taxRate?: number;
 }
 
 export function OrderSummary({
@@ -15,6 +16,7 @@ export function OrderSummary({
   total,
   onCheckout,
   disabled,
+  taxRate = 11,
 }: OrderSummaryProps) {
   return (
     <div className="rounded-[10px] border border-stroke bg-gray-2 p-4 dark:border-dark-3 dark:bg-dark-3">
@@ -26,7 +28,7 @@ export function OrderSummary({
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-dark-5">PPN (11%)</span>
+          <span className="text-dark-5">PPN ({taxRate}%)</span>
           <span className="font-medium text-dark dark:text-white">
             Rp {formatNumber(tax)}
           </span>

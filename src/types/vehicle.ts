@@ -19,6 +19,7 @@ export interface Vehicle {
   color: string;
   ownerId: string;
   ownerName?: string;
+  frame_number?: string | null;
   lastServiceKm: number;
   serviceHistory: ServiceRecord[];
 }

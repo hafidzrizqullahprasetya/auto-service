@@ -5,6 +5,8 @@ export interface Transaction {
   customerName: string;
   customerPhone?: string;
   vehiclePlate: string;
+  vehicleBrand?: string;
+  vehicleModel?: string;
   items: TransactionItem[];
   subtotal: number;
   tax: number;

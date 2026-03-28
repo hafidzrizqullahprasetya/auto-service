@@ -412,9 +412,10 @@ export default function KasirPage() {
               </div>
             ) : (
               <OrderSummary
-                subtotal={subtotal}
+                subtotal={subtotal - tax}
                 tax={tax}
                 total={total}
+                taxRate={taxRate}
                 onCheckout={handleCheckout}
                 disabled={cart.length === 0}
               />

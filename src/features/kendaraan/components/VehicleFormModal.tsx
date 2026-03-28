@@ -22,6 +22,7 @@ const vehicleSchema = z.object({
   brand: z.string().min(2, "Merk wajib diisi"),
   model: z.string().min(2, "Model wajib diisi"),
   color: z.string().optional(),
+  frame_number: z.string().optional(),
   customer_id: z.string().min(1, "Pemilik wajib dipilih"),
 });
 
@@ -59,6 +60,7 @@ export function VehicleFormModal({
       brand: initialData?.brand ?? "",
       model: initialData?.model ?? "",
       color: initialData?.color ?? "",
+      frame_number: initialData?.frame_number ?? "",
       customer_id: initialData?.ownerId ?? "",
     },
   });
@@ -129,6 +131,7 @@ export function VehicleFormModal({
       brand: data.brand,
       model: data.model,
       color: data.color,
+      frame_number: data.frame_number || undefined,
       customer_id: data.customer_id,
     });
   };
@@ -217,6 +220,14 @@ export function VehicleFormModal({
           placeholder="Contoh: Putih Metalik"
           {...register("color")}
           error={errors.color?.message}
+        />
+
+        <InputGroup
+          label="Nomor Rangka"
+          placeholder="Contoh: MHKM8AB2JLJ123456"
+          className="uppercase font-mono"
+          {...register("frame_number")}
+          error={(errors as any).frame_number?.message}
         />
 
         {/* Pilih Pemilik */}

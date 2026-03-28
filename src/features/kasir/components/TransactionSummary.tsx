@@ -1,17 +1,20 @@
 import { Icons } from "@/components/Icons";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useSettings } from "@/hooks/useSettings";
 import { StatCard } from "@/features/shared";
 import { TransactionSummarySkeleton } from "./TransactionSummarySkeleton";
 
 export function TransactionSummary() {
-  const { data: transactions, loading } = useTransactions();
+  const { data: transactions, loading: loadingTransactions } = useTransactions();
+  const { data: settings, loading: loadingSettings } = useSettings();
 
-  if (loading) return <TransactionSummarySkeleton />;
+  if (loadingTransactions || loadingSettings) return <TransactionSummarySkeleton />;
 
   const totalRevenue = transactions.reduce((a, t) => a + (t.total || 0), 0);
   const totalTax = transactions.reduce((a, t) => a + (t.tax || 0), 0);
   const totalSubtotal = transactions.reduce((a, t) => a + (t.subtotal || 0), 0);
   const txCount = transactions.length;
+  const taxRate = settings?.tax_percentage ?? 11;
 
   const stats = [
     {
@@ -31,7 +34,7 @@ export function TransactionSummary() {
       isMoney: true,
     },
     {
-      label: "Total PPN (11%)",
+      label: `Total PPN (${taxRate}%)`,
       value: totalTax,
       icon: <Icons.Tag size={24} />,
       color: "text-slate-600",

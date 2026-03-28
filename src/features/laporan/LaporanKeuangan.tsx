@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useSettings } from "@/hooks/useSettings";
 import { formatNumber } from "@/utils/format-number";
 import { Icons } from "@/components/Icons";
 import { Badge } from "@/features/shared";
@@ -67,7 +68,9 @@ function StatCard({
 }
 
 export function LaporanKeuangan() {
-  const { data: allTransactions, loading } = useTransactions();
+  const { data: allTransactions, loading: txLoading } = useTransactions();
+  const { data: settings, loading: settingsLoading } = useSettings();
+  const loading = txLoading || settingsLoading;
   const [period, setPeriod] = useState<Period>("semua");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -203,7 +206,7 @@ export function LaporanKeuangan() {
             <StatCard
               label="Total PPN Terkumpul"
               value={`Rp ${formatNumber(totalPajak)}`}
-              sub="Tarif 11%"
+              sub={`Tarif ${settings?.tax_percentage ?? 11}%`}
               icon={Icons.Database}
             />
           </>

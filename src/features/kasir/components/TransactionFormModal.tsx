@@ -12,6 +12,7 @@ import { formatNumber, stripFormatting } from "@/utils/format-number";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useInventory } from "@/hooks/useInventory";
 import { vehiclesService, ApiVehicle } from "@/services/vehicles.service";
+import { useSettings } from "@/hooks/useSettings";
 import InputGroup from "@/components/ui/InputGroup";
 import { Notify } from "@/utils/notify";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -68,6 +69,7 @@ export function TransactionFormModal({
   const searchParams = useSearchParams();
   const { data: customers } = useCustomers();
   const { data: allItems } = useInventory();
+  const { data: settings } = useSettings();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
@@ -267,7 +269,11 @@ export function TransactionFormModal({
     (sum, ci) => sum + ci.price * ci.quantity,
     0,
   );
-  const sisa = subtotal - paidAmount;
+  
+  const taxRate = Number(settings?.tax_percentage ?? 0);
+  const taxAmount = (subtotal * taxRate) / 100;
+  const total = subtotal + taxAmount;
+  const sisa = total - paidAmount;
 
 
   const onInvalid = (errors: any) => {
@@ -297,7 +303,10 @@ export function TransactionFormModal({
       await onSave({
         ...data,
         subtotal,
-        paidAmount: data.paymentStatus === "Lunas" ? subtotal : data.paidAmount,
+        tax: taxAmount,
+        total,
+        taxPercentage: taxRate,
+        paidAmount: data.paymentStatus === "Lunas" ? total : data.paidAmount,
       });
       Notify.toast("Transaksi berhasil disimpan!", "success", "top");
       localStorage.removeItem(DRAFT_KEY);
@@ -576,15 +585,21 @@ export function TransactionFormModal({
               )}
 
               {cartItems.length > 0 && (
-                <div className="mt-auto rounded-xl border border-secondary/30 bg-secondary/5 p-4">
-                  <div className="flex justify-between text-sm font-medium text-dark-5">
+                <div className="mt-auto rounded-xl border border-secondary/30 bg-secondary/5 p-4 space-y-2">
+                  <div className="flex justify-between text-xs font-medium text-dark-5">
                     <span>Subtotal</span>
                     <span>Rp {formatNumber(subtotal)}</span>
                   </div>
-                  <div className="mt-2 flex items-center justify-between font-black">
+                  {taxRate > 0 && (
+                    <div className="flex justify-between text-xs font-medium text-dark-5">
+                      <span>Pajak (PPN {taxRate}%)</span>
+                      <span>Rp {formatNumber(taxAmount)}</span>
+                    </div>
+                  )}
+                  <div className="mt-2 pt-2 border-t border-secondary/20 flex items-center justify-between font-black">
                     <span className="text-dark dark:text-white">TOTAL</span>
                     <span className="text-xl text-secondary">
-                      Rp {formatNumber(subtotal)}
+                      Rp {formatNumber(total)}
                     </span>
                   </div>
                 </div>
@@ -612,11 +627,23 @@ export function TransactionFormModal({
                     </span>
                   </div>
                 )}
-                <div className="mt-3 flex items-center justify-between border-t-2 border-dashed border-stroke pt-3 font-bold dark:border-dark-3">
-                  <span className="text-base">Total Tagihan:</span>
-                  <span className="text-2xl text-secondary">
-                    Rp {formatNumber(subtotal)}
-                  </span>
+                <div className="mt-3 flex flex-col gap-1 border-t-2 border-dashed border-stroke pt-3 dark:border-dark-3">
+                  <div className="flex justify-between text-xs font-medium text-dark-5">
+                    <span>Subtotal:</span>
+                    <span>Rp {formatNumber(subtotal)}</span>
+                  </div>
+                  {taxRate > 0 && (
+                    <div className="flex justify-between text-xs font-medium text-dark-5">
+                      <span>Pajak (PPN {taxRate}%):</span>
+                      <span>Rp {formatNumber(taxAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between font-bold mt-1">
+                    <span className="text-base">Grand Total:</span>
+                    <span className="text-2xl text-secondary">
+                      Rp {formatNumber(total)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -658,7 +685,7 @@ export function TransactionFormModal({
                     onClick={() => {
                       setValue("paymentStatus", s, { shouldValidate: true });
                       if (s === "Lunas") {
-                        setValue("paidAmount", subtotal);
+                        setValue("paidAmount", total);
                       } else if (s === "Piutang") {
                         setValue("paidAmount", 0);
                       }

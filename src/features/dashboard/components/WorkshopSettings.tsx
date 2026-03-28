@@ -2,15 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Icons } from "@/components/Icons";
+import { useSettings } from "@/hooks/useSettings";
 import { WorkshopSettingsSkeleton } from "./WorkshopSettingsSkeleton";
 
 export function WorkshopSettings() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: settings, loading } = useSettings();
 
   if (loading) return <WorkshopSettingsSkeleton />;
 
@@ -35,7 +31,7 @@ export function WorkshopSettings() {
                 <input
                   className="w-full rounded-md border border-stroke bg-gray-2 py-3 pl-11.5 pr-4.5 text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
                   type="text"
-                  defaultValue="AutoService Premium Garage"
+                  defaultValue={settings?.name || "AutoService Premium Garage"}
                 />
               </div>
             </div>
@@ -47,7 +43,7 @@ export function WorkshopSettings() {
               <input
                 className="w-full rounded-md border border-stroke bg-gray-2 px-4.5 py-3 text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
                 type="text"
-                defaultValue="+62 812-3456-7890"
+                defaultValue={settings?.phone || "+62 812-3456-7890"}
               />
             </div>
           </div>
@@ -62,7 +58,7 @@ export function WorkshopSettings() {
                 name="bio"
                 id="bio"
                 rows={4}
-                defaultValue="Jl. Otomotif No. 123, Kawasan Industri Otomotif, Jakarta Selatan, Indonesia."
+                defaultValue={settings?.address || "Jl. Otomotif No. 123, Kawasan Industri Otomotif, Jakarta Selatan, Indonesia."}
               ></textarea>
             </div>
           </div>
@@ -75,7 +71,7 @@ export function WorkshopSettings() {
               <input
                 className="w-full rounded-md border border-stroke bg-gray-2 px-4.5 py-3 text-dark outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white"
                 type="number"
-                defaultValue="11"
+                defaultValue={settings?.tax_percentage || "11"}
               />
             </div>
 

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3333",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -40,7 +40,6 @@
     "sweetalert2-react-content": "^5.1.1",
     "tailwind-merge": "^2.6.1",
     "tailwindcss-animate": "^1.0.7",
-    "whatsapp-web.js": "^1.34.6",
     "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },

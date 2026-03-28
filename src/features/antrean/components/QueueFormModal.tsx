@@ -9,6 +9,7 @@ import { formatWhatsApp } from "@/utils/format-phone";
 import { vehicleMasterService, VehicleMaster } from "@/services/vehicle-master.service";
 import { customersService } from "@/services/customers.service";
 import { serviceCatalogService, ServiceCatalog } from "@/services/service-catalog.service";
+import { serviceBundlesService, ApiServiceBundle } from "@/services/service-bundles.service";
 import { ApiCustomer } from "@/types/api";
 import { formatPlateNumber } from "@/utils/format-plate";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -22,9 +23,12 @@ const antreanSchema = z.object({
   pelanggan: z.string().min(1, "Nama pelanggan wajib diisi"),
   waPelanggan: z.string().min(1, "Nomor WhatsApp wajib diisi"),
   layanan: z.string().min(1, "Jenis layanan wajib diisi"),
+  noRangka: z.string().optional().nullable(),
   keluhan: z.string().default(""),
+  complaintLog: z.string().default(""),
   estimasiBiaya: z.coerce.number().default(0),
   menginap: z.boolean().default(false),
+  service_bundle_id: z.coerce.number().optional().nullable(),
 });
 
 type QueueFormValues = z.infer<typeof antreanSchema>;
@@ -45,9 +49,13 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
   const [vehicleMasters, setVehicleMasters] = useState<VehicleMaster[]>([]);
   const [customers, setCustomers] = useState<ApiCustomer[]>([]);
   const [catalog, setCatalog] = useState<ServiceCatalog[]>([]);
+  const [bundles, setBundles] = useState<ApiServiceBundle[]>([]);
+  const [selectedBundle, setSelectedBundle] = useState<ApiServiceBundle | null>(null);
+  const [showBundles, setShowBundles] = useState(false);
   const vehicleRef = useRef<HTMLDivElement>(null);
   const customerRef = useRef<HTMLDivElement>(null);
   const serviceRef = useRef<HTMLDivElement>(null);
+  const bundleRef = useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -64,10 +72,13 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
       kendaraan: "",
       pelanggan: "",
       waPelanggan: "",
+      noRangka: "",
       layanan: "",
       keluhan: "",
+      complaintLog: "",
       estimasiBiaya: 0,
-      menginap: false
+      menginap: false,
+      service_bundle_id: null,
     }
   });
 
@@ -88,8 +99,11 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
         waPelanggan: item.waPelanggan || "",
         layanan: item.layanan || "",
         keluhan: item.keluhan || "",
+        complaintLog: item.complaintLog || "",
         estimasiBiaya: Number(item.estimasiBiaya || 0),
+        noRangka: item.noRangka || "",
         menginap: !!item.menginap,
+        service_bundle_id: item.service_bundle_id ?? null,
       });
     } else {
       const draft = localStorage.getItem("antrean_draft");
@@ -117,14 +131,21 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [vData, cData, sData] = await Promise.all([
+        const [vData, cData, sData, bData] = await Promise.all([
           vehicleMasterService.getAll(),
           customersService.getAllRaw(),
-          serviceCatalogService.getAll()
+          serviceCatalogService.getAll(),
+          serviceBundlesService.getAll(),
         ]);
         setVehicleMasters(vData);
         setCustomers(cData);
         setCatalog(sData);
+        setBundles(bData);
+        // Pre-load selected bundle if editing
+        if (item?.service_bundle_id) {
+          const found = bData.find((b) => b.id === item.service_bundle_id);
+          if (found) setSelectedBundle(found);
+        }
       } catch (err) {
         console.error("Failed to fetch master data:", err);
       }
@@ -142,6 +163,9 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
       }
       if (serviceRef.current && !serviceRef.current.contains(event.target as Node)) {
         setShowServices(false);
+      }
+      if (bundleRef.current && !bundleRef.current.contains(event.target as Node)) {
+        setShowBundles(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -180,6 +204,8 @@ const onInvalid = (errors: any) => {
       customer_id: item?.customer_id,
       vehicle_id: item?.vehicle_id,
       estimasi_biaya: data.estimasiBiaya,
+      complaint_log: data.complaintLog || undefined,
+      service_bundle_id: data.service_bundle_id || null,
     };
     onSave(payload);
   };
@@ -249,6 +275,7 @@ const onInvalid = (errors: any) => {
                           setValue("noPolisi", lastVehicle.plate_number);
                           setValue("tipe", (lastVehicle.type === "Motor" ? "Motor" : "Mobil") as any);
                           setValue("kendaraan", `${lastVehicle.brand} ${lastVehicle.model}`);
+                          setValue("noRangka", lastVehicle.frame_number || "");
                           Notify.toast(`Data ${c.name} & Unit ${lastVehicle.plate_number} dimuat`, "success", "top");
                         } else {
                           Notify.toast(`Data ${c.name} dimuat`, "success", "top");
@@ -302,107 +329,122 @@ const onInvalid = (errors: any) => {
           
           <div className="space-y-2.5">
             <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">Jenis Unit</label>
-            <div className="relative">
-              <select 
-                {...register("tipe")}
-                className="w-full appearance-none rounded-lg border-2 border-stroke bg-white px-5 py-3 text-sm font-bold outline-none transition-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
-                disabled={isEdit}
-              >
-                <option value="Mobil">Mobil</option>
-                <option value="Motor">Motor</option>
-              </select>
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-dark-5 dark:text-dark-6">
-                <Icons.ChevronDown size={14} />
-              </div>
+            <div className="flex gap-2">
+              {["Mobil", "Motor"].map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  disabled={isEdit}
+                  onClick={() => setValue("tipe", type as any)}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl border-2 py-3 text-sm font-black transition-all ${
+                    watch("tipe") === type
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-stroke bg-white text-dark-5 hover:border-dark-4 dark:border-dark-3 dark:bg-dark-2"
+                  } ${isEdit ? "opacity-60 cursor-not-allowed" : ""}`}
+                >
+                  {type === "Mobil" ? <Icons.KendaraanMobil size={18} /> : <Icons.KendaraanMotor size={18} />}
+                  {type}
+                </button>
+              ))}
             </div>
             {errors.tipe && <p className="text-xs text-red-500 mt-1">{errors.tipe.message}</p>}
           </div>
         </div>
 
-        <div className="relative" ref={vehicleRef}>
-          <InputGroup
-            label="Merk / Model Kendaraan"
-            placeholder="Contoh: Toyota Avanza"
-            {...register("kendaraan")}
-            disabled={isEdit}
-            error={errors.kendaraan?.message}
-            onChange={(e: any) => {
-              setValue("kendaraan", e.target.value);
-              setShowVehicles(true);
-            }}
-            onFocus={() => setShowVehicles(true)}
-            rightIcon={watchKendaraan && !isEdit && (
-              <button 
-                type="button"
-                onClick={() => {
-                  setValue("kendaraan", "");
-                  setShowVehicles(false);
-                }}
-                className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
-              >
-                <Icons.Plus size={16} className="rotate-45 text-dark-5" />
-              </button>
-            )}
-            leftIcon={<Icons.Repair size={18} />}
-          />
-          {showVehicles && !isEdit && (
-            <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-xl border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-dark-2">
-              <div className="flex flex-col">
-                {filteredVehicles.map((v, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="flex w-full items-center px-5 py-3 text-sm font-semibold text-dark hover:bg-gray-1 dark:text-white dark:hover:bg-dark-3"
-                    onClick={() => {
-                      setValue("kendaraan", v);
-                      setShowVehicles(false);
-                    }}
-                  >
-                    {v}
-                  </button>
-                ))}
-                
-                {watchKendaraan && watchKendaraan.trim() !== "" && !isExactMatch && (
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-2 border-t border-stroke px-5 py-3 text-sm font-bold text-primary hover:bg-primary/5 dark:border-dark-3"
-                    onClick={async () => {
-                      const input = watchKendaraan.trim();
-                      const parts = input.split(" ");
-                      const brand = parts[0];
-                      const model = parts.slice(1).join(" ") || "Generic";
-                      
-                      setAddingVehicleMaster(true);
-                      try {
-                        const newMaster = await vehicleMasterService.create(brand, model);
-                        setVehicleMasters([...vehicleMasters, newMaster]);
-                        setValue("kendaraan", `${newMaster.brand} ${newMaster.model}`);
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="relative" ref={vehicleRef}>
+            <InputGroup
+              label="Merk / Model Kendaraan"
+              placeholder="Contoh: Toyota Avanza"
+              {...register("kendaraan")}
+              disabled={isEdit}
+              error={errors.kendaraan?.message}
+              onChange={(e: any) => {
+                setValue("kendaraan", e.target.value);
+                setShowVehicles(true);
+              }}
+              onFocus={() => setShowVehicles(true)}
+              rightIcon={watchKendaraan && !isEdit && (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setValue("kendaraan", "");
+                    setShowVehicles(false);
+                  }}
+                  className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
+                >
+                  <Icons.Plus size={16} className="rotate-45 text-dark-5" />
+                </button>
+              )}
+              leftIcon={<Icons.Repair size={18} />}
+            />
+            {showVehicles && !isEdit && (
+              <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-xl border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-dark-2">
+                <div className="flex flex-col">
+                  {filteredVehicles.map((v, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="flex w-full items-center px-5 py-3 text-sm font-semibold text-dark hover:bg-gray-1 dark:text-white dark:hover:bg-dark-3"
+                      onClick={() => {
+                        setValue("kendaraan", v);
                         setShowVehicles(false);
-                        Notify.toast("Merk/Model ditambahkan ke data master", "success", "top");
-                      } catch (err) {
-                        Notify.alert("Gagal", "Gagal menambahkan data master");
-                      } finally {
-                        setAddingVehicleMaster(false);
-                      }
-                    }}
-                    disabled={addingVehicleMaster}
-                  >
-                    {addingVehicleMaster ? (
-                      <>
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
-                        Menambahkan...
-                      </>
-                    ) : (
-                      <>
-                        <Icons.Plus size={16} />
-                        Tambah "{watchKendaraan}" ke Master
-                      </>
-                    )}
-                  </button>
-                )}
+                      }}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                  
+                  {watchKendaraan && watchKendaraan.trim() !== "" && !isExactMatch && (
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 border-t border-stroke px-5 py-3 text-sm font-bold text-primary hover:bg-primary/5 dark:border-dark-3"
+                      onClick={async () => {
+                        const input = watchKendaraan.trim();
+                        const parts = input.split(" ");
+                        const brand = parts[0];
+                        const model = parts.slice(1).join(" ") || "Generic";
+                        
+                        setAddingVehicleMaster(true);
+                        try {
+                          const newMaster = await vehicleMasterService.create(brand, model);
+                          setVehicleMasters([...vehicleMasters, newMaster]);
+                          setValue("kendaraan", `${newMaster.brand} ${newMaster.model}`);
+                          setShowVehicles(false);
+                          Notify.toast("Merk/Model ditambahkan ke data master", "success", "top");
+                        } catch (err) {
+                          Notify.alert("Gagal", "Gagal menambahkan data master");
+                        } finally {
+                          setAddingVehicleMaster(false);
+                        }
+                      }}
+                      disabled={addingVehicleMaster}
+                    >
+                      {addingVehicleMaster ? (
+                        <>
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
+                          Menambahkan...
+                        </>
+                      ) : (
+                        <>
+                          <Icons.Plus size={16} />
+                          Tambah "{watchKendaraan}" ke Master
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          <InputGroup
+            label="No. Rangka (VIN)"
+            placeholder="Nomor rangka kendaraan"
+            {...register("noRangka")}
+            disabled={isEdit}
+            leftIcon={<Icons.Barcode size={18} />}
+          />
         </div>
 
 
@@ -467,6 +509,105 @@ const onInvalid = (errors: any) => {
             {...register("keluhan")}
             className="w-full rounded-lg border-2 border-stroke bg-white px-5 py-3 text-sm outline-none transition-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
           />
+        </div>
+
+        {/* Complaint Log */}
+        <div className="space-y-2.5">
+          <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
+            Log Keluhan Detail
+            <span className="ml-2 text-xs font-normal text-dark-5">(opsional — catatan teknis mekanik)</span>
+          </label>
+          <textarea 
+            rows={2}
+            placeholder="Catatan detail dari pemeriksaan teknis..."
+            {...register("complaintLog")}
+            className="w-full rounded-lg border-2 border-stroke bg-white px-5 py-3 text-sm outline-none transition-none focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-white"
+          />
+        </div>
+
+        {/* Paket Service (Service Bundle) */}
+        <div className="space-y-2.5">
+          <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
+            Paket Service
+            <span className="ml-2 text-xs font-normal text-dark-5">(opsional — checklist otomatis)</span>
+          </label>
+          {selectedBundle ? (
+            <div className="group relative flex items-center justify-between rounded-xl border-2 border-primary/20 bg-primary/5 px-4 py-3 transition-all hover:border-primary/40">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Icons.Inventory size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-dark dark:text-white">{selectedBundle.name}</p>
+                  <p className="text-xs font-bold text-primary">
+                    Rp {Number(selectedBundle.price).toLocaleString("id-ID")} · {selectedBundle.items.length} checklist
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedBundle(null);
+                  setValue("service_bundle_id", null);
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-dark-5 shadow-sm transition-all hover:bg-red-50 hover:text-red-500 dark:bg-dark-3"
+              >
+                <Icons.Plus size={18} className="rotate-45" />
+              </button>
+            </div>
+          ) : (
+            <div className="relative" ref={bundleRef}>
+              <button
+                type="button"
+                onClick={() => setShowBundles(!showBundles)}
+                className="flex w-full items-center justify-between rounded-lg border-2 border-stroke bg-white px-5 py-3 text-sm font-bold text-dark-5 outline-none transition-all focus:border-dark dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:focus:border-white"
+              >
+                <span className="flex items-center gap-2">
+                   <Icons.Inventory size={18} className="text-dark-5" />
+                   — Pilih Paket Service —
+                </span>
+                <Icons.ChevronDown size={16} className={`transition-transform duration-300 ${showBundles ? "rotate-180" : ""}`} />
+              </button>
+              
+              {showBundles && (
+                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 max-h-60 overflow-y-auto rounded-xl border border-stroke bg-white p-2 shadow-2 dark:border-dark-3 dark:bg-dark-2">
+                  <div className="flex flex-col gap-1">
+                    {bundles.length === 0 ? (
+                      <div className="px-4 py-3 text-center text-sm text-dark-5 italic">
+                        Belum ada paket tersedia
+                      </div>
+                    ) : (
+                      bundles.map((b) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left transition-colors hover:bg-gray-1 dark:hover:bg-dark-3"
+                          onClick={() => {
+                            setSelectedBundle(b);
+                            setValue("service_bundle_id", b.id);
+                            setShowBundles(false);
+                            if (b.price) setValue("estimasiBiaya", Number(b.price));
+                          }}
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-sm font-black text-dark dark:text-white">{b.name}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-dark-5">
+                              {b.items.length} Checklist Pekerjaan
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-sm font-black text-primary">
+                              Rp {Number(b.price).toLocaleString("id-ID")}
+                            </span>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
