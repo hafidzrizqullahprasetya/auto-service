@@ -2,6 +2,7 @@ import { Icons } from "@/components/Icons";
 import { ServiceRecord } from "@/types/vehicle";
 import { formatNumber } from "@/utils/format-number";
 import dayjs from "dayjs";
+import { printElement } from "@/utils/print";
 
 interface ServiceBookModalProps {
   plateNumber: string;
@@ -38,7 +39,7 @@ export function ServiceBookModal({ plateNumber, history, onClose }: ServiceBookM
         </div>
 
         {/* Content - Timeline Style */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+        <div id="service-book-content" className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
           {history.length > 0 ? (
             history.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()).map((record, index) => (
               <div key={record.id} className="relative pl-8">
@@ -104,7 +105,7 @@ export function ServiceBookModal({ plateNumber, history, onClose }: ServiceBookM
         {/* Footer */}
         <div className="border-t border-stroke p-5 dark:border-dark-3 bg-gray-50 dark:bg-dark-2 flex justify-end">
           <button 
-            onClick={() => window.print()}
+            onClick={() => printElement("service-book-content", `Buku Servis — ${plateNumber}`)}
             className="flex items-center gap-2 rounded-md border border-stroke bg-white px-5 py-2 text-sm font-bold text-dark hover:bg-gray-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white transition-all active:scale-95"
           >
             <Icons.Print size={16} />

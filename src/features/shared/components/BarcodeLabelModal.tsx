@@ -5,6 +5,7 @@ import Barcode from "react-barcode";
 import { Icons } from "@/components/Icons";
 import { Item } from "@/types/inventory";
 import { formatNumber } from "@/utils/format-number";
+import { printElement } from "@/utils/print";
 
 interface BarcodeLabelModalProps {
   item: Item;
@@ -13,7 +14,15 @@ interface BarcodeLabelModalProps {
 
 export function BarcodeLabelModal({ item, onClose }: BarcodeLabelModalProps) {
   const printLabel = () => {
-    window.print();
+    printElement(
+      "printable-barcode",
+      `Label Barcode — ${item.sku}`,
+      `
+        @page { size: 50mm 30mm; margin: 2mm; }
+        body { display: flex; align-items: flex-start; justify-content: flex-start; }
+        #printable-barcode { border: none !important; box-shadow: none !important; padding: 4px !important; }
+      `
+    );
   };
 
   return (
@@ -99,30 +108,6 @@ export function BarcodeLabelModal({ item, onClose }: BarcodeLabelModalProps) {
         </div>
       </div>
 
-      <style jsx global>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #printable-barcode, #printable-barcode * {
-            visibility: visible;
-          }
-          #printable-barcode {
-            position: absolute;
-            left: 0;
-            top: 0;
-            margin: 0;
-            padding: 10px;
-            width: 100%;
-            height: auto;
-            border: none !important;
-          }
-          .no-print-overlay {
-            background: white !important;
-            padding: 0 !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

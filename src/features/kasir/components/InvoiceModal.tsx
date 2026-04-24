@@ -6,6 +6,7 @@ import { Transaction } from "@/types/transaction";
 import { formatNumber } from "@/utils/format-number";
 import { Notify } from "@/utils/notify";
 import dayjs from "dayjs";
+import { printElement } from "@/utils/print";
 
 interface InvoiceModalProps {
   transaction: Transaction;
@@ -18,7 +19,7 @@ export function InvoiceModal({ transaction, onClose }: InvoiceModalProps) {
   const [sendingWA, setSendingWA] = useState(false);
 
   const handlePrint = () => {
-    window.print();
+    printElement("invoice-content", `Invoice — ${transaction.invoiceNo}`);
   };
 
   const sendInvoiceViaWA = async () => {
@@ -241,29 +242,6 @@ PPN (${transaction.taxPercentage}%): Rp ${formatNumber(transaction.tax)}
         </div>
       </div>
 
-      <style jsx global>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #invoice-content,
-          #invoice-content * {
-            visibility: visible;
-          }
-          #invoice-content {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            padding: 0;
-            margin: 0;
-          }
-          .no-print,
-          .no-print-overlay {
-            display: none !important;
-          }
-        }
-      `}</style>
     </BaseModal>
   );
 }

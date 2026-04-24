@@ -6,6 +6,7 @@ import { Antrean } from "@/types/antrean";
 import dayjs from "dayjs";
 import { BaseModal, ActionButton } from "@/features/shared";
 import { antreanService } from "@/services/antrean.service";
+import { printElement } from "@/utils/print";
 
 interface SPKModalProps {
   item: Antrean;
@@ -32,7 +33,7 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
   };
 
   const handlePrint = () => {
-    window.print();
+    printElement("spk-content", `SPK — ${item.noPolisi}`);
   };
 
   return (
@@ -224,31 +225,6 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
         </div>
       </div>
 
-      <style>{`
-        @media print {
-          body > * {
-            visibility: hidden;
-          }
-          #spk-content, #spk-content * {
-            visibility: visible;
-          }
-          #spk-content {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: auto;
-            padding: 24px;
-            overflow: visible;
-            background: white;
-          }
-          .no-print {
-            display: none !important;
-          }
-          .no-print-interactive {
-            pointer-events: none;
-          }
-        }
-      `}</style>
     </BaseModal>
   );
 }
