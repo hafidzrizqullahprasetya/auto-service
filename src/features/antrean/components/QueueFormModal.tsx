@@ -22,8 +22,8 @@ const antreanSchema = z.object({
   kendaraan: z.string().min(1, "Merk/Model wajib diisi"),
   pelanggan: z.string().min(1, "Nama pelanggan wajib diisi"),
   waPelanggan: z.string().min(1, "Nomor WhatsApp wajib diisi"),
-  layanan: z.string().min(1, "Jenis layanan wajib diisi"),
-  layananList: z.array(z.string()).optional(),
+  layanan: z.string().optional(),
+  layananList: z.array(z.string()).min(1, "Pilih minimal satu layanan"),
   noRangka: z.string().optional().nullable(),
   keluhan: z.string().default(""),
   complaintLog: z.string().default(""),
@@ -476,7 +476,8 @@ const onInvalid = (errors: any) => {
                       onClick={() => {
                         const next = selectedLayanan.filter((x) => x !== l);
                         setSelectedLayanan(next);
-                        setValue("layanan", next.join(", "));
+                        setValue("layananList", next);
+                        setValue("layanan", "");
                       }}
                       className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary/20 hover:bg-primary/40"
                     >
@@ -490,7 +491,7 @@ const onInvalid = (errors: any) => {
             <InputGroup
               placeholder="Ketik untuk cari layanan..."
               {...register("layanan")}
-              error={errors.layanan?.message}
+              error={errors.layananList?.message}
               onChange={(e: any) => {
                 setValue("layanan", e.target.value);
                 setShowServices(true);
@@ -524,7 +525,7 @@ const onInvalid = (errors: any) => {
                         if (!selectedLayanan.includes(s.name)) {
                           const next = [...selectedLayanan, s.name];
                           setSelectedLayanan(next);
-                          setValue("layanan", next.join(", "));
+                          setValue("layananList", next);
                           // Add up prices
                           const totalPrice = next.reduce((sum, name) => {
                             const found = catalog.find((c) => c.name === name);
