@@ -59,4 +59,9 @@ export const authService = {
     const res = await api.get<ApiUser>("/api/v1/auth/me");
     return res.data;
   },
+
+  async updateProfile(data: { phone?: string; password?: string }): Promise<{ user: ApiUser }> {
+    const res = await api.put<{ user: ApiUser }>("/api/v1/auth/me", data);
+    return res.data;
+  },
 };
