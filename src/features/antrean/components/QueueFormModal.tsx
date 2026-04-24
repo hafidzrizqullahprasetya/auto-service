@@ -23,6 +23,7 @@ const antreanSchema = z.object({
   pelanggan: z.string().min(1, "Nama pelanggan wajib diisi"),
   waPelanggan: z.string().min(1, "Nomor WhatsApp wajib diisi"),
   layanan: z.string().min(1, "Jenis layanan wajib diisi"),
+  layananList: z.array(z.string()).optional(),
   noRangka: z.string().optional().nullable(),
   keluhan: z.string().default(""),
   complaintLog: z.string().default(""),
@@ -52,6 +53,8 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
   const [bundles, setBundles] = useState<ApiServiceBundle[]>([]);
   const [selectedBundle, setSelectedBundle] = useState<ApiServiceBundle | null>(null);
   const [showBundles, setShowBundles] = useState(false);
+  // Multi-select layanan
+  const [selectedLayanan, setSelectedLayanan] = useState<string[]>([]);
   const vehicleRef = useRef<HTMLDivElement>(null);
   const customerRef = useRef<HTMLDivElement>(null);
   const serviceRef = useRef<HTMLDivElement>(null);
@@ -74,6 +77,7 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
       waPelanggan: "",
       noRangka: "",
       layanan: "",
+      layananList: [],
       keluhan: "",
       complaintLog: "",
       estimasiBiaya: 0,
@@ -91,6 +95,8 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
   // Load draft or initial item
   useEffect(() => {
     if (item) {
+      const existingLayananList = item.layanan ? item.layanan.split(", ") : [];
+      setSelectedLayanan(existingLayananList);
       reset({
         noPolisi: item.noPolisi || "",
         tipe: item.tipe || "Mobil",
@@ -98,6 +104,7 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
         pelanggan: item.pelanggan || "",
         waPelanggan: item.waPelanggan || "",
         layanan: item.layanan || "",
+        layananList: existingLayananList,
         keluhan: item.keluhan || "",
         complaintLog: item.complaintLog || "",
         estimasiBiaya: Number(item.estimasiBiaya || 0),
@@ -110,6 +117,7 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
       if (draft) {
         try {
           const parsed = JSON.parse(draft);
+          if (parsed.layananList) setSelectedLayanan(parsed.layananList);
           reset(parsed);
         } catch (e) {
           console.error("Failed to parse draft", e);
@@ -199,8 +207,11 @@ const onInvalid = (errors: any) => {
   };
 
   const onFormSubmit: SubmitHandler<QueueFormValues> = (data) => {
+    // Combine selected layanan chips into single string
+    const layananStr = selectedLayanan.length > 0 ? selectedLayanan.join(", ") : data.layanan;
     const payload = {
       ...data,
+      layanan: layananStr,
       customer_id: item?.customer_id,
       vehicle_id: item?.vehicle_id,
       estimasi_biaya: data.estimasiBiaya,
@@ -449,56 +460,98 @@ const onInvalid = (errors: any) => {
 
 
         <div className="relative" ref={serviceRef}>
-          <InputGroup
-            label="Jenis Layanan"
-            placeholder="Contoh: Ganti Oli & Filter"
-            {...register("layanan")}
-            error={errors.layanan?.message}
-            onChange={(e: any) => {
-              setValue("layanan", e.target.value);
-              setShowServices(true);
-            }}
-            onFocus={() => setShowServices(true)}
-            required
-            leftIcon={<Icons.History size={18} />}
-            rightIcon={watchLayanan && (
-              <button 
-                type="button"
-                onClick={() => {
-                  setValue("layanan", "");
-                  setValue("estimasiBiaya", 0);
-                  setShowServices(false);
-                }}
-                className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
-              >
-                <Icons.Plus size={16} className="rotate-45 text-dark-5" />
-              </button>
-            )}
-          />
-          {showServices && filteredCatalog.length > 0 && (
-            <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-xl border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-dark-2">
-              <div className="flex flex-col">
-                {filteredCatalog.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className="flex w-full items-center justify-between px-5 py-3 text-left hover:bg-gray-1 dark:hover:bg-dark-3"
-                    onClick={() => {
-                      setValue("layanan", s.name);
-                      setValue("estimasiBiaya", Number(s.standard_price));
-                      setShowServices(false);
-                    }}
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-dark dark:text-white">{s.name}</span>
-                      <span className="text-xs text-dark-5">{s.kategori}</span>
-                    </div>
-                    <span className="text-sm font-bold text-primary">Rp {Number(s.standard_price).toLocaleString()}</span>
-                  </button>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
+              Jenis Layanan <span className="text-danger">*</span>
+              <span className="ml-1 text-xs font-normal text-dark-5">(bisa pilih lebih dari satu)</span>
+            </label>
+            {/* Chips of selected layanan */}
+            {selectedLayanan.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pb-1">
+                {selectedLayanan.map((l) => (
+                  <span key={l} className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                    {l}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = selectedLayanan.filter((x) => x !== l);
+                        setSelectedLayanan(next);
+                        setValue("layanan", next.join(", "));
+                      }}
+                      className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary/20 hover:bg-primary/40"
+                    >
+                      <Icons.Plus size={10} className="rotate-45" />
+                    </button>
+                  </span>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+            {/* Input field */}
+            <InputGroup
+              placeholder="Ketik untuk cari layanan..."
+              {...register("layanan")}
+              error={errors.layanan?.message}
+              onChange={(e: any) => {
+                setValue("layanan", e.target.value);
+                setShowServices(true);
+              }}
+              onFocus={() => setShowServices(true)}
+              leftIcon={<Icons.History size={18} />}
+              rightIcon={watchLayanan && (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setValue("layanan", "");
+                    setShowServices(false);
+                  }}
+                  className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
+                >
+                  <Icons.Plus size={16} className="rotate-45 text-dark-5" />
+                </button>
+              )}
+            />
+            {showServices && filteredCatalog.length > 0 && (
+              <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 overflow-hidden rounded-xl border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-dark-2">
+                <div className="flex flex-col">
+                  {filteredCatalog.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className={`flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-gray-1 dark:hover:bg-dark-3 ${
+                        selectedLayanan.includes(s.name) ? "bg-primary/5" : ""
+                      }`}
+                      onClick={() => {
+                        if (!selectedLayanan.includes(s.name)) {
+                          const next = [...selectedLayanan, s.name];
+                          setSelectedLayanan(next);
+                          setValue("layanan", next.join(", "));
+                          // Add up prices
+                          const totalPrice = next.reduce((sum, name) => {
+                            const found = catalog.find((c) => c.name === name);
+                            return sum + Number(found?.standard_price ?? 0);
+                          }, 0);
+                          setValue("estimasiBiaya", totalPrice);
+                        }
+                        setValue("layanan", "");
+                        setShowServices(false);
+                      }}
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-dark dark:text-white">{s.name}</span>
+                        <span className="text-xs text-dark-5">{s.kategori}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {selectedLayanan.includes(s.name) && (
+                          <Icons.Check size={14} className="text-primary" />
+                        )}
+                        <span className="text-sm font-bold text-primary">Rp {Number(s.standard_price).toLocaleString()}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2.5">

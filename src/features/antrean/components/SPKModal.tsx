@@ -79,7 +79,7 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
             <p className="text-[10px] font-bold uppercase tracking-widest text-dark-5">Data Kendaraan</p>
             <p className="text-lg font-black text-dark dark:text-white tracking-widest uppercase">{item.noPolisi}</p>
             <p className="text-xs font-medium text-dark-5">
-              {item.kendaraan ? item.kendaraan : '(Detail Kendaraan Belum Ada)'} ({item.tipe})
+              {item.kendaraan || '-'} ({item.tipe})
             </p>
             {item.noRangka && (
               <p className="text-[10px] font-bold text-dark-5 uppercase tracking-tighter mt-1 bg-white/50 px-1.5 py-0.5 rounded border border-stroke dark:border-dark-3 inline-block">
@@ -89,7 +89,7 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
           </div>
           <div className="text-right space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-widest text-dark-5">Pemilik / Customer</p>
-            <p className="text-sm font-bold text-dark dark:text-white uppercase">{item.pelanggan}</p>
+            <p className="text-sm font-bold text-dark dark:text-white uppercase">{item.pelanggan || '-'}</p>
             <p className="text-xs font-medium text-dark-5 mt-1">WA: {item.waPelanggan || '-'}</p>
             <p className="text-xs font-medium text-dark-5">Masuk: {dayjs(item.waktuMasuk).format('DD/MM/YYYY HH:mm')}</p>
             {item.menginap && (
@@ -130,7 +130,7 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
               <h4 className="text-xs font-black uppercase tracking-widest text-dark dark:text-white">Instruksi Layanan / Pekerjaan</h4>
             </div>
             <div className="min-h-[60px] rounded-lg border-2 border-dashed border-stroke p-3 dark:border-dark-3">
-              <p className="text-sm font-bold text-dark dark:text-white">{item.layanan}</p>
+              <p className="text-sm font-bold text-dark dark:text-white">{item.layanan || '-'}</p>
             </div>
           </div>
         </div>
@@ -224,22 +224,28 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style>{`
         @media print {
-          body * {
+          body > * {
             visibility: hidden;
           }
           #spk-content, #spk-content * {
             visibility: visible;
           }
           #spk-content {
-            position: absolute;
-            left: 0;
-            top: 0;
+            position: fixed;
+            inset: 0;
             width: 100%;
+            height: auto;
+            padding: 24px;
+            overflow: visible;
+            background: white;
           }
           .no-print {
             display: none !important;
+          }
+          .no-print-interactive {
+            pointer-events: none;
           }
         }
       `}</style>
