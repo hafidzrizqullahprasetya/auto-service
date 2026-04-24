@@ -231,11 +231,11 @@ export function ExcelButtons({
     <>
       <div className={cn("flex w-full flex-wrap items-center gap-2 sm:w-auto", className)}>
         {/* Download Template */}
-        <div className="relative flex-1 sm:flex-none">
+        <div className="relative shrink-0">
           <button
             onClick={() => downloadTemplate(moduleKey)}
             type="button"
-            className="peer flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-stroke bg-white px-3 text-xs font-bold text-dark-5 transition-colors hover:border-primary hover:text-primary dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:hover:border-primary dark:hover:text-primary sm:w-auto"
+            className="peer flex h-9 items-center gap-1.5 rounded-lg border border-stroke bg-white px-3 text-xs font-bold text-dark-5 transition-colors hover:border-primary hover:text-primary dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:hover:border-primary dark:hover:text-primary"
           >
             <FileDown size={14} />
             <span className="hidden sm:inline">Template</span>
@@ -256,12 +256,12 @@ export function ExcelButtons({
           className="hidden"
           onChange={handleFileChange}
         />
-        <div className="relative flex-1 sm:flex-none">
+        <div className="relative shrink-0">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading}
             type="button"
-            className="peer flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-stroke bg-white px-3 text-xs font-bold text-dark-5 transition-colors hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:hover:border-blue-400 dark:hover:text-blue-400 sm:w-auto"
+            className="peer flex h-9 items-center gap-1.5 rounded-lg border border-stroke bg-white px-3 text-xs font-bold text-dark-5 transition-colors hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:hover:border-blue-400 dark:hover:text-blue-400"
           >
             {loading ? (
               <Loader2 size={14} className="animate-spin" />
@@ -279,7 +279,7 @@ export function ExcelButtons({
         </div>
 
         {/* Export Dropdown Button Group */}
-        <div className="export-menu-container relative flex-1 sm:flex-none">
+        <div className="export-menu-container relative shrink-0">
           <button
             onClick={() => {
               if (onSecondaryExport) {
@@ -291,7 +291,7 @@ export function ExcelButtons({
             disabled={exportData.length === 0}
             type="button"
             className={cn(
-              "peer flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-stroke bg-white px-3 text-xs font-bold text-dark-5 transition-colors disabled:opacity-40 dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 sm:w-auto",
+              "peer flex h-9 items-center gap-1.5 rounded-lg border border-stroke bg-white px-3 text-xs font-bold text-dark-5 transition-colors disabled:opacity-40 dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6",
               showExportMenu 
                 ? "border-green-500 text-green-600 bg-green-50/10" 
                 : "hover:border-green-500 hover:text-green-600 dark:hover:border-green-400 dark:hover:text-green-400"

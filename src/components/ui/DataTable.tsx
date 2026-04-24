@@ -123,8 +123,8 @@ export function DataTable<TData, TValue>({
             )}
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-            {/* Search (Left of actions) */}
+        <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap sm:justify-end">
+            {/* Search */}
             {searchable && (
               <div className="relative w-full sm:w-auto">
                 <Icons.Search
@@ -136,20 +136,20 @@ export function DataTable<TData, TValue>({
                   placeholder={searchPlaceholder}
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-stroke bg-gray-1/50 pl-11 pr-4 text-sm text-dark outline-none placeholder:text-dark-5 focus:border-dark focus:bg-white sm:min-w-[280px]"
+                  className="h-10 w-full rounded-xl border border-stroke bg-gray-1/50 pl-11 pr-4 text-sm text-dark outline-none placeholder:text-dark-5 focus:border-dark focus:bg-white sm:min-w-[220px] sm:max-w-[280px]"
                 />
               </div>
             )}
 
-            {/* Actions & Extra actions (Far Right) */}
-            <div className="flex flex-wrap items-center gap-2">
+            {/* Extra actions (Template/Import/Export) + Primary button — never wrap */}
+            <div className="flex shrink-0 items-center gap-2">
               {extraActions}
 
               {secondaryAction && (
                 <button
                   onClick={secondaryAction.onClick}
                   className={cn(
-                    "flex h-11 items-center gap-2 rounded-xl border px-4 text-sm font-bold",
+                    "flex h-10 items-center gap-2 rounded-xl border px-4 text-sm font-bold",
                     secondaryAction.variant === "danger"
                       ? "border-red/20 bg-red-50 text-red hover:bg-red hover:text-white"
                       : "border-stroke bg-white text-dark-5 hover:border-dark hover:text-dark",
@@ -162,7 +162,7 @@ export function DataTable<TData, TValue>({
               {primaryAction && (
                 <button
                   onClick={primaryAction.onClick}
-                  className="flex h-11 items-center gap-2 rounded-xl bg-dark px-5 text-sm font-bold text-white hover:bg-dark/90"
+                  className="flex h-10 shrink-0 items-center gap-2 rounded-xl bg-dark px-5 text-sm font-bold text-white hover:bg-dark/90"
                 >
                   <Plus size={16} />
                   {primaryAction.label}
