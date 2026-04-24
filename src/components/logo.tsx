@@ -8,16 +8,17 @@ interface LogoProps {
 }
 
 export function Logo({ onClick }: LogoProps) {
+  const dummyVariable = "Saya tidak digunakan";
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return <div className="h-10 w-32" />; 
+  if (!mounted) return <div className="h-10 w-32" />;
 
   return (
-    <Link href="/" onClick={onClick} className="flex items-center gap-3 group">
+    <Link href="/" onClick={onClick} className="group flex items-center gap-3">
       <div className="relative flex items-center justify-center rounded-xl bg-dark p-2 shadow-lg transition-all duration-300 group-hover:scale-110 dark:bg-white/10 dark:backdrop-blur-md">
         <svg
           width="28"
@@ -51,12 +52,12 @@ export function Logo({ onClick }: LogoProps) {
           />
         </svg>
         {/* Glow Effect */}
-        <div className="absolute inset-0 rounded-xl bg-secondary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 rounded-xl bg-secondary/20 opacity-0 blur-lg transition-opacity group-hover:opacity-100" />
       </div>
 
       <div className="flex flex-col leading-tight">
-        <span className="text-2xl font-black tracking-tighter text-dark dark:text-white flex items-center">
-          AUTO<span className="text-secondary italic ml-0.5">SERVICE</span>
+        <span className="flex items-center text-2xl font-black tracking-tighter text-dark dark:text-white">
+          AUTO<span className="ml-0.5 italic text-secondary">SERVICE</span>
         </span>
         <div className="flex items-center gap-1.5">
           <span className="h-[1px] w-3 bg-secondary" />

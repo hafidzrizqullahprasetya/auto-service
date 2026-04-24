@@ -44,3 +44,9 @@ yarn-error.log*
 next-env.d.ts
 .agent
 be/dist
+
+# personal documents
+image-ppt/
+ppt-eslint.md
+progres_mingguan.md
+eslint.md
