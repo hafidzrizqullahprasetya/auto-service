@@ -7,6 +7,7 @@ export interface AuthUser {
   name: string;
   role: Role;
   username: string;
+  phone?: string;
 }
 
 export function useAuth(): AuthUser | null {
