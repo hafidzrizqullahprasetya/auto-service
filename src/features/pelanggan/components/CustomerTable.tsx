@@ -119,18 +119,36 @@ export function CustomerTable() {
       {
         accessorKey: "vehicles",
         header: () => <div className="w-full text-center">Kendaraan</div>,
-        cell: ({ row }) => (
-          <div className="mx-auto flex w-full max-w-[150px] flex-wrap justify-center gap-1">
-            {row.original.vehicles.map((v) => (
-              <span
-                key={v}
-                className="rounded border border-stroke bg-gray-2 px-1.5 py-0.5 text-xs font-medium text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white"
-              >
-                {v}
-              </span>
-            ))}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const vehicles = row.original.vehicles;
+          const MAX_SHOW = 2;
+          const shown = vehicles.slice(0, MAX_SHOW);
+          const overflow = vehicles.length - MAX_SHOW;
+          return (
+            <div className="flex flex-wrap items-center justify-center gap-1">
+              {shown.map((v) => (
+                <span
+                  key={v}
+                  title={v}
+                  className="inline-block max-w-[110px] truncate rounded border border-stroke bg-gray-2 px-1.5 py-0.5 font-mono text-xs font-bold text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white"
+                >
+                  {v}
+                </span>
+              ))}
+              {overflow > 0 && (
+                <span
+                  title={vehicles.slice(MAX_SHOW).join(", ")}
+                  className="cursor-default rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary"
+                >
+                  +{overflow}
+                </span>
+              )}
+              {vehicles.length === 0 && (
+                <span className="text-sm text-dark-5">—</span>
+              )}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "totalVisits",
