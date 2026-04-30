@@ -16,6 +16,7 @@ import { useSettings } from "@/hooks/useSettings";
 import InputGroup from "@/components/ui/InputGroup";
 import { Notify } from "@/utils/notify";
 import { Skeleton } from "@/components/ui/skeleton";
+import { serviceBundlesService, ApiServiceBundle } from "@/services/service-bundles.service";
 
 const transactionSchema = z.object({
   customerId: z.string().min(1, "Pelanggan wajib dipilih"),
@@ -82,6 +83,11 @@ export function TransactionFormModal({
   const [jasaLoading, setJasaLoading] = useState(false);
   const [customersLoading, setCustomersLoading] = useState(true);
   const [vehiclesLoading, setVehiclesLoading] = useState(false);
+  const [bundles, setBundles] = useState<ApiServiceBundle[]>([]);
+
+  useEffect(() => {
+    serviceBundlesService.getAll().then(setBundles).catch(console.error);
+  }, []);
 
   const {
     register,
@@ -211,15 +217,29 @@ export function TransactionFormModal({
     [sparePartItems, itemSearch],
   );
 
-  const filteredJasa = useMemo(
-    () =>
-      jasaItems.filter(
-        (i) =>
-          i.name.toLowerCase().includes(jasaSearch.toLowerCase()) ||
-          i.sku.toLowerCase().includes(jasaSearch.toLowerCase()),
-      ),
-    [jasaItems, jasaSearch],
-  );
+  const filteredJasa = useMemo(() => {
+    const term = jasaSearch.toLowerCase();
+    
+    // Filter individual services
+    const services = jasaItems
+      .filter(i => i.name.toLowerCase().includes(term) || i.sku.toLowerCase().includes(term))
+      .map(i => ({ ...i, isBundle: false }));
+
+    // Filter bundles
+    const bundleMatches = bundles
+      .filter(b => b.name.toLowerCase().includes(term))
+      .map(b => ({
+        id: `bundle-${b.id}`,
+        sku: "BUNDLE",
+        name: b.name,
+        price: Number(b.price),
+        unit: "paket",
+        isBundle: true,
+        originalBundle: b
+      }));
+
+    return [...services, ...bundleMatches];
+  }, [jasaItems, bundles, jasaSearch]);
 
   const addItemToCart = (item: Item) => {
     const existingIndex = cartItems.findIndex(
@@ -243,7 +263,7 @@ export function TransactionFormModal({
     setItemSearch("");
   };
 
-  const addJasaToCart = (jasa: Item) => {
+  const addJasaToCart = (jasa: any) => {
     const existingIndex = cartItems.findIndex(
       (f) => f.isJasa && f.itemId === jasa.id,
     );
@@ -259,7 +279,7 @@ export function TransactionFormModal({
         name: jasa.name,
         price: jasa.price,
         quantity: 1,
-        unit: "jasa",
+        unit: jasa.unit || "jasa",
       });
     }
     setJasaSearch("");
@@ -441,7 +461,7 @@ export function TransactionFormModal({
 
               <InputGroup
                 label="Tambah Jasa / Layanan"
-                placeholder="Cari nama jasa..."
+                placeholder="Cari nama jasa atau paket..."
                 leftIcon={<Icons.Search size={16} />}
                 value={jasaSearch}
                 handleChange={(e) => {
@@ -464,7 +484,7 @@ export function TransactionFormModal({
                       ))}
                     </div>
                   ) : filteredJasa.length > 0 ? (
-                    filteredJasa.map((jasa) => (
+                    filteredJasa.map((jasa: any) => (
                       <button
                         key={jasa.id}
                         type="button"
@@ -474,11 +494,17 @@ export function TransactionFormModal({
                         }}
                         className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition hover:bg-gray-1 dark:hover:bg-dark-3"
                       >
-                        <div>
-                          <span className="font-mono text-[10px] text-dark-5">
-                            {jasa.sku}
-                          </span>
-                          {" · "}
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-[10px] text-dark-5">
+                              {jasa.sku}
+                            </span>
+                            {jasa.isBundle && (
+                              <span className="rounded bg-primary/10 px-1 py-0.5 text-[8px] font-black uppercase text-primary">
+                                PAKET
+                              </span>
+                            )}
+                          </div>
                           <span className="font-medium text-dark dark:text-white">
                             {jasa.name}
                           </span>
@@ -490,7 +516,7 @@ export function TransactionFormModal({
                     ))
                   ) : (
                     <div className="px-4 py-3 text-center text-sm text-dark-5">
-                      Tidak ada jasa yang cocok
+                      Tidak ada jasa atau paket yang cocok
                     </div>
                   )}
                 </div>
