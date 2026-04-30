@@ -2,6 +2,40 @@ import { api } from "@/lib/api";
 import { ApiWorkOrder } from "@/types/api";
 import { Antrean } from "@/types/antrean";
 
+export type InspectionStatus = "unchecked" | "baik" | "repair_replace";
+
+export interface WorkOrderInspectionItem {
+  id: number;
+  inspection_id: number;
+  section: string;
+  item_name: string;
+  status: InspectionStatus;
+  note?: string | null;
+  sort_order: number;
+}
+
+export interface WorkOrderInspection {
+  id: number;
+  work_order_id: number;
+  inspection_date: string;
+  kilometer?: string | null;
+  pengerjaan?: string | null;
+  service_request_note?: string | null;
+  repair_note?: string | null;
+  inspected_by?: string | null;
+  items: WorkOrderInspectionItem[];
+}
+
+export interface WorkOrderInspectionPayload {
+  inspection_date?: string;
+  kilometer?: string;
+  pengerjaan?: string;
+  service_request_note?: string;
+  repair_note?: string;
+  inspected_by?: string;
+  items: Pick<WorkOrderInspectionItem, "id" | "status" | "note">[];
+}
+
 const STATUS_MAP: Record<ApiWorkOrder["status"], Antrean["status"]> = {
   menunggu: "Menunggu",
   dikerjakan: "Dikerjakan",
@@ -19,11 +53,12 @@ const STATUS_MAP_REVERSE: Record<Antrean["status"], ApiWorkOrder["status"]> = {
 export function mapWorkOrder(wo: ApiWorkOrder): Antrean {
   const vehicle = wo.vehicles;
   const customer = wo.customers;
+  const vehicleType = String(vehicle?.type ?? "").toLowerCase() === "motor" ? "Motor" : "Mobil";
   return {
     id: wo.id.toString(),
     noPolisi: vehicle?.plate_number ?? "",
     kendaraan: vehicle ? `${vehicle.brand} ${vehicle.model}`.trim() : "",
-    tipe: (vehicle?.type === "Motor" ? "Motor" : "Mobil") as "Mobil" | "Motor",
+    tipe: vehicleType,
     pelanggan: customer?.name ?? "",
     layanan: wo.layanan,
     status: STATUS_MAP[wo.status] ?? "Menunggu",
@@ -119,5 +154,23 @@ export const antreanService = {
       `/api/v1/work-orders/${workOrderId}/checklist/${checklistId}`,
       { is_done }
     );
+  },
+
+  async getInspection(workOrderId: string): Promise<WorkOrderInspection> {
+    const res = await api.get<{ inspection: WorkOrderInspection }>(
+      `/api/v1/work-orders/${workOrderId}/inspection`
+    );
+    return res.data.inspection;
+  },
+
+  async updateInspection(
+    workOrderId: string,
+    body: WorkOrderInspectionPayload
+  ): Promise<WorkOrderInspection> {
+    const res = await api.put<WorkOrderInspection>(
+      `/api/v1/work-orders/${workOrderId}/inspection`,
+      body
+    );
+    return res.data;
   },
 };

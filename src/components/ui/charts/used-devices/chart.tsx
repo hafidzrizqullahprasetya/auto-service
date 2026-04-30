@@ -13,6 +13,11 @@ const Chart = dynamic(() => import("react-apexcharts"), {
 });
 
 export function DonutChart({ data }: PropsType) {
+  const formatPercent = (value: number) =>
+    new Intl.NumberFormat("id-ID", {
+      maximumFractionDigits: 1,
+    }).format(value);
+
   const chartOptions: ApexOptions = {
     chart: {
       type: "donut",
@@ -31,7 +36,7 @@ export function DonutChart({ data }: PropsType) {
       },
       formatter: (legendName, opts) => {
         const { seriesPercent } = opts.w.globals;
-        return `${legendName}: ${seriesPercent[opts.seriesIndex]}%`;
+        return `${legendName}: ${formatPercent(seriesPercent[opts.seriesIndex] ?? 0)}%`;
       },
     },
     plotOptions: {

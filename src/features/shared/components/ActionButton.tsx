@@ -33,8 +33,8 @@ export function ActionButton({
   };
 
   const sizes: Record<string, string> = {
-    sm: "p-1.5 text-xs",
-    md: "p-2 text-sm",
+    sm: "p-1 text-[10px] min-h-[28px] min-w-[28px]",
+    md: "p-1.5 text-xs min-h-[34px] min-w-[34px]",
     lg: "p-2.5 text-base",
   };
 
@@ -45,10 +45,11 @@ export function ActionButton({
     <div className="relative flex items-center justify-center">
       <button
         className={cn(
-          "peer flex items-center justify-center gap-2 rounded-lg disabled:pointer-events-none disabled:opacity-50",
+          "peer flex items-center justify-center gap-2 rounded-lg disabled:pointer-events-none disabled:opacity-50 transition-all active:scale-95",
           variants[variant],
           sizes[size],
-          hasLabel && "px-3 py-1.5 font-semibold",
+          hasLabel && (size === "sm" ? "px-2.5 py-1" : size === "md" ? "px-4 py-2" : "px-6 py-3"),
+          hasLabel && "font-bold tracking-wide uppercase",
           className
         )}
         disabled={props.disabled || loading}

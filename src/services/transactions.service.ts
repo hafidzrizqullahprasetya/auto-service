@@ -20,6 +20,7 @@ const PAYMENT_STATUS_MAP: Record<
   lunas: "Lunas",
   dp: "DP",
   piutang: "Piutang",
+  belum_bayar: "Belum Bayar",
 };
 
 /** Map BE ApiTransaction → FE Transaction */
@@ -57,7 +58,7 @@ export function mapTransaction(tx: ApiTransaction, taxRate: number = 11): Transa
     taxPercentage: taxRate,
     paymentMethod: PAYMENT_METHOD_MAP[tx.payment_method] ?? "Cash",
     type: hasService ? "Service" : "Sparepart Only",
-    paymentStatus: PAYMENT_STATUS_MAP[tx.payment_status] ?? "Lunas",
+    paymentStatus: PAYMENT_STATUS_MAP[tx.payment_status] ?? "Belum Bayar",
     dpAmount: Number(tx.paid_amount),
   };
 }
@@ -111,7 +112,7 @@ export const transactionsService = {
     id: string,
     payment: {
       payment_status: ApiTransaction["payment_status"];
-      dp_amount?: number;
+      paid_amount?: number;
     },
   ): Promise<Transaction> {
     const [settings, res] = await Promise.all([

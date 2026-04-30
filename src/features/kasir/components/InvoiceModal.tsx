@@ -118,7 +118,7 @@ PPN (${transaction.taxPercentage}%): Rp ${formatNumber(transaction.tax)}
     >
       <div
         id="invoice-content"
-        className="space-y-8 bg-white text-black print:p-0"
+        className="space-y-8 bg-white text-black print:p-8 print:max-w-[190mm] print:mx-auto"
       >
         {/* Brand Header */}
         <div className="flex flex-col items-start justify-between gap-4 border-b-2 border-dark pb-6 sm:flex-row">

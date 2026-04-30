@@ -38,7 +38,7 @@ export const NAV_DATA = [
         ],
       },
       {
-        title: "Katalog Jasa",
+        title: "Katalog Jasa & Paket",
         icon: Icons.Repair,
         url: "/katalog-jasa",
         items: [],

@@ -14,7 +14,9 @@ import { Icons } from "@/components/Icons";
 import { Notify } from "@/utils/notify";
 import { QueueFormModal } from "./QueueFormModal";
 import { SPKModal } from "./SPKModal";
+import { InspectionChecklistModal } from "./InspectionChecklistModal";
 import { antreanToExcelRows } from "@/lib/excel";
+import { useAuth } from "@/hooks/useAuth";
 
 const getStatusVariant = (status: Antrean["status"]) => {
   switch (status) {
@@ -43,16 +45,21 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Antrean | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const authUser = useAuth();
+  const canManageInspection = authUser?.role === "Owner" || authUser?.role === "Admin";
 
-  const handleAction = (item: Antrean, type: "print" | "edit" | "delete") => {
+  const handleAction = (item: Antrean, type: "print" | "edit" | "delete" | "inspection") => {
     setSelectedItem(item);
     if (type === "edit") {
       setShowModal(true);
     } else if (type === "print") {
       setShowPrintModal(true);
+    } else if (type === "inspection") {
+      setShowInspectionModal(true);
     } else if (type === "delete") {
       setShowDeleteModal(true);
     }
@@ -79,7 +86,7 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
                   {item.noPolisi}
                 </span>
                 <span className="text-[10px] font-bold uppercase text-dark-5">
-                  {item.kendaraan}
+                  {item.kendaraan || "-"}
                 </span>
               </div>
             </div>
@@ -92,7 +99,7 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
         cell: ({ row }) => (
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-bold text-dark dark:text-white">
-              {row.original.pelanggan}
+              {row.original.pelanggan || "-"}
             </span>
             {row.original.waPelanggan && (
               <span className="flex items-center gap-1 text-[10px] font-black text-dark-5">
@@ -109,7 +116,7 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
         cell: ({ row }) => (
           <div className="flex flex-col gap-0.5">
             <p className="max-w-[180px] truncate text-sm font-bold text-dark dark:text-white text-dark dark:text-white">
-              {row.original.layanan}
+              {row.original.layanan || "-"}
             </p>
             {row.original.keluhan && (
               <p className="max-w-[180px] truncate text-xs italic text-dark-5">
@@ -143,7 +150,7 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
             <div className="flex w-full justify-center">
               <Badge
                 variant={status === "Lunas" ? "success" : status === "Piutang" ? "warning" : "neutral"}
-                className="py-0.5 text-[10px] font-black uppercase tracking-wider"
+                className="min-w-[96px] justify-center whitespace-nowrap px-3 py-1 text-[10px] font-black uppercase tracking-wider"
               >
                 {status || "Belum Bayar"}
               </Badge>
@@ -214,6 +221,14 @@ Kami akan mengabari kembali jika pengerjaan telah selesai. Terima kasih atas kep
               onClick={() => handleAction(row.original, "print")}
               title="Cetak SPK"
             />
+            {canManageInspection && (
+              <ActionButton
+                icon={<Icons.StockOpname size={16} />}
+                variant="success"
+                onClick={() => handleAction(row.original, "inspection")}
+                title="Checklist Inspeksi"
+              />
+            )}
             <ActionButton
               icon={<Icons.Repair size={16} />}
               variant="edit"
@@ -246,7 +261,7 @@ Kami akan mengabari kembali jika pengerjaan telah selesai. Terima kasih atas kep
     ];
 
     return allColumns;
-  }, []);
+  }, [canManageInspection]);
 
   return (
     <>
@@ -318,6 +333,16 @@ Kami akan mengabari kembali jika pengerjaan telah selesai. Terima kasih atas kep
           item={selectedItem}
           onClose={() => {
             setShowPrintModal(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+
+      {showInspectionModal && selectedItem && (
+        <InspectionChecklistModal
+          item={selectedItem}
+          onClose={() => {
+            setShowInspectionModal(false);
             setSelectedItem(null);
           }}
         />

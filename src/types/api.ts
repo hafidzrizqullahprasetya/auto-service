@@ -136,7 +136,7 @@ export interface ApiTransaction {
   total_amount: number | string;
   paid_amount: number | string;
   payment_method: "cash" | "transfer" | "e_wallet" | "card";
-  payment_status: "lunas" | "dp" | "piutang";
+  payment_status: "lunas" | "dp" | "piutang" | "belum_bayar";
   notes?: string;
   created_at: string;
 }

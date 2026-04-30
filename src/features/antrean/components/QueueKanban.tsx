@@ -29,7 +29,9 @@ const STATUS_COLORS: Record<Antrean["status"], string> = {
 import { Skeleton } from "@/components/ui/skeleton";
 import { QueueFormModal } from "./QueueFormModal";
 import { SPKModal } from "./SPKModal";
+import { InspectionChecklistModal } from "./InspectionChecklistModal";
 import { ConfirmDeleteModal } from "@/features/shared";
+import { useAuth } from "@/hooks/useAuth";
 
 interface KanbanCardProps {
   item: Antrean;
@@ -38,7 +40,9 @@ interface KanbanCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onPrint: () => void;
+  onInspection: () => void;
   onPay: () => void;
+  canManageInspection: boolean;
 }
 
 function KanbanCard({
@@ -48,7 +52,9 @@ function KanbanCard({
   onEdit,
   onDelete,
   onPrint,
+  onInspection,
   onPay,
+  canManageInspection,
 }: KanbanCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showMechanicMenu, setShowMechanicMenu] = useState(false);
@@ -107,6 +113,18 @@ function KanbanCard({
                 <Icons.Print size={12} className="text-dark-5" />
                 Cetak SPK
               </button>
+              {canManageInspection && (
+                <button
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
+                  onClick={() => {
+                    onInspection();
+                    setShowMenu(false);
+                  }}
+                >
+                  <Icons.StockOpname size={12} className="text-dark-5" />
+                  Checklist Inspeksi
+                </button>
+              )}
               <button
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-red transition-colors hover:bg-red/10 animate-pulse"
                 onClick={() => {
@@ -238,9 +256,12 @@ export function QueueKanban({
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Antrean | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const authUser = useAuth();
+  const canManageInspection = authUser?.role === "Owner" || authUser?.role === "Admin";
 
   const handleEdit = (item: Antrean) => {
     setSelectedItem(item);
@@ -255,6 +276,11 @@ export function QueueKanban({
   const handlePrint = (item: Antrean) => {
     setSelectedItem(item);
     setShowPrintModal(true);
+  };
+
+  const handleInspection = (item: Antrean) => {
+    setSelectedItem(item);
+    setShowInspectionModal(true);
   };
 
   return (
@@ -310,6 +336,8 @@ export function QueueKanban({
                         onEdit={() => handleEdit(item)}
                         onDelete={() => handleDelete(item)}
                         onPrint={() => handlePrint(item)}
+                        onInspection={() => handleInspection(item)}
+                        canManageInspection={canManageInspection}
                         onPay={async () => {
                           Notify.loading("Menyiapkan Kasir...");
                           onPay(item);
@@ -382,6 +410,16 @@ export function QueueKanban({
           item={selectedItem}
           onClose={() => {
             setShowPrintModal(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+
+      {showInspectionModal && selectedItem && (
+        <InspectionChecklistModal
+          item={selectedItem}
+          onClose={() => {
+            setShowInspectionModal(false);
             setSelectedItem(null);
           }}
         />

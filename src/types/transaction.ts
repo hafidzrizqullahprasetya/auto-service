@@ -13,7 +13,7 @@ export interface Transaction {
   total: number;
   paymentMethod: "Cash" | "Transfer" | "E-Wallet" | "Card";
   type: "Service" | "Sparepart Only";
-  paymentStatus: "Lunas" | "DP" | "Piutang";
+  paymentStatus: "Lunas" | "DP" | "Piutang" | "Belum Bayar";
   dpAmount?: number;
   taxPercentage: number;
 }

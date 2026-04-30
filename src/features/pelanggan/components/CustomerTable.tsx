@@ -111,7 +111,7 @@ export function CustomerTable() {
             </p>
             <div className="mt-1 flex items-center gap-1 text-sm font-medium text-dark-5">
               <Icons.Whatsapp size={10} className="text-primary" />
-              {row.original.phone}
+              {row.original.phone || "—"}
             </div>
           </div>
         ),
@@ -120,17 +120,17 @@ export function CustomerTable() {
         accessorKey: "vehicles",
         header: () => <div className="w-full text-center">Kendaraan</div>,
         cell: ({ row }) => {
-          const vehicles = row.original.vehicles;
-          const MAX_SHOW = 2;
+          const vehicles = row.original.vehicles || [];
+          const MAX_SHOW = 3; // Menampilkan hingga 3 kendaraan di laptop
           const shown = vehicles.slice(0, MAX_SHOW);
           const overflow = vehicles.length - MAX_SHOW;
           return (
-            <div className="flex flex-wrap items-center justify-center gap-1">
-              {shown.map((v) => (
+            <div className="flex flex-wrap items-center justify-center gap-1.5 py-1">
+              {shown.map((v, i) => (
                 <span
-                  key={v}
+                  key={i}
                   title={v}
-                  className="inline-block max-w-[110px] truncate rounded border border-stroke bg-gray-2 px-1.5 py-0.5 font-mono text-xs font-bold text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white"
+                  className="inline-flex shrink-0 items-center justify-center rounded border border-stroke bg-gray-2 px-2 py-0.5 font-mono text-[11px] font-bold text-dark dark:border-dark-4 dark:bg-dark-3 dark:text-white"
                 >
                   {v}
                 </span>

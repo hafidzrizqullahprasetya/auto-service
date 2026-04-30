@@ -61,7 +61,10 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
         </div>
       }
     >
-      <div id="spk-content" className="space-y-6 py-2">
+      <div 
+        id="spk-content" 
+        className="space-y-6 py-2 print:max-w-[190mm] print:mx-auto print:px-4"
+      >
         {/* Header SPK */}
         <div className="flex items-start justify-between border-b-2 border-dark pb-4">
           <div>

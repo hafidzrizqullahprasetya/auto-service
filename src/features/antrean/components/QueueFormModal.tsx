@@ -30,6 +30,9 @@ const antreanSchema = z.object({
   estimasiBiaya: z.coerce.number().default(0),
   menginap: z.boolean().default(false),
   service_bundle_id: z.coerce.number().optional().nullable(),
+  image_url_1: z.string().optional().nullable(),
+  image_url_2: z.string().optional().nullable(),
+  image_url_3: z.string().optional().nullable(),
 });
 
 type QueueFormValues = z.infer<typeof antreanSchema>;
@@ -83,6 +86,9 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
       estimasiBiaya: 0,
       menginap: false,
       service_bundle_id: null,
+      image_url_1: "",
+      image_url_2: "",
+      image_url_3: "",
     }
   });
 
@@ -111,6 +117,9 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
         noRangka: item.noRangka || "",
         menginap: !!item.menginap,
         service_bundle_id: item.service_bundle_id ?? null,
+        image_url_1: item.image_url_1 || "",
+        image_url_2: item.image_url_2 || "",
+        image_url_3: item.image_url_3 || "",
       });
     } else {
       const draft = localStorage.getItem("antrean_draft");
@@ -199,7 +208,7 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
   );
 
 
-const onInvalid = (errors: any) => {
+  const onInvalid = (errors: any) => {
     const firstError = Object.values(errors)[0] as any;
     if (firstError?.message) {
       Notify.alert("Form Belum Lengkap", firstError.message, "error");
@@ -221,6 +230,27 @@ const onInvalid = (errors: any) => {
     onSave(payload);
   };
 
+  // ── LAYANAN HELPERS ────────────────────────
+  const addLayananChip = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    
+    if (!selectedLayanan.includes(trimmed)) {
+      const next = [...selectedLayanan, trimmed];
+      setSelectedLayanan(next);
+      setValue("layananList", next);
+      
+      // Auto-update price if found in catalog
+      const found = catalog.find(c => c.name.toLowerCase() === trimmed.toLowerCase());
+      if (found) {
+        const currentPrice = Number(watch("estimasiBiaya") || 0);
+        setValue("estimasiBiaya", currentPrice + Number(found.standard_price));
+      }
+    }
+    setValue("layanan", "");
+    setShowServices(false);
+  };
+
   return (
     <BaseModal
       title={isEdit ? "Edit Antrean Kendaraan" : "Entry Antrean Baru"}
@@ -234,7 +264,16 @@ const onInvalid = (errors: any) => {
           <ActionButton 
             variant="primary" 
             label={isLoading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Simpan Antrean"} 
-            onClick={handleSubmit(onFormSubmit, onInvalid) as any} 
+            onClick={() => {
+                // If there's text in the layanan input but not added as chip, add it now
+                const currentLayananInput = watch("layanan");
+                if (currentLayananInput && currentLayananInput.trim()) {
+                    const next = [...selectedLayanan, currentLayananInput.trim()];
+                    setSelectedLayanan(next);
+                    setValue("layananList", next);
+                }
+                handleSubmit(onFormSubmit, onInvalid)();
+            }} 
             disabled={isLoading} 
           />
         </div>
@@ -366,6 +405,7 @@ const onInvalid = (errors: any) => {
           <div className="relative" ref={vehicleRef}>
             <InputGroup
               label="Merk / Model Kendaraan"
+              required
               placeholder="Contoh: Toyota Avanza"
               {...register("kendaraan")}
               disabled={isEdit}
@@ -409,7 +449,7 @@ const onInvalid = (errors: any) => {
                   {watchKendaraan && watchKendaraan.trim() !== "" && !isExactMatch && (
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2 border-t border-stroke px-5 py-3 text-sm font-bold text-primary hover:bg-primary/5 dark:border-dark-3"
+                      className="m-2 flex items-center justify-center gap-2 rounded-lg bg-primary/5 px-4 py-2.5 text-xs font-black text-primary transition-all hover:bg-primary/10 active:scale-95"
                       onClick={async () => {
                         const input = watchKendaraan.trim();
                         const parts = input.split(" ");
@@ -438,8 +478,8 @@ const onInvalid = (errors: any) => {
                         </>
                       ) : (
                         <>
-                          <Icons.Plus size={16} />
-                          Tambah "{watchKendaraan}" ke Master
+                          <Icons.Plus size={14} />
+                          Tambahkan "{watchKendaraan}" ke Master Data
                         </>
                       )}
                     </button>
@@ -477,7 +517,13 @@ const onInvalid = (errors: any) => {
                         const next = selectedLayanan.filter((x) => x !== l);
                         setSelectedLayanan(next);
                         setValue("layananList", next);
-                        setValue("layanan", "");
+                        
+                        // Deduct price if found in catalog
+                        const found = catalog.find(c => c.name.toLowerCase() === l.toLowerCase());
+                        if (found) {
+                            const currentPrice = Number(watch("estimasiBiaya") || 0);
+                            setValue("estimasiBiaya", Math.max(0, currentPrice - Number(found.standard_price)));
+                        }
                       }}
                       className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary/20 hover:bg-primary/40"
                     >
@@ -489,26 +535,34 @@ const onInvalid = (errors: any) => {
             )}
             {/* Input field */}
             <InputGroup
-              placeholder="Ketik untuk cari layanan..."
+              placeholder="Ketik lalu Tekan ENTER untuk menambah..."
               {...register("layanan")}
               error={errors.layananList?.message}
+              onKeyDown={(e: any) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addLayananChip(e.target.value);
+                }
+              }}
               onChange={(e: any) => {
                 setValue("layanan", e.target.value);
                 setShowServices(true);
               }}
               onFocus={() => setShowServices(true)}
               leftIcon={<Icons.History size={18} />}
-              rightIcon={watchLayanan && (
+              rightIcon={watchLayanan ? (
                 <button 
                   type="button"
-                  onClick={() => {
-                    setValue("layanan", "");
-                    setShowServices(false);
-                  }}
-                  className="flex items-center justify-center rounded-full p-1 hover:bg-gray-2 dark:hover:bg-dark-3"
+                  onClick={() => addLayananChip(watchLayanan)}
+                  className="flex items-center justify-center rounded-full bg-primary p-1 text-white hover:bg-primary/80"
+                  title="Tambah Layanan"
                 >
-                  <Icons.Plus size={16} className="rotate-45 text-dark-5" />
+                  <Icons.Plus size={16} />
                 </button>
+              ) : (
+                <div className="flex h-6 w-6 items-center justify-center rounded border border-stroke text-[10px] font-bold text-dark-5">
+                    ⏎
+                </div>
               )}
             />
             {showServices && filteredCatalog.length > 0 && (
@@ -521,21 +575,7 @@ const onInvalid = (errors: any) => {
                       className={`flex w-full items-center justify-between px-5 py-3 text-left transition-colors hover:bg-gray-1 dark:hover:bg-dark-3 ${
                         selectedLayanan.includes(s.name) ? "bg-primary/5" : ""
                       }`}
-                      onClick={() => {
-                        if (!selectedLayanan.includes(s.name)) {
-                          const next = [...selectedLayanan, s.name];
-                          setSelectedLayanan(next);
-                          setValue("layananList", next);
-                          // Add up prices
-                          const totalPrice = next.reduce((sum, name) => {
-                            const found = catalog.find((c) => c.name === name);
-                            return sum + Number(found?.standard_price ?? 0);
-                          }, 0);
-                          setValue("estimasiBiaya", totalPrice);
-                        }
-                        setValue("layanan", "");
-                        setShowServices(false);
-                      }}
+                      onClick={() => addLayananChip(s.name)}
                     >
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-dark dark:text-white">{s.name}</span>
@@ -596,6 +636,20 @@ const onInvalid = (errors: any) => {
                   <p className="text-xs font-bold text-primary">
                     Rp {Number(selectedBundle.price).toLocaleString("id-ID")} · {selectedBundle.items.length} checklist
                   </p>
+                  {/* Task List Preview */}
+                  <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                    {selectedBundle.items.slice(0, 6).map((item: any, idx: number) => (
+                      <div key={idx} className="flex items-center gap-1.5 text-[10px] font-medium text-dark-5">
+                        <div className="h-1 w-1 rounded-full bg-primary/40" />
+                        <span className="truncate">{item.task_name}</span>
+                      </div>
+                    ))}
+                    {selectedBundle.items.length > 6 && (
+                      <div className="text-[10px] font-bold text-primary">
+                        + {selectedBundle.items.length - 6} lainnya...
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <button
@@ -641,6 +695,16 @@ const onInvalid = (errors: any) => {
                             setValue("service_bundle_id", b.id);
                             setShowBundles(false);
                             if (b.price) setValue("estimasiBiaya", Number(b.price));
+                            
+                            // Auto-add bundle name to layanan if not exists
+                            const currentLayanan = watchLayanan || "";
+                            if (!currentLayanan.includes(b.name)) {
+                              const newList = currentLayanan 
+                                ? `${currentLayanan}, ${b.name}`
+                                : b.name;
+                              setValue("layanan", newList);
+                              setSelectedLayanan(newList.split(", ").filter(Boolean));
+                            }
                           }}
                         >
                           <div className="flex flex-col">
@@ -662,6 +726,24 @@ const onInvalid = (errors: any) => {
               )}
             </div>
           )}
+        </div>
+
+        {/* Foto Unit (3 Images) */}
+        <div className="space-y-2.5">
+          <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
+            Foto Unit / Kendaraan
+            <span className="ml-2 text-xs font-normal text-dark-5">(opsional — link foto Google Drive/S3)</span>
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[1, 2, 3].map((num) => (
+              <InputGroup
+                key={num}
+                placeholder={`Link Foto ${num}`}
+                {...register(`image_url_${num}` as any)}
+                leftIcon={<Icons.Eye size={16} />}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

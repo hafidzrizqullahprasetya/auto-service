@@ -23,9 +23,7 @@ export function useVehicles() {
           plateNumber: v.plate_number,
           brand: v.brand ?? "",
           model: v.model ?? "",
-          type: ((v.type as string) === "Motor" ? "Motor" : "Mobil") as
-            | "Mobil"
-            | "Motor",
+          type: String(v.type).toLowerCase() === "motor" ? "Motor" : "Mobil",
           year: v.year ?? 0,
           color: "",
           ownerId: String(c.id),
