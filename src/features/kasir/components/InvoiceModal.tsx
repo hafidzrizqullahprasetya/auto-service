@@ -53,6 +53,7 @@ ${transaction.vehiclePlate} (${transaction.type})
 
 *DETAIL PEKERJAAN:*
 ${itemsList}
+${transaction.notes ? `\n*CATATAN SERVIS:*\n${transaction.notes}` : ""}
 
 *RINGKASAN BIAYA:*
 Subtotal: Rp ${formatNumber(transaction.subtotal)}
@@ -175,6 +176,21 @@ PPN (${transaction.taxPercentage}%): Rp ${formatNumber(transaction.tax)}
             </p>
           </div>
         </div>
+
+        {/* Notes / Catatan Servis */}
+        {transaction.notes && (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 print:border-gray-200 print:bg-gray-50">
+            <span className="mt-0.5 text-amber-500 print:text-gray-500">📝</span>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 print:text-gray-500">
+                Catatan Servis
+              </p>
+              <p className="mt-0.5 text-sm font-medium text-gray-700">
+                {transaction.notes}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Items Table */}
         <table className="w-full">

@@ -60,6 +60,7 @@ export function mapTransaction(tx: ApiTransaction, taxRate: number = 11): Transa
     type: hasService ? "Service" : "Sparepart Only",
     paymentStatus: PAYMENT_STATUS_MAP[tx.payment_status] ?? "Belum Bayar",
     dpAmount: Number(tx.paid_amount),
+    notes: tx.notes ?? undefined,
   };
 }
 

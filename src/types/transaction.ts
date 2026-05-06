@@ -16,6 +16,7 @@ export interface Transaction {
   paymentStatus: "Lunas" | "DP" | "Piutang" | "Belum Bayar";
   dpAmount?: number;
   taxPercentage: number;
+  notes?: string;
 }
 
 export interface TransactionItem {
