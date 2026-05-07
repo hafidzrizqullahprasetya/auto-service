@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const employeeSchema = z.object({
   name: z.string().min(3, "Nama minimal 3 karakter"),
   username: z.string().min(3, "Username minimal 3 karakter").regex(/^[a-z0-9_]+$/, "Username hanya boleh huruf kecil, angka, dan underscore"),
-  role: z.enum(["admin", "kasir"]),
+  role: z.enum(["admin", "kasir", "mekanik"]),
   phone: z.string().optional().or(z.literal("")),
   password: z.string().optional(),
 });
@@ -47,7 +47,7 @@ export function EmployeeFormModal({
     defaultValues: {
       name: initialData?.name ?? "",
       username: initialData?.username ?? "",
-      role: (initialData?.role?.toLowerCase() === "owner" ? "admin" : initialData?.role?.toLowerCase()) ?? "kasir",
+      role: (["owner"].includes(initialData?.role?.toLowerCase()) ? "admin" : initialData?.role?.toLowerCase()) ?? "kasir",
       phone: initialData?.phone ?? "",
       password: "",
     },
@@ -134,6 +134,7 @@ export function EmployeeFormModal({
             >
                 <option value="admin">Admin</option>
                 <option value="kasir">Kasir</option>
+                <option value="mekanik">Mekanik</option>
             </select>
             {errors.role && (
                 <p className="mt-1 text-xs font-medium text-red-500">{errors.role.message}</p>

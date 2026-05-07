@@ -3,7 +3,7 @@ export interface ApiUser {
   id: number;
   name: string;
   username: string;
-  role: "owner" | "admin" | "kasir";
+  role: "owner" | "admin" | "kasir" | "mekanik";
   phone?: string | null;
   is_active?: boolean;
 }

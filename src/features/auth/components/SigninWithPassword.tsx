@@ -59,7 +59,7 @@ export default function SigninWithPassword() {
         sessionStorage.setItem("auth_user", JSON.stringify(userObject));
       }
 
-      const destination = role === "Kasir" ? "/antrean" : "/";
+      const destination = (role === "Kasir" || role === "Mekanik") ? "/antrean" : "/";
       sessionStorage.setItem("welcome_toast", `Selamat datang kembali, ${result.user.name}!`);
       router.push(destination);
     } catch (err) {

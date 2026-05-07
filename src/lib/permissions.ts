@@ -1,4 +1,4 @@
-export type Role = "Owner" | "Admin" | "Kasir";
+export type Role = "Owner" | "Admin" | "Kasir" | "Mekanik";
 
 export interface RoutePermission {
   route: string;
@@ -34,12 +34,14 @@ export const DEFAULT_PERMISSIONS: Record<Role, string[]> = {
     "/reminder",
   ],
   Kasir: ["/antrean", "/kasir"],
+  Mekanik: ["/antrean", "/kendaraan"],
 };
 
 export const ROLE_HOME: Record<Role, string> = {
   Owner: "/",
   Admin: "/",
   Kasir: "/antrean",
+  Mekanik: "/antrean",
 };
 
 const STORAGE_KEY = "role_permissions";

@@ -21,7 +21,7 @@ function PermissionEditor() {
   const [saved, setSaved] = useState(false);
   const [isSavingPerms, setIsSavingPerms] = useState(false);
 
-  const toggle = (role: "Admin" | "Kasir", route: string) => {
+  const toggle = (role: "Admin" | "Kasir" | "Mekanik", route: string) => {
     setPerms((prev) => {
       const current = prev[role] ?? [...DEFAULT_PERMISSIONS[role]];
       const next = current.includes(route)
@@ -67,6 +67,9 @@ function PermissionEditor() {
                 <th className="px-3 py-3 text-center text-[9px] font-black uppercase tracking-wider text-amber-600 md:px-4 md:text-[10px]">
                   Kasir
                 </th>
+                <th className="px-3 py-3 text-center text-[9px] font-black uppercase tracking-wider text-green-600 md:px-4 md:text-[10px]">
+                  Mekanik
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stroke dark:divide-dark-3">
@@ -97,6 +100,16 @@ function PermissionEditor() {
                       type="checkbox"
                       checked={(perms.Kasir ?? DEFAULT_PERMISSIONS.Kasir).includes(p.route)}
                       onChange={() => toggle("Kasir", p.route)}
+                      className="size-4 cursor-pointer accent-dark dark:accent-white"
+                    />
+                  </label>
+                </td>
+                <td className="px-4 py-3.5 text-center">
+                  <label className="inline-flex cursor-pointer items-center justify-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={(perms.Mekanik ?? DEFAULT_PERMISSIONS.Mekanik).includes(p.route)}
+                      onChange={() => toggle("Mekanik", p.route)}
                       className="size-4 cursor-pointer accent-dark dark:accent-white"
                     />
                   </label>
@@ -232,7 +245,9 @@ export function ManajemenAkunTab({ userRole }: { userRole: Role }) {
                       ? "neutral"
                       : emp.role === "Admin"
                         ? "info"
-                        : "warning"
+                        : emp.role === "Mekanik" || emp.role === "mekanik"
+                          ? "success"
+                          : "warning"
                   }
                   className="rounded-lg px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-sm"
                 >

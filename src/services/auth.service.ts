@@ -1,11 +1,12 @@
 import { api } from "@/lib/api";
 import { LoginResponse, ApiUser } from "@/types/api";
 
-export type FrontendRole = "Owner" | "Admin" | "Kasir";
+export type FrontendRole = "Owner" | "Admin" | "Kasir" | "Mekanik";
 export function normalizeRole(role: string): FrontendRole {
   const r = role.toLowerCase();
   if (r === "owner") return "Owner";
   if (r === "admin") return "Admin";
+  if (r === "mekanik") return "Mekanik";
   return "Kasir";
 }
 
