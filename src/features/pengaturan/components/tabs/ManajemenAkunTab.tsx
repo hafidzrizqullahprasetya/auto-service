@@ -245,7 +245,7 @@ export function ManajemenAkunTab({ userRole }: { userRole: Role }) {
                       ? "neutral"
                       : emp.role === "Admin"
                         ? "info"
-                        : emp.role === "Mekanik" || emp.role === "mekanik"
+                        : emp.role === "Mekanik"
                           ? "success"
                           : "warning"
                   }

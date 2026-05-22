@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Icons } from "@/components/Icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Notify } from "@/utils/notify";
+import { useAuth } from "@/hooks/useAuth";
 
 type ViewType = "kanban" | "table";
 
@@ -33,6 +34,8 @@ export default function AntreanPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const authUser = useAuth();
+  const canCreateQueue = authUser?.role === "Owner" || authUser?.role === "Admin" || authUser?.role === "Kasir";
 
   const {
     data: items,
@@ -178,13 +181,15 @@ export default function AntreanPage() {
           ))}
         </div>
 
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex h-11 items-center gap-2 rounded-xl bg-secondary px-6 text-sm font-bold text-white shadow-lg shadow-secondary/10 hover:bg-opacity-90"
-        >
-          <Plus size={18} />
-          Entry Antrean Baru
-        </button>
+        {canCreateQueue && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex h-11 items-center gap-2 rounded-xl bg-secondary px-6 text-sm font-bold text-white shadow-lg shadow-secondary/10 hover:bg-opacity-90"
+          >
+            <Plus size={18} />
+            Entry Antrean Baru
+          </button>
+        )}
       </div>
 
       {activeView === "kanban" ? (

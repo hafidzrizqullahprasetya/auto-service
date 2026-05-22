@@ -79,7 +79,7 @@ export default function SigninWithPassword() {
         type="text"
         label="Username"
         className="mb-4 [&_input]:py-[15px]"
-        placeholder="owner / admin / kasir"
+        placeholder="owner / admin / kasir / mekanik"
         leftIcon={<User className="size-5" />}
         {...register("username")} 
         error={errors.username?.message} 

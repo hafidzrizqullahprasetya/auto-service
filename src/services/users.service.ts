@@ -22,7 +22,7 @@ export interface UserBody {
   name: string;
   username: string;
   password: string;
-  role: "admin" | "kasir";
+  role: "admin" | "kasir" | "mekanik";
   phone?: string;
 }
 

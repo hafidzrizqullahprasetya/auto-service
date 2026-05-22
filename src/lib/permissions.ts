@@ -34,7 +34,7 @@ export const DEFAULT_PERMISSIONS: Record<Role, string[]> = {
     "/reminder",
   ],
   Kasir: ["/antrean", "/kasir"],
-  Mekanik: ["/antrean", "/kendaraan"],
+  Mekanik: ["/antrean"],
 };
 
 export const ROLE_HOME: Record<Role, string> = {

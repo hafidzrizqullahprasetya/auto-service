@@ -50,7 +50,9 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const authUser = useAuth();
-  const canManageInspection = authUser?.role === "Owner" || authUser?.role === "Admin";
+  const canManageQueue = authUser?.role === "Owner" || authUser?.role === "Admin" || authUser?.role === "Kasir";
+  const canManageInspection = authUser?.role === "Owner" || authUser?.role === "Admin" || authUser?.role === "Mekanik";
+  const canSendProgress = authUser?.role === "Owner" || authUser?.role === "Admin" || authUser?.role === "Kasir";
 
   const handleAction = (item: Antrean, type: "print" | "edit" | "delete" | "inspection") => {
     setSelectedItem(item);
@@ -163,7 +165,7 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
         header: () => <div className="w-full text-center">Opsi</div>,
         cell: ({ row }) => (
           <div className="flex w-full items-center justify-center gap-1.5">
-            {row.original.waPelanggan && (
+            {canSendProgress && row.original.waPelanggan && (
               <ActionButton
                 icon={<Icons.Whatsapp size={16} />}
                 variant="success"
@@ -229,39 +231,43 @@ Kami akan mengabari kembali jika pengerjaan telah selesai. Terima kasih atas kep
                 title="Checklist Inspeksi"
               />
             )}
-            <ActionButton
-              icon={<Icons.Repair size={16} />}
-              variant="edit"
-              onClick={() => handleAction(row.original, "edit")}
-              title="Edit"
-            />
-            <ActionButton
-              icon={<Icons.Delete size={16} />}
-              variant="delete"
-              onClick={() => handleAction(row.original, "delete")}
-              title="Hapus"
-            />
-            <ActionButton
-              icon={<Icons.Kasir size={16} />}
-              variant="primary"
-              onClick={async () => {
-                if (row.original.payment_status === "Lunas") {
-                  Notify.toast("Transaksi ini sudah lunas", "success");
-                  return;
-                }
-                Notify.loading("Menyiapkan Kasir...");
-                onPay(row.original);
-              }}
-              title={row.original.payment_status === "Lunas" ? "Sudah Lunas" : "Bayar / Ke Kasir"}
-              disabled={row.original.payment_status === "Lunas"}
-            />
+            {canManageQueue && (
+              <>
+                <ActionButton
+                  icon={<Icons.Repair size={16} />}
+                  variant="edit"
+                  onClick={() => handleAction(row.original, "edit")}
+                  title="Edit"
+                />
+                <ActionButton
+                  icon={<Icons.Delete size={16} />}
+                  variant="delete"
+                  onClick={() => handleAction(row.original, "delete")}
+                  title="Hapus"
+                />
+                <ActionButton
+                  icon={<Icons.Kasir size={16} />}
+                  variant="primary"
+                  onClick={async () => {
+                    if (row.original.payment_status === "Lunas") {
+                      Notify.toast("Transaksi ini sudah lunas", "success");
+                      return;
+                    }
+                    Notify.loading("Menyiapkan Kasir...");
+                    onPay(row.original);
+                  }}
+                  title={row.original.payment_status === "Lunas" ? "Sudah Lunas" : "Bayar / Ke Kasir"}
+                  disabled={row.original.payment_status === "Lunas"}
+                />
+              </>
+            )}
           </div>
         ),
       },
     ];
 
     return allColumns;
-  }, [canManageInspection]);
+  }, [canManageInspection, canManageQueue, canSendProgress]);
 
   return (
     <>
@@ -275,10 +281,12 @@ Kami akan mengabari kembali jika pengerjaan telah selesai. Terima kasih atas kep
         pageSize={5}
         isLoading={isLoading}
         extraActions={
-          <ExcelButtons
-            moduleKey="antrean"
-            exportData={antreanToExcelRows(data) as any}
-          />
+          canManageQueue ? (
+            <ExcelButtons
+              moduleKey="antrean"
+              exportData={antreanToExcelRows(data) as any}
+            />
+          ) : undefined
         }
       />
 

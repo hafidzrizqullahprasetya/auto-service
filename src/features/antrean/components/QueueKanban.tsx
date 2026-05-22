@@ -42,7 +42,9 @@ interface KanbanCardProps {
   onPrint: () => void;
   onInspection: () => void;
   onPay: () => void;
+  canManageQueue: boolean;
   canManageInspection: boolean;
+  canAssignMechanic: boolean;
 }
 
 function KanbanCard({
@@ -54,7 +56,9 @@ function KanbanCard({
   onPrint,
   onInspection,
   onPay,
+  canManageQueue,
   canManageInspection,
+  canAssignMechanic,
 }: KanbanCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showMechanicMenu, setShowMechanicMenu] = useState(false);
@@ -93,16 +97,18 @@ function KanbanCard({
         {showMenu && (
           <div className="absolute right-4 top-12 z-20 min-w-[170px] rounded-xl border border-stroke bg-white p-1.5 shadow-2xl animate-in fade-in zoom-in duration-200 dark:border-dark-3 dark:bg-dark-2">
             <div className="mb-1 border-b border-stroke pb-1 dark:border-dark-3">
-              <button
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
-                onClick={() => {
-                  onEdit();
-                  setShowMenu(false);
-                }}
-              >
-                <Icons.Edit size={12} className="text-dark-5" />
-                Ubah Detail
-              </button>
+              {canManageQueue && (
+                <button
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
+                  onClick={() => {
+                    onEdit();
+                    setShowMenu(false);
+                  }}
+                >
+                  <Icons.Edit size={12} className="text-dark-5" />
+                  Ubah Detail
+                </button>
+              )}
               <button
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-dark transition-colors hover:bg-gray-2 dark:text-white"
                 onClick={() => {
@@ -125,26 +131,30 @@ function KanbanCard({
                   Checklist Inspeksi
                 </button>
               )}
-              <button
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-red transition-colors hover:bg-red/10 animate-pulse"
-                onClick={() => {
-                  onDelete();
-                  setShowMenu(false);
-                }}
-              >
-                <Icons.Delete size={12} />
-                Hapus Antrean
-              </button>
-              <button
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-secondary transition-colors hover:bg-secondary/10"
-                onClick={() => {
-                  onPay();
-                  setShowMenu(false);
-                }}
-              >
-                <Icons.Kasir size={12} />
-                Lanjut ke Kasir
-              </button>
+              {canManageQueue && (
+                <>
+                  <button
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-red transition-colors hover:bg-red/10 animate-pulse"
+                    onClick={() => {
+                      onDelete();
+                      setShowMenu(false);
+                    }}
+                  >
+                    <Icons.Delete size={12} />
+                    Hapus Antrean
+                  </button>
+                  <button
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-bold text-secondary transition-colors hover:bg-secondary/10"
+                    onClick={() => {
+                      onPay();
+                      setShowMenu(false);
+                    }}
+                  >
+                    <Icons.Kasir size={12} />
+                    Lanjut ke Kasir
+                  </button>
+                </>
+              )}
             </div>
 
             <p className="mt-1 px-3 py-1 text-[11px] font-black uppercase text-dark-5 tracking-tighter/40">
@@ -194,21 +204,24 @@ function KanbanCard({
       <div className="relative mt-3">
         <button
           onClick={() => {
+            if (!canAssignMechanic) return;
             setShowMechanicMenu(!showMechanicMenu);
             setShowMenu(false);
           }}
+          disabled={!canAssignMechanic}
           className={cn(
             "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-all active:scale-95",
             item.mekanik
               ? "bg-secondary text-white shadow-lg shadow-secondary/20"
               : "border border-dashed border-stroke text-dark-5 hover:border-dark hover:text-dark dark:border-dark-3",
+            !canAssignMechanic && "cursor-default active:scale-100",
           )}
         >
           <Icons.Karyawan size={12} />
           {item.mekanik ?? "Tugaskan Mekanik..."}
         </button>
 
-        {showMechanicMenu && (
+        {canAssignMechanic && showMechanicMenu && (
           <div className="absolute bottom-full left-0 z-20 mb-1.5 w-full rounded-xl border border-stroke bg-white p-1.5 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200 dark:border-dark-2 dark:bg-dark-2">
             {MECHANICS.map((m) => (
               <button
@@ -261,7 +274,9 @@ export function QueueKanban({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const authUser = useAuth();
-  const canManageInspection = authUser?.role === "Owner" || authUser?.role === "Admin";
+  const canManageQueue = authUser?.role === "Owner" || authUser?.role === "Admin" || authUser?.role === "Kasir";
+  const canAssignMechanic = authUser?.role === "Owner" || authUser?.role === "Admin";
+  const canManageInspection = authUser?.role === "Owner" || authUser?.role === "Admin" || authUser?.role === "Mekanik";
 
   const handleEdit = (item: Antrean) => {
     setSelectedItem(item);
@@ -337,7 +352,9 @@ export function QueueKanban({
                         onDelete={() => handleDelete(item)}
                         onPrint={() => handlePrint(item)}
                         onInspection={() => handleInspection(item)}
+                        canManageQueue={canManageQueue}
                         canManageInspection={canManageInspection}
+                        canAssignMechanic={canAssignMechanic}
                         onPay={async () => {
                           Notify.loading("Menyiapkan Kasir...");
                           onPay(item);
