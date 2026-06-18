@@ -152,7 +152,7 @@ PPN (${transaction.taxPercentage}%): Rp ${formatNumber(transaction.tax)}
         </div>
 
         {/* Customer & Vehicle Info */}
-        <div className="grid grid-cols-2 gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
           <div>
             <p className="text-[10px] font-bold text-gray-400">
               Diberikan Kepada:

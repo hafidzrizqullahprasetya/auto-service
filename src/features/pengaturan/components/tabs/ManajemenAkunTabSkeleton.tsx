@@ -52,19 +52,23 @@ export function ManajemenAkunTabSkeleton() {
         <div className="space-y-2 mb-6">
           <Skeleton className="h-3 w-full max-w-lg" />
         </div>
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4 border-b border-stroke pb-2 dark:border-dark-3">
-             <Skeleton className="h-4 w-20" />
-             <Skeleton className="h-4 w-12 mx-auto" />
-             <Skeleton className="h-4 w-12 mx-auto" />
-          </div>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="grid grid-cols-3 gap-4 py-2 border-b border-stroke last:border-0 dark:border-dark-3">
-               <Skeleton className="h-4 w-32" />
-               <Skeleton className="h-5 w-5 rounded mx-auto" />
-               <Skeleton className="h-5 w-5 rounded mx-auto" />
+        <div className="-mx-4 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
+          <div className="min-w-[400px] space-y-4">
+            <div className="grid grid-cols-4 gap-4 border-b border-stroke pb-2 dark:border-dark-3">
+               <Skeleton className="h-4 w-20" />
+               <Skeleton className="h-4 w-12 mx-auto" />
+               <Skeleton className="h-4 w-12 mx-auto" />
+               <Skeleton className="h-4 w-12 mx-auto" />
             </div>
-          ))}
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-4 gap-4 py-2 border-b border-stroke last:border-0 dark:border-dark-3">
+                 <Skeleton className="h-4 w-32" />
+                 <Skeleton className="h-5 w-5 rounded mx-auto" />
+                 <Skeleton className="h-5 w-5 rounded mx-auto" />
+                 <Skeleton className="h-5 w-5 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
         </div>
         <div className="mt-6">
           <Skeleton className="h-10 w-32 rounded-lg" />

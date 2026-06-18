@@ -202,24 +202,24 @@ export function ServiceHistoryModal({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 p-4 border-b border-stroke dark:border-dark-3 bg-gray-1 dark:bg-dark-2">
+        <div className="grid grid-cols-3 gap-2 p-3 sm:gap-4 sm:p-4 border-b border-stroke dark:border-dark-3 bg-gray-1 dark:bg-dark-2">
           <div className="text-center">
-            <p className="text-lg font-black text-dark dark:text-white">
+            <p className="text-xs sm:text-lg font-black text-dark dark:text-white">
               {records.length}x
             </p>
-            <p className="text-[11px] text-dark-5">Total Kunjungan</p>
+            <p className="text-[9px] sm:text-[11px] text-dark-5 font-bold uppercase tracking-tight">Kunjungan</p>
           </div>
-          <div className="text-center border-x border-stroke dark:border-dark-3">
-            <p className="text-lg font-black text-secondary">
+          <div className="text-center border-x border-stroke dark:border-dark-3 px-1">
+            <p className="text-xs sm:text-lg font-black text-secondary truncate" title={`Rp ${formatNumber(totalSpent)}`}>
               Rp {formatNumber(totalSpent)}
             </p>
-            <p className="text-[11px] text-dark-5">Total Pengeluaran</p>
+            <p className="text-[9px] sm:text-[11px] text-dark-5 font-bold uppercase tracking-tight">Total Pengeluaran</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-black text-dark dark:text-white">
+            <p className="text-xs sm:text-lg font-black text-dark dark:text-white">
               {lastOdometer.toLocaleString("id-ID")} km
             </p>
-            <p className="text-[11px] text-dark-5">Odometer Terakhir</p>
+            <p className="text-[9px] sm:text-[11px] text-dark-5 font-bold uppercase tracking-tight">Odometer</p>
           </div>
         </div>
 

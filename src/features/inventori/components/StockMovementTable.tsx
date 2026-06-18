@@ -276,7 +276,7 @@ export function StockMovementTable() {
               <p className="font-mono text-[10px] text-dark-5 mt-0.5">{selectedDetail.sku}</p>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="rounded-xl border border-stroke bg-gray-1 p-4 dark:border-dark-3 dark:bg-dark-2">
                 <p className="text-xs font-bold uppercase tracking-wider text-dark-5">Tipe</p>
                 <div className="mt-1">

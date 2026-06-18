@@ -370,7 +370,7 @@ export function TransactionFormModal({
         noValidate
       >
         {step === 1 ? (
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
               <CustomSelect
                 label="Pelanggan"
@@ -676,7 +676,7 @@ export function TransactionFormModal({
 
             <div className="space-y-3">
               <label className="text-sm font-bold">Metode Pembayaran</label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {["Cash", "Transfer", "E-Wallet", "Card"].map((m) => (
                   <button
                     key={m}
@@ -703,7 +703,7 @@ export function TransactionFormModal({
 
             <div className="space-y-3">
               <label className="text-sm font-bold">Status Pembayaran</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 {["Lunas", "DP", "Piutang"].map((s) => (
                   <button
                     key={s}

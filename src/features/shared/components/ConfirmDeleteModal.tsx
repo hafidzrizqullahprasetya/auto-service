@@ -53,7 +53,7 @@ export function ConfirmDeleteModal({
         </p>
 
         {/* Action Buttons */}
-        <div className="mt-10 grid w-full grid-cols-2 gap-3">
+        <div className="mt-10 grid w-full grid-cols-1 sm:grid-cols-2 gap-3">
           <ActionButton
             variant="secondary"
             label="Batal"

@@ -169,7 +169,7 @@ export function VehicleFormModal({
         />
 
         {/* Jenis + Tahun */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">
               Jenis Unit <span className="text-red">*</span>
@@ -198,7 +198,7 @@ export function VehicleFormModal({
         </div>
 
         {/* Merk + Model */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputGroup
             label="Merk"
             placeholder="Contoh: Toyota"

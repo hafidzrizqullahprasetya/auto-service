@@ -99,7 +99,7 @@ export function DataTable<TData, TValue>({
   return (
     <div
       className={cn(
-        "width-full flex flex-col overflow-hidden",
+        "w-full flex flex-col overflow-hidden",
         !borderless
           ? "rounded-2xl border border-stroke bg-white shadow-sm"
           : "bg-transparent",

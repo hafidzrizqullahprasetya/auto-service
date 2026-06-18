@@ -78,7 +78,7 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
         </div>
 
         {/* Info Utama */}
-        <div className="grid grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-stroke dark:border-dark-3 dark:bg-dark-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-xl border border-stroke dark:border-dark-3 dark:bg-dark-2">
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-widest text-dark-5">Data Kendaraan</p>
             <p className="text-lg font-black text-dark dark:text-white tracking-widest uppercase">{item.noPolisi}</p>
@@ -192,7 +192,7 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
         )}
 
         {/* Catatan Mekanik (empty area for print) */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2 border-b border-stroke pb-2 dark:border-dark-3">
               <Icons.Inventory size={16} className="text-dark-5" />
@@ -210,7 +210,7 @@ export function SPKModal({ item, onClose, onChecklistUpdate }: SPKModalProps) {
         </div>
 
         {/* Tanda Tangan */}
-        <div className="grid grid-cols-3 gap-4 pt-8 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 pt-8 text-center">
           <div className="space-y-12">
             <p className="text-[10px] font-bold uppercase tracking-widest text-dark-5">Customer</p>
             <div className="border-t border-stroke pt-1 mx-4 dark:border-dark-3"></div>

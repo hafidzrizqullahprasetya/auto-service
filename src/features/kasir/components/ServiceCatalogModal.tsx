@@ -144,7 +144,7 @@ export function ServiceCatalogModal({ onClose, onSave, initialData }: ServiceCat
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-dark-5 dark:text-dark-6">Kategori</label>
             <select
@@ -208,7 +208,7 @@ export function ServiceCatalogModal({ onClose, onSave, initialData }: ServiceCat
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputGroup
             label="Estimasi Durasi"
             placeholder="Contoh: 1-2 Jam"

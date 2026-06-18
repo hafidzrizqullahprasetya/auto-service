@@ -637,7 +637,7 @@ export function QueueFormModal({ onClose, onSave, item, isLoading = false }: Que
                     Rp {Number(selectedBundle.price).toLocaleString("id-ID")} · {selectedBundle.items.length} checklist
                   </p>
                   {/* Task List Preview */}
-                  <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
                     {selectedBundle.items.slice(0, 6).map((item: any, idx: number) => (
                       <div key={idx} className="flex items-center gap-1.5 text-[10px] font-medium text-dark-5">
                         <div className="h-1 w-1 rounded-full bg-primary/40" />
