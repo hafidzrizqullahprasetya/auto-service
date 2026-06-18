@@ -246,11 +246,28 @@ export function TransactionFormModal({
       (f) => !f.isJasa && f.itemId === item.id,
     );
     if (existingIndex > -1) {
+      const currentQty = cartItems[existingIndex].quantity;
+      if (item.stock !== undefined && currentQty + 1 > item.stock) {
+        Notify.alert(
+          "Stok Tidak Cukup",
+          `Stok "${item.name}" tidak mencukupi. Tersedia: ${item.stock} ${item.unit || "pcs"}.`,
+          "error"
+        );
+        return;
+      }
       update(existingIndex, {
         ...cartItems[existingIndex],
-        quantity: cartItems[existingIndex].quantity + 1,
+        quantity: currentQty + 1,
       });
     } else {
+      if (item.stock !== undefined && item.stock < 1) {
+        Notify.alert(
+          "Stok Habis",
+          `Stok "${item.name}" sudah habis.`,
+          "error"
+        );
+        return;
+      }
       append({
         itemId: item.id,
         isJasa: false,
@@ -318,6 +335,22 @@ export function TransactionFormModal({
       if (cartItems.length > 0) setStep(2);
       return;
     }
+    
+    // Validasi sisa stok untuk sparepart
+    for (const cartItem of data.items) {
+      if (!cartItem.isJasa && cartItem.itemId) {
+        const item = allItems.find((i) => i.id === cartItem.itemId);
+        if (item && item.stock !== undefined && cartItem.quantity > item.stock) {
+          Notify.alert(
+            "Stok Tidak Cukup",
+            `Stok untuk "${cartItem.name}" tidak mencukupi. Tersedia: ${item.stock}, diminta: ${cartItem.quantity}.`,
+            "error"
+          );
+          return;
+        }
+      }
+    }
+
     try {
       setLoading(true);
       await onSave({
@@ -587,9 +620,18 @@ export function TransactionFormModal({
                         </span>
                         <button
                           type="button"
-                          onClick={() =>
-                            update(idx, { ...ci, quantity: ci.quantity + 1 })
-                          }
+                          onClick={() => {
+                            const originalItem = allItems.find((i) => i.id === ci.itemId);
+                            if (originalItem && originalItem.stock !== undefined && ci.quantity + 1 > originalItem.stock) {
+                              Notify.alert(
+                                "Stok Tidak Cukup",
+                                `Stok "${ci.name}" tidak mencukupi. Tersedia: ${originalItem.stock} ${ci.unit || "pcs"}.`,
+                                "error"
+                              );
+                              return;
+                            }
+                            update(idx, { ...ci, quantity: ci.quantity + 1 });
+                          }}
                           className="flex h-7 w-7 items-center justify-center rounded border border-stroke text-sm font-bold hover:bg-gray-1 dark:border-dark-3"
                         >
                           +
