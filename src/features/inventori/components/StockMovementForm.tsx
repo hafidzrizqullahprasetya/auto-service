@@ -226,7 +226,7 @@ export function StockMovementForm({
                 placeholder="1"
                 type="number"
                 {...register("quantity", { valueAsNumber: true })}
-                error={errors.quantity?.message}
+                error={errors.quantity?.message || (selectedItem && !hasEnoughStock ? "* Stok tidak cukup" : undefined)}
                 required
             />
             {selectedItem && (
@@ -247,7 +247,7 @@ export function StockMovementForm({
           <div className="flex-1">
             {selectedItem && !hasEnoughStock && (
               <p className="text-xs font-black text-red-500 bg-red/5 px-3 py-1.5 rounded border border-red/10 inline-flex items-center gap-1.5 focus:animate-shake">
-                <Icons.Alert size={12} /> Stok tidak cukup
+                <Icons.Alert size={12} /> * Stok tidak cukup
               </p>
             )}
           </div>
