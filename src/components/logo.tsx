@@ -2,20 +2,38 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSettings } from "@/hooks/useSettings";
 
 interface LogoProps {
   onClick?: () => void;
 }
 
+function splitWorkshopName(name: string) {
+  const words = name.trim().split(/\s+/);
+  if (words.length <= 1) {
+    return { line1: name, line2: "" };
+  }
+  if (words.length === 2) {
+    return { line1: words[0], line2: words[1] };
+  }
+  const line1 = words.slice(0, 2).join(" ");
+  const line2 = words.slice(2).join(" ");
+  return { line1, line2 };
+}
+
 export function Logo({ onClick }: LogoProps) {
-  const dummyVariable = "Saya tidak digunakan";
   const [mounted, setMounted] = useState(false);
+  const { data: settings } = useSettings();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) return <div className="h-10 w-32" />;
+
+  const rawName = settings?.name || "Auto Service Premium Garage";
+  const { line1, line2 } = splitWorkshopName(rawName);
+  const words1 = line1.split(" ");
 
   return (
     <Link href="/" onClick={onClick} className="group flex items-center gap-3">
@@ -56,15 +74,18 @@ export function Logo({ onClick }: LogoProps) {
       </div>
 
       <div className="flex flex-col leading-tight">
-        <span className="flex items-center text-2xl font-black tracking-tighter text-dark dark:text-white">
-          AUTO<span className="ml-0.5 italic text-secondary">SERVICE</span>
+        <span className="flex items-center text-2xl font-black tracking-tighter text-dark dark:text-white uppercase">
+          {words1[0]}
+          {words1[1] && <span className="ml-0.5 italic text-secondary">{words1[1]}</span>}
         </span>
-        <div className="flex items-center gap-1.5">
-          <span className="h-[1px] w-3 bg-secondary" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-dark-5 dark:text-dark-6">
-            Premium Garage
-          </span>
-        </div>
+        {line2 && (
+          <div className="flex items-center gap-1.5">
+            <span className="h-[1px] w-3 bg-secondary" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-dark-5 dark:text-dark-6">
+              {line2}
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );

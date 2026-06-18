@@ -8,11 +8,26 @@ import { Icons } from "@/components/Icons";
 import { useSidebarContext } from "./sidebar-context";
 import Link from "next/link";
 import { canAccess, type Role } from "@/lib/permissions";
+import { useSettings } from "@/hooks/useSettings";
+
+function splitWorkshopName(name: string) {
+  const words = name.trim().split(/\s+/);
+  if (words.length <= 1) {
+    return { line1: name, line2: "" };
+  }
+  if (words.length === 2) {
+    return { line1: words[0], line2: words[1] };
+  }
+  const line1 = words.slice(0, 2).join(" ");
+  const line2 = words.slice(2).join(" ");
+  return { line1, line2 };
+}
 
 export function Sidebar() {
   const pathname = usePathname();
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const { data: settings } = useSettings();
   const [isInitialized, setIsInitialized] = useState(false);
   const [authUser, setAuthUser] = useState<{
     name: string;
@@ -136,11 +151,13 @@ export function Sidebar() {
             {!collapsed ? (
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-black uppercase tracking-tighter text-dark">
-                  Auto Service
+                  {splitWorkshopName(settings?.name || "Auto Service Premium Garage").line1}
                 </p>
-                <p className="-mt-0.5 truncate text-[10px] font-bold uppercase tracking-widest text-dark-5">
-                  Premium Garage
-                </p>
+                {splitWorkshopName(settings?.name || "Auto Service Premium Garage").line2 && (
+                  <p className="-mt-0.5 truncate text-[10px] font-bold uppercase tracking-widest text-dark-5">
+                    {splitWorkshopName(settings?.name || "Auto Service Premium Garage").line2}
+                  </p>
+                )}
               </div>
             ) : null}
 
