@@ -350,6 +350,27 @@ export function parseExcelImport(file: File): Promise<{
 }
 
 /**
+ * Validasi apakah header file Excel yang di-import cocok dengan schema modul
+ * Returns array of error messages (kosong jika valid)
+ */
+export function validateExcelHeaders(
+  moduleKey: ExcelModuleKey,
+  headers: string[],
+): string[] {
+  const schema = SCHEMAS[moduleKey];
+  const expected = schema.columns.map((c) => c.header);
+
+  // Periksa apakah semua kolom yang diharapkan ada di file Excel
+  const missing = expected.filter((h) => !headers.includes(h));
+  if (missing.length > 0) {
+    return [
+      `Format kolom tidak sesuai. Kolom berikut tidak ditemukan: ${missing.join(", ")}.`,
+    ];
+  }
+  return [];
+}
+
+/**
  * Konversi data inventori ke format InventoriExcelRow[]
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

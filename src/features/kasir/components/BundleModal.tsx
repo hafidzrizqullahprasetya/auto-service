@@ -12,9 +12,13 @@ import { Notify } from "@/utils/notify";
 import { cn } from "@/lib/utils";
 
 const bundleSchema = z.object({
-  name: z.string().min(3, "Nama minimal 3 karakter"),
+  name: z.string().min(1, "Nama paket wajib diisi"),
   description: z.string().optional(),
-  price: z.number().min(0, "Harga tidak boleh negatif"),
+  price: z.string()
+    .min(1, "Harga paket wajib diisi")
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "Harga tidak boleh negatif",
+    }),
   items: z.array(z.object({
     task_name: z.string().min(1, "Nama pekerjaan tidak boleh kosong")
   })).min(1, "Minimal harus ada 1 item pekerjaan")
@@ -43,7 +47,7 @@ export function BundleModal({ bundle, onClose, onSave }: BundleModalProps) {
     defaultValues: {
       name: bundle?.name ?? "",
       description: bundle?.description ?? "",
-      price: bundle ? Number(bundle.price) : 0,
+      price: bundle ? String(bundle.price) : "",
       items: bundle?.items.map(i => ({ task_name: i.task_name })) ?? [{ task_name: "" }]
     }
   });
@@ -58,6 +62,7 @@ export function BundleModal({ bundle, onClose, onSave }: BundleModalProps) {
       setLoading(true);
       const payload = {
         ...data,
+        price: Number(data.price),
         items: data.items.map(i => i.task_name)
       };
 
@@ -97,7 +102,7 @@ export function BundleModal({ bundle, onClose, onSave }: BundleModalProps) {
             label="Harga Paket (Rp)"
             type="number"
             placeholder="0"
-            {...register("price", { valueAsNumber: true })}
+            {...register("price")}
             error={errors.price?.message}
             required
           />

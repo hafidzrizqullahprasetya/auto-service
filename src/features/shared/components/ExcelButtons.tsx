@@ -15,6 +15,7 @@ import {
   downloadTemplate,
   exportToExcel,
   parseExcelImport,
+  validateExcelHeaders,
   type ExcelModuleKey,
   type TemplateRow,
 } from "@/lib/excel";
@@ -210,11 +211,12 @@ export function ExcelButtons({
     setLoading(true);
     try {
       const result = await parseExcelImport(file);
+      const validationErrors = validateExcelHeaders(moduleKey, result.headers);
       setPreview({
         open: true,
         headers: result.headers,
         rows: result.data,
-        errors: result.errors,
+        errors: [...result.errors, ...validationErrors],
       });
     } finally {
       setLoading(false);

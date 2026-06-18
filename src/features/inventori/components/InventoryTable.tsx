@@ -131,6 +131,56 @@ export function InventoryTable() {
     }
   };
 
+  const handleImport = async (rows: any[]) => {
+    Notify.loading("Mengimpor data inventori...");
+    try {
+      let currentCats = [...categories];
+      
+      for (const row of rows) {
+        const itemName = String(row["Nama Item"] || "").trim();
+        if (!itemName) continue;
+
+        const catName = String(row["Kategori"] || "").trim();
+        let catId: number | null = null;
+
+        if (catName) {
+          const existing = currentCats.find(
+            (c) => c.name.toLowerCase() === catName.toLowerCase()
+          );
+          if (existing) {
+            catId = existing.id;
+          } else {
+            const newCat = await addCategory(catName);
+            catId = newCat.id;
+            currentCats.push(newCat);
+          }
+        }
+
+        const costPrice = Number(row["Harga Modal (Rp)"]) || 0;
+        const sellPrice = Number(row["Harga Jual (Rp)"]) || 0;
+        const currentStock = Number(row["Stok"]) || 0;
+        const minimumStock = Number(row["Min. Stok"]) || 0;
+        const unit = String(row["Satuan"] || "pcs").trim();
+
+        await addItem({
+          name: itemName,
+          category_id: catId,
+          cost_price: costPrice,
+          sell_price: sellPrice,
+          current_stock: currentStock,
+          minimum_stock: minimumStock,
+          unit: unit,
+        });
+      }
+      
+      Notify.toast("Import data inventori berhasil!", "success", "top");
+      refetch();
+    } catch (err: any) {
+      const errorMsg = err instanceof Error ? err.message : "Gagal mengimpor data";
+      Notify.alert("Gagal!", errorMsg, "error");
+    }
+  };
+
   const filteredData = useMemo(
     () =>
       allItems.filter((item: Item) => {
@@ -319,6 +369,7 @@ export function InventoryTable() {
             moduleKey="inventori"
             exportData={inventoriToExcelRows(filteredData) as any}
             exportSuffix={`${new Date().toISOString().split("T")[0]}`}
+            onImport={handleImport}
             onSecondaryExport={() => setShowBarcodeExport(true)}
             secondaryLabel="Barcode PDF"
             secondaryIcon={<Icons.Barcode size={16} />}
