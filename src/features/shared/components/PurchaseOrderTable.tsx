@@ -255,18 +255,20 @@ export function PurchaseOrderTable() {
             <h3 className="text-lg font-bold text-dark dark:text-white">Purchase Order (PO) Stok</h3>
             <p className="text-sm text-dark-5">Kelola pemesanan dan pembelian stok dari supplier</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:flex-nowrap sm:w-auto sm:justify-end">
+            <div className="relative w-full sm:w-auto">
               <Icons.Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-5" />
               <Input
                 placeholder="Cari supplier atau nomor PO..."
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-9 max-w-[250px]"
+                className="pl-9 w-full sm:max-w-[250px]"
               />
             </div>
-            <ActionButton variant="outline" label="Export PO" icon={<Icons.Print size={16} />} />
-            <ActionButton variant="primary" label="Buat PO Baru" icon={<Icons.Plus size={16} />} />
+            <div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto sm:gap-3">
+              <ActionButton variant="outline" label="Export PO" icon={<Icons.Print size={16} />} className="w-full justify-center" />
+              <ActionButton variant="primary" label="Buat PO Baru" icon={<Icons.Plus size={16} />} className="w-full justify-center" />
+            </div>
           </div>
         </div>
 

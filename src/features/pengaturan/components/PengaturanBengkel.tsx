@@ -72,7 +72,7 @@ export function PengaturanBengkel() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="no-scrollbar flex w-full md:w-fit gap-1 overflow-x-auto rounded-lg border border-stroke bg-white p-1 dark:border-dark-3 dark:bg-dark-2">
+      <div className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-lg border border-stroke bg-white p-1 dark:border-dark-3 dark:bg-dark-2">
         {visibleTabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}

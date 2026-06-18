@@ -240,7 +240,7 @@ export function ExcelButtons({
             <FileDown size={14} />
             <span className="hidden sm:inline">Template</span>
           </button>
-          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999]">
+          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-normal text-center rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999] hidden sm:block max-w-[180px]">
             <div className="relative">
               Download template Excel kosong
               <div className="absolute left-1/2 top-full -translate-x-1/2 border-[4px] border-transparent border-t-dark dark:border-t-dark-2" />
@@ -270,7 +270,7 @@ export function ExcelButtons({
             )}
             <span className="hidden sm:inline">Import</span>
           </button>
-          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999]">
+          <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-normal text-center rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999] hidden sm:block max-w-[180px]">
             <div className="relative">
               Import data dari file Excel
               <div className="absolute left-1/2 top-full -translate-x-1/2 border-[4px] border-transparent border-t-dark dark:border-t-dark-2" />
@@ -341,7 +341,7 @@ export function ExcelButtons({
           )}
 
           {!showExportMenu && (
-            <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999]">
+            <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-normal text-center rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999] hidden sm:block max-w-[180px]">
               <div className="relative">
                 {onSecondaryExport ? "Pilih format ekspor data" : `Export ${exportData.length} data ke Excel`}
                 <div className="absolute left-1/2 top-full -translate-x-1/2 border-[4px] border-transparent border-t-dark dark:border-t-dark-2" />

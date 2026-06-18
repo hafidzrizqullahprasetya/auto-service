@@ -141,15 +141,15 @@ export function DataTable<TData, TValue>({
               </div>
             )}
 
-            {/* Extra actions (Template/Import/Export) + Primary button — never wrap */}
-            <div className="flex shrink-0 items-center gap-2">
+            {/* Extra actions (Template/Import/Export) + Primary button — wrap on mobile */}
+            <div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto sm:items-center sm:shrink-0">
               {extraActions}
 
               {secondaryAction && (
                 <button
                   onClick={secondaryAction.onClick}
                   className={cn(
-                    "flex h-10 items-center gap-2 rounded-xl border px-4 text-sm font-bold",
+                    "flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-bold w-full sm:w-auto",
                     secondaryAction.variant === "danger"
                       ? "border-red/20 bg-red-50 text-red hover:bg-red hover:text-white"
                       : "border-stroke bg-white text-dark-5 hover:border-dark hover:text-dark",
@@ -162,7 +162,7 @@ export function DataTable<TData, TValue>({
               {primaryAction && (
                 <button
                   onClick={primaryAction.onClick}
-                  className="flex h-10 shrink-0 items-center gap-2 rounded-xl bg-dark px-5 text-sm font-bold text-white hover:bg-dark/90"
+                  className="flex h-10 items-center justify-center gap-2 rounded-xl bg-dark px-5 text-sm font-bold text-white hover:bg-dark/90 w-full sm:w-auto"
                 >
                   <Plus size={16} />
                   {primaryAction.label}

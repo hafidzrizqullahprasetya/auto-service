@@ -74,7 +74,7 @@ export function ActionButton({
 
       {/* Custom Tooltip */}
       {tooltip && (
-        <div className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999]">
+        <div className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-normal text-center rounded-md bg-dark px-2 py-1 text-[10px] font-bold text-white opacity-0 transition-all peer-hover:opacity-100 dark:bg-dark-2 z-[9999] hidden sm:block max-w-[180px]">
           <div className="relative">
             {tooltip}
             {/* Arrow */}
