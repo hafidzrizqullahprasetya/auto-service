@@ -172,7 +172,7 @@ function apiPath(path: string): string {
 }
 
 export const api = {
-  get: <T>(path: string) => request<T>(apiPath(path)),
+  get: <T>(path: string, skipAuthRedirect = false) => request<T>(apiPath(path), {}, skipAuthRedirect),
   post: <T>(path: string, body?: unknown, skipAuthRedirect = false) =>
     request<T>(
       apiPath(path),

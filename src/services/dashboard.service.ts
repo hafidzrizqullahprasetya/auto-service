@@ -11,13 +11,46 @@ export interface DashboardStats {
 export const dashboardService = {
   getOverview: async (): Promise<DashboardStats> => {
     try {
-      const res = await api.get<any>("/reports/dashboard-stats");
-      const data = res.data;
-      if (typeof data.dailyRevenue?.value === 'string') {
-        data.dailyRevenue.value = stripFormatting(data.dailyRevenue.value);
+      const res = await api.get<any>("/reports/dashboard-stats", true);
+      const data = res?.data;
+      if (!data) {
+        throw new Error("No dashboard data returned");
       }
 
-      return data;
+      const activeQueue = {
+        value: Number(data.activeQueue?.value ?? 0),
+        growth: Number(data.activeQueue?.growth ?? 0),
+        isUp: Boolean(data.activeQueue?.isUp ?? true),
+      };
+
+      const completedTasks = {
+        value: Number(data.completedTasks?.value ?? 0),
+        growth: Number(data.completedTasks?.growth ?? 0),
+        isUp: Boolean(data.completedTasks?.isUp ?? true),
+      };
+
+      let rawRevenue = data.dailyRevenue?.value ?? 0;
+      if (typeof rawRevenue === "string") {
+        rawRevenue = stripFormatting(rawRevenue);
+      }
+      const dailyRevenue = {
+        value: Number(rawRevenue),
+        growth: Number(data.dailyRevenue?.growth ?? 0),
+        isUp: Boolean(data.dailyRevenue?.isUp ?? true),
+      };
+
+      const pendingSpareparts = {
+        value: Number(data.pendingSpareparts?.value ?? 0),
+        growth: Number(data.pendingSpareparts?.growth ?? 0),
+        isUp: Boolean(data.pendingSpareparts?.isUp ?? true),
+      };
+
+      return {
+        activeQueue,
+        completedTasks,
+        dailyRevenue,
+        pendingSpareparts,
+      };
     } catch (err) {
       console.error("Failed to fetch dashboard stats", err);
       return {
