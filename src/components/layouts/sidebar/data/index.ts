@@ -43,6 +43,12 @@ export const NAV_DATA = [
         url: "/katalog-jasa",
         items: [],
       },
+      {
+        title: "Purchase Order",
+        icon: Icons.Cash,
+        url: "/purchase-order",
+        items: [],
+      },
     ],
   },
   {

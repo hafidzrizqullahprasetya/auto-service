@@ -17,6 +17,7 @@ export const PERMISSION_ROUTES: RoutePermission[] = [
   { route: "/laporan", label: "Laporan" },
   { route: "/reminder", label: "Reminder & Follow-up" },
   { route: "/pengaturan", label: "Pengaturan" },
+  { route: "/purchase-order", label: "Purchase Order" },
 ];
 
 export const DEFAULT_PERMISSIONS: Record<Role, string[]> = {
@@ -32,6 +33,7 @@ export const DEFAULT_PERMISSIONS: Record<Role, string[]> = {
     "/katalog-jasa",
     "/laporan",
     "/reminder",
+    "/purchase-order",
   ],
   Kasir: ["/antrean", "/kasir"],
   Mekanik: ["/antrean"],
