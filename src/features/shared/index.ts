@@ -12,3 +12,4 @@ export { PurchaseOrderTable } from "./components/PurchaseOrderTable";
 export { default as PlaceholderPage } from "./components/PlaceholderPage";
 export { ConfirmDeleteModal } from "./components/ConfirmDeleteModal";
 export { StatCard } from "./components/StatCard";
+export { PurchaseOrderFormModal } from "./components/PurchaseOrderFormModal";

@@ -22,9 +22,9 @@ import { Input } from "@/components/ui/input";
 import { PurchaseOrder } from "@/types/purchase-order";
 import { purchaseOrdersService } from "@/services/purchase-orders.service";
 import { formatNumber } from "@/utils/format-number";
-import { Badge } from "@/features/shared";
+import { Badge, ActionButton, ConfirmDeleteModal, PurchaseOrderFormModal } from "@/features/shared";
 import { Icons } from "@/components/Icons";
-import { ActionButton } from "@/features/shared";
+import { Notify } from "@/utils/notify";
 import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
 
@@ -120,20 +120,45 @@ export function PurchaseOrderTable() {
   const [data, setData] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteItemData, setDeleteItemData] = useState<PurchaseOrder | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const isMobile = useIsMobile();
   const actualPageSize = isMobile ? 5 : 10;
 
-  React.useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await purchaseOrdersService.getAll();
-        setData(res);
-      } finally {
-        setLoading(false);
-      }
+  const refetch = async () => {
+    try {
+      const res = await purchaseOrdersService.getAll();
+      setData(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
+  };
+
+  useEffect(() => {
+    refetch();
   }, []);
+
+  const handleDelete = async () => {
+    if (!deleteItemData) return;
+    try {
+      setIsDeleting(true);
+      Notify.loading("Menghapus Purchase Order...");
+      await purchaseOrdersService.delete(deleteItemData.id);
+      Notify.close();
+      Notify.toast("Purchase Order berhasil dihapus", "success", "top");
+      setDeleteItemData(null);
+      refetch();
+    } catch (err: any) {
+      Notify.close();
+      Notify.alert("Gagal Menghapus", err.message || "Terjadi kesalahan", "error");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const columns = useMemo<ColumnDef<PurchaseOrder>[]>(
     () => [
@@ -211,10 +236,26 @@ export function PurchaseOrderTable() {
       {
         id: "actions",
         header: () => <div className="text-right pr-2">Aksi</div>,
-        cell: () => (
+        cell: ({ row }) => (
           <div className="flex items-center justify-end gap-2">
-            <ActionButton variant="view" title="Lihat Detail" icon={<Icons.Eye size={16} />} />
-            <ActionButton variant="delete" title="Hapus" icon={<Icons.Delete size={16} />} />
+            <ActionButton
+              variant="view"
+              title="Lihat Detail"
+              icon={<Icons.Eye size={16} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                row.toggleExpanded();
+              }}
+            />
+            <ActionButton
+              variant="delete"
+              title="Hapus"
+              icon={<Icons.Delete size={16} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteItemData(row.original);
+              }}
+            />
           </div>
         ),
       },
@@ -275,7 +316,13 @@ export function PurchaseOrderTable() {
             </div>
             <div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto sm:gap-3">
               <ActionButton variant="outline" label="Export PO" icon={<Icons.Print size={16} />} className="w-full justify-center" />
-              <ActionButton variant="primary" label="Buat PO Baru" icon={<Icons.Plus size={16} />} className="w-full justify-center" />
+              <ActionButton
+                variant="primary"
+                label="Buat PO Baru"
+                icon={<Icons.Plus size={16} />}
+                className="w-full justify-center"
+                onClick={() => setShowAddModal(true)}
+              />
             </div>
           </div>
         </div>
@@ -375,6 +422,28 @@ export function PurchaseOrderTable() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      {showAddModal && (
+        <PurchaseOrderFormModal
+          onClose={() => setShowAddModal(false)}
+          onSave={() => {
+            setShowAddModal(false);
+            refetch();
+          }}
+        />
+      )}
+
+      {deleteItemData && (
+        <ConfirmDeleteModal
+          title="Hapus Purchase Order?"
+          description={`Apakah Anda yakin ingin menghapus PO dengan Nomor ${deleteItemData.noPO}? Tindakan ini bersifat permanen.`}
+          itemDisplay={deleteItemData.noPO}
+          onClose={() => setDeleteItemData(null)}
+          onConfirm={handleDelete}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 }
