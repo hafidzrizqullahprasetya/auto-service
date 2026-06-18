@@ -1,0 +1,215 @@
+{
+  "baseUrl": "http://localhost:3333",
+  "results": [
+    {
+      "file": "01-login.png",
+      "description": "Halaman login kosong",
+      "status": "captured"
+    },
+    {
+      "file": "02-login-filled.png",
+      "description": "Halaman login dengan contoh kredensial",
+      "status": "captured"
+    },
+    {
+      "file": "03-dashboard-overview.png",
+      "description": "Dashboard utama owner",
+      "status": "captured"
+    },
+    {
+      "file": "04-dashboard-revenue.png",
+      "description": "Grafik pendapatan dashboard",
+      "status": "captured"
+    },
+    {
+      "file": "05-dashboard-vehicle-ratio.png",
+      "description": "Rasio kendaraan dan stok rendah",
+      "status": "captured"
+    },
+    {
+      "file": "06-owner-sidebar-full.png",
+      "description": "Sidebar lengkap owner",
+      "status": "captured"
+    },
+    {
+      "file": "07-antrean-summary.png",
+      "description": "Ringkasan antrean servis",
+      "status": "captured"
+    },
+    {
+      "file": "08-antrean-table.png",
+      "description": "Tabel antrean servis",
+      "status": "captured"
+    },
+    {
+      "file": "09-antrean-kanban.png",
+      "description": "Kanban antrean servis",
+      "status": "captured"
+    },
+    {
+      "file": "10-work-order-create.png",
+      "description": "Form entry work order",
+      "status": "captured"
+    },
+    {
+      "file": "11-work-order-edit.png",
+      "description": "Form ubah work order",
+      "status": "skipped",
+      "reason": "action button tidak ditemukan"
+    },
+    {
+      "file": "12-spk-preview.png",
+      "description": "Preview cetak SPK",
+      "status": "skipped",
+      "reason": "action button tidak ditemukan"
+    },
+    {
+      "file": "13-inspection-header.png",
+      "description": "Header inspection checklist",
+      "status": "skipped",
+      "reason": "tombol checklist tidak ditemukan"
+    },
+    {
+      "file": "14-inspection-engine.png",
+      "description": "Pengecekan area mesin",
+      "status": "skipped",
+      "reason": "tombol checklist tidak ditemukan"
+    },
+    {
+      "file": "15-inspection-cabin.png",
+      "description": "Pengecekan area dalam kabin",
+      "status": "skipped",
+      "reason": "tombol checklist tidak ditemukan"
+    },
+    {
+      "file": "16-inspection-exterior-notes.png",
+      "description": "Eksterior dan catatan inspection",
+      "status": "skipped",
+      "reason": "tombol checklist tidak ditemukan"
+    },
+    {
+      "file": "17-kasir-transaction-list.png",
+      "description": "Daftar transaksi kasir",
+      "status": "captured"
+    },
+    {
+      "file": "18-kasir-create-transaction.png",
+      "description": "Form transaksi baru",
+      "status": "captured"
+    },
+    {
+      "file": "19-kasir-from-work-order.png",
+      "description": "Aksi pembayaran dari work order",
+      "status": "skipped",
+      "reason": "action button tidak ditemukan"
+    },
+    {
+      "file": "20-invoice-preview.png",
+      "description": "Preview invoice",
+      "status": "skipped",
+      "reason": "action button tidak ditemukan"
+    },
+    {
+      "file": "21-inventory-list.png",
+      "description": "Daftar sparepart",
+      "status": "captured"
+    },
+    {
+      "file": "22-inventory-add-item.png",
+      "description": "Form sparepart",
+      "status": "captured"
+    },
+    {
+      "file": "23-inventory-barcode.png",
+      "description": "Barcode sparepart",
+      "status": "skipped",
+      "reason": "action button tidak ditemukan"
+    },
+    {
+      "file": "24-inventory-category-unit.png",
+      "description": "Kategori dan satuan sparepart",
+      "status": "captured"
+    },
+    {
+      "file": "25-inventory-category-form.png",
+      "description": "Form kategori sparepart",
+      "status": "captured"
+    },
+    {
+      "file": "26-stock-movement-list.png",
+      "description": "Riwayat stok masuk dan keluar",
+      "status": "captured"
+    },
+    {
+      "file": "27-stock-movement-form.png",
+      "description": "Form stok masuk atau keluar",
+      "status": "captured"
+    },
+    {
+      "file": "28-stock-opname-session.png",
+      "description": "Sesi stock opname",
+      "status": "captured"
+    },
+    {
+      "file": "29-stock-opname-items.png",
+      "description": "Item stock opname",
+      "status": "captured"
+    },
+    {
+      "file": "30-customer-list.png",
+      "description": "Daftar pelanggan",
+      "status": "captured"
+    },
+    {
+      "file": "31-customer-form.png",
+      "description": "Form pelanggan",
+      "status": "captured"
+    },
+    {
+      "file": "32-vehicle-list.png",
+      "description": "Daftar kendaraan",
+      "status": "captured"
+    },
+    {
+      "file": "33-vehicle-form.png",
+      "description": "Form kendaraan",
+      "status": "skipped",
+      "reason": "action button tidak ditemukan"
+    },
+    {
+      "file": "34-service-catalog-list.png",
+      "description": "Katalog jasa dan paket",
+      "status": "captured"
+    },
+    {
+      "file": "35-service-catalog-form.png",
+      "description": "Form jasa atau paket servis",
+      "status": "captured"
+    },
+    {
+      "file": "36-reminder-list.png",
+      "description": "Reminder follow-up servis",
+      "status": "captured"
+    },
+    {
+      "file": "37-report-tabs.png",
+      "description": "Tab laporan AutoService",
+      "status": "captured"
+    },
+    {
+      "file": "38-settings-profile.png",
+      "description": "Pengaturan profil bengkel",
+      "status": "captured"
+    },
+    {
+      "file": "39-settings-accounts-permissions.png",
+      "description": "Manajemen akun dan permission",
+      "status": "captured"
+    },
+    {
+      "file": "40-mechanic-queue-inspection.png",
+      "description": "Tampilan mekanik untuk antrean dan checklist",
+      "status": "captured"
+    }
+  ]
+}

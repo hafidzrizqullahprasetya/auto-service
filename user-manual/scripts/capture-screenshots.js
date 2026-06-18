@@ -122,6 +122,7 @@ async function login(page, role) {
   const credential = CREDENTIALS[role];
   await clearSession(page);
   await page.goto(`${BASE_URL}/auth/sign-in`, { waitUntil: "domcontentloaded" });
+  await waitForStablePage(page);
   await page.getByLabel(/username/i).fill(credential.username);
   await page.getByLabel(/password/i).fill(credential.password);
   await page.getByRole("button", { name: /masuk ke dashboard/i }).click();
@@ -335,6 +336,8 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
   const page = await context.newPage();
+  page.on("console", (msg) => console.log(`[BROWSER CONSOLE] ${msg.type()}: ${msg.text()}`));
+  page.on("pageerror", (err) => console.error(`[BROWSER ERROR] ${err.message}`));
   page.setDefaultTimeout(Number(process.env.MANUAL_TIMEOUT_MS || 12000));
 
   try {
@@ -346,6 +349,10 @@ async function main() {
     await captureMasterData(page);
     await captureReportsAndSettings(page);
     await captureMechanic(page);
+  } catch (error) {
+    await page.screenshot({ path: path.join(OUTPUT_DIR, "error-timeout.png") }).catch(() => {});
+    console.error("SAVED TIMEOUT SCREENSHOT TO error-timeout.png");
+    throw error;
   } finally {
     await browser.close();
   }
