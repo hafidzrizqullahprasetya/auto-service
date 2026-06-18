@@ -25,4 +25,5 @@ export interface TransactionItem {
   price: number;
   qty: number;
   subtotal?: number;
+  type?: "jasa" | "spare_part" | "service";
 }

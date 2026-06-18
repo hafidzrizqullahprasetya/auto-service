@@ -99,13 +99,27 @@ export function LaporanKeuangan() {
   }, [allTransactions, period, dateFrom, dateTo]);
 
   const totalPendapatan = filtered.reduce((a, t) => a + t.total, 0);
-  const pendapatanJasa = filtered
-    .filter((t) => t.type === "Service")
-    .reduce((a, t) => a + t.total, 0);
-  const pendapatanPart = filtered
-    .filter((t) => t.type === "Sparepart Only")
-    .reduce((a, t) => a + t.total, 0);
   const totalPajak = filtered.reduce((a, t) => a + t.tax, 0);
+
+  // Calculate item-level revenues
+  let pendapatanJasa = 0;
+  let pendapatanPart = 0;
+
+  filtered.forEach((t) => {
+    t.items.forEach((item) => {
+      const isService =
+        item.type === "jasa" ||
+        item.type === "service" ||
+        item.name.toLowerCase().includes("jasa") ||
+        item.name.toLowerCase().includes("service");
+      const itemSubtotal = item.price * item.qty;
+      if (isService) {
+        pendapatanJasa += itemSubtotal;
+      } else {
+        pendapatanPart += itemSubtotal;
+      }
+    });
+  });
 
   const cashTx = filtered.filter((t) => t.paymentMethod === "Cash").length;
   const transferTx = filtered.filter(
@@ -115,8 +129,26 @@ export function LaporanKeuangan() {
     (t) => t.paymentMethod === "E-Wallet",
   ).length;
   const cardTx = filtered.filter((t) => t.paymentMethod === "Card").length;
-  const serviceTxCount = filtered.filter((t) => t.type === "Service").length;
-  const partTxCount = filtered.filter((t) => t.type === "Sparepart Only").length;
+
+  const serviceTxCount = filtered.filter((t) =>
+    t.items.some(
+      (item) =>
+        item.type === "jasa" ||
+        item.type === "service" ||
+        item.name.toLowerCase().includes("jasa") ||
+        item.name.toLowerCase().includes("service")
+    )
+  ).length;
+
+  const partTxCount = filtered.filter((t) =>
+    t.items.some(
+      (item) =>
+        item.type === "spare_part" ||
+        (!item.type &&
+          !item.name.toLowerCase().includes("jasa") &&
+          !item.name.toLowerCase().includes("service"))
+    )
+  ).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -279,13 +311,13 @@ export function LaporanKeuangan() {
                 {
                   label: "Jasa Servis",
                   value: pendapatanJasa,
-                  total: totalPendapatan,
+                  total: pendapatanJasa + pendapatanPart,
                   color: "bg-dark dark:bg-white",
                 },
                 {
                   label: "Sparepart",
                   value: pendapatanPart,
-                  total: totalPendapatan,
+                  total: pendapatanJasa + pendapatanPart,
                   color: "bg-secondary",
                 },
               ].map(({ label, value, total, color }) => {

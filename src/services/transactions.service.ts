@@ -51,6 +51,7 @@ export function mapTransaction(tx: ApiTransaction, taxRate: number = 11): Transa
       name: i.item_name,
       price: Number(i.unit_price),
       qty: i.quantity,
+      type: i.item_type as any,
     })),
     subtotal: subtotalValue,
     tax: totalAmount - subtotalValue,
