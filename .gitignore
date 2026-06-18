@@ -20,6 +20,16 @@
 .DS_Store
 *.pem
 
+# latex build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.out
+*.synctex.gz
+*.toc
+
 # debug
 npm-debug.log*
 yarn-debug.log*

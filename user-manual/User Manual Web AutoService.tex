@@ -1,0 +1,475 @@
+\documentclass[12pt,a4paper]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[bahasa]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{menukeys}
+
+% Configuration
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=3cm,
+    right=2.5cm,
+    headheight=14.5pt
+}
+
+\graphicspath{{./images/autoservice/}{./images/}}
+
+% Command untuk gambar dengan border dan fallback jika screenshot belum dibuat.
+\newcommand{\manualimage}[3][]{%
+    \begin{figure}[H]
+        \centering
+        \IfFileExists{#2}{%
+            \fbox{\includegraphics[#1]{#2}}%
+        }{%
+            \fbox{%
+                \begin{minipage}[c][5cm][c]{0.85\textwidth}
+                    \centering
+                    \textbf{Placeholder Screenshot}\\[0.25cm]
+                    \texttt{#2}\\[0.25cm]
+                    Jalankan \texttt{npm run manual:screenshots} untuk membuat gambar ini.
+                \end{minipage}
+            }%
+        }%
+        \caption{#3}
+    \end{figure}
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={User Manual - AutoService},
+    pdfauthor={Tim Pengembang AutoService},
+}
+
+% Header & Footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{User Manual AutoService}
+\lhead{Panel Bengkel AutoService}
+\cfoot{\thepage}
+
+% Title Format
+\titleformat{\chapter}[display]
+  {\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+% Custom boxes
+\newtcolorbox{infobox}[1][]{
+  colback=blue!5!white,
+  colframe=blue!75!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{warningbox}[1][]{
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{tipbox}[1][]{
+  colback=green!5!white,
+  colframe=green!75!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%   TITLE PAGE
+%----------------------------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+
+    {\Huge \textbf{PANDUAN PENGGUNA SISTEM}}\\[0.5cm]
+    {\LARGE \textbf{(USER MANUAL)}}\\[1.5cm]
+
+    \vspace{1cm}
+
+    {\Large \textbf{SISTEM MANAJEMEN BENGKEL}}\\[0.5cm]
+    {\Huge \textbf{AUTOSERVICE}}\\[0.2cm]
+    {\Large \textbf{Antrean, Work Order, Inspection Checklist, Kasir, dan Inventori}}\\[2cm]
+
+    \textbf{Dokumen Progress User Manual}\\[0.3cm]
+    \textbf{Versi:} Draft AutoService\\
+    \textbf{Tanggal:} \today\\[1.5cm]
+
+    \begin{tabular}{ll}
+        \textbf{Sistem:} & AutoService Web Panel \\
+        \textbf{Target Pengguna:} & Owner, Admin, Kasir, dan Mekanik \\
+        \textbf{Platform:} & Web Browser Desktop \\
+        \textbf{Status Dokumen:} & Draft isi dan struktur, screenshot menyusul \\
+    \end{tabular}\\[2cm]
+
+    \vfill
+    \textit{Dokumen ini menggantikan isi template Surya Kencana menjadi panduan operasional AutoService.}
+
+\end{titlepage}
+
+%----------------------------------------------------------------------------------------
+%   TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+\clearpage
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%   BAB 1: PENDAHULUAN
+%----------------------------------------------------------------------------------------
+\chapter{Pendahuluan}
+
+\section{Pengertian AutoService}
+AutoService adalah sistem manajemen bengkel berbasis web yang digunakan untuk membantu proses operasional bengkel, mulai dari penerimaan kendaraan, pembuatan work order, pengecekan kendaraan, transaksi kasir, pengelolaan inventori, stock opname, reminder pelanggan, hingga laporan usaha.
+
+Sistem ini dirancang untuk menggantikan proses manual yang sebelumnya dilakukan menggunakan catatan, formulir kertas, atau file terpisah. Dengan AutoService, data pelanggan, kendaraan, antrean servis, hasil inspeksi, stok sparepart, dan transaksi dapat dikelola dalam satu panel yang terhubung.
+
+\section{Tujuan Dokumen}
+Dokumen ini menjelaskan cara menggunakan fitur-fitur AutoService secara bertahap. Panduan ini dapat digunakan sebagai bahan pelatihan pengguna baru maupun referensi operasional harian bagi pengguna yang sudah terbiasa dengan sistem.
+
+\section{Cakupan Sistem}
+Panduan ini mencakup modul berikut:
+\begin{itemize}
+    \item Login dan hak akses role.
+    \item Dashboard operasional bengkel.
+    \item Antrean servis dan work order.
+    \item Inspection checklist kendaraan.
+    \item Kasir, transaksi, dan invoice.
+    \item Inventori sparepart, stok masuk/keluar, dan barcode.
+    \item Stock opname.
+    \item Data pelanggan dan kendaraan.
+    \item Katalog jasa dan paket servis.
+    \item Reminder dan follow-up pelanggan.
+    \item Laporan.
+    \item Pengaturan, manajemen akun, dan permission.
+\end{itemize}
+
+\section{Hak Akses Pengguna}
+AutoService membedakan pengguna berdasarkan role. Perbedaan role membantu menjaga agar setiap pengguna hanya mengakses fitur yang sesuai dengan tugasnya.
+
+\begin{longtable}{p{3cm}p{10cm}}
+\toprule
+\textbf{Role} & \textbf{Hak Akses Utama} \\
+\midrule
+Owner & Mengakses seluruh modul, termasuk laporan, pengaturan, manajemen akun, dan permission. \\
+Admin & Mengelola antrean, work order, inspection checklist, inventori, data master, katalog jasa, reminder, dan laporan operasional. \\
+Kasir & Mengelola antrean yang berhubungan dengan pembayaran, transaksi, dan invoice. \\
+Mekanik & Melihat antrean servis dan mengisi inspection checklist sesuai pekerjaan kendaraan. \\
+\bottomrule
+\end{longtable}
+
+\begin{infobox}[Catatan Role]
+Role Mekanik dibuat agar mekanik dapat bekerja secara online pada antrean dan checklist tanpa diberi akses untuk mengubah data sensitif seperti inventori, laporan, kasir, atau pengaturan.
+\end{infobox}
+
+\section{Persyaratan Penggunaan}
+\begin{itemize}
+    \item Browser modern seperti Google Chrome, Microsoft Edge, Safari, atau Firefox.
+    \item Koneksi internet atau jaringan lokal yang stabil.
+    \item Akun pengguna yang sudah dibuat oleh Owner atau Admin.
+    \item Hak akses sesuai tugas pengguna.
+\end{itemize}
+
+%----------------------------------------------------------------------------------------
+%   BAB 2: LOGIN DAN NAVIGASI
+%----------------------------------------------------------------------------------------
+\chapter{Login dan Navigasi Sistem}
+
+\section{Membuka Halaman Login}
+Pengguna membuka alamat web AutoService melalui browser. Halaman login menampilkan field username, password, pilihan ingat sesi, dan tombol masuk ke dashboard.
+
+\manualimage[width=0.85\textwidth]{01-login.png}{Halaman Login AutoService}
+
+\section{Mengisi Kredensial}
+Masukkan username dan password sesuai akun yang diberikan. Setelah berhasil login, sistem akan mengarahkan pengguna ke halaman awal sesuai role.
+
+\manualimage[width=0.85\textwidth]{02-login-filled.png}{Contoh Pengisian Form Login}
+
+\section{Navigasi Sidebar}
+Sidebar menampilkan menu sesuai hak akses pengguna. Owner memiliki menu paling lengkap, sedangkan Kasir dan Mekanik hanya melihat menu yang sesuai dengan tugasnya.
+
+\manualimage[width=0.85\textwidth]{06-owner-sidebar-full.png}{Sidebar Lengkap untuk Role Owner}
+
+%----------------------------------------------------------------------------------------
+%   BAB 3: DASHBOARD
+%----------------------------------------------------------------------------------------
+\chapter{Dashboard}
+
+\section{Ringkasan Dashboard}
+Dashboard digunakan untuk melihat gambaran cepat kondisi bengkel. Informasi yang ditampilkan meliputi jumlah work order, pendapatan, aktivitas terbaru, stok rendah, layanan teratas, dan rasio kendaraan.
+
+\manualimage[width=0.85\textwidth]{03-dashboard-overview.png}{Dashboard Utama AutoService}
+
+\section{Grafik Pendapatan}
+Grafik pendapatan membantu Owner atau Admin melihat perkembangan transaksi dalam periode tertentu.
+
+\manualimage[width=0.85\textwidth]{04-dashboard-revenue.png}{Grafik Pendapatan pada Dashboard}
+
+\section{Rasio Kendaraan}
+Rasio kendaraan menunjukkan perbandingan unit mobil dan motor yang masuk ke bengkel. Informasi ini membantu bengkel memahami komposisi layanan yang paling sering ditangani.
+
+\manualimage[width=0.75\textwidth]{05-dashboard-vehicle-ratio.png}{Rasio Kendaraan Mobil dan Motor}
+
+%----------------------------------------------------------------------------------------
+%   BAB 4: ANTREAN DAN WORK ORDER
+%----------------------------------------------------------------------------------------
+\chapter{Antrean Servis dan Work Order}
+
+\section{Ringkasan Antrean}
+Modul Antrean Masuk digunakan untuk mencatat kendaraan yang masuk servis. Bagian ringkasan menampilkan jumlah antrean berdasarkan status seperti menunggu, dikerjakan, menunggu sparepart, dan selesai.
+
+\manualimage[width=0.85\textwidth]{07-antrean-summary.png}{Ringkasan Antrean Servis}
+
+\section{Tampilan Tabel Antrean}
+Tampilan tabel digunakan untuk melihat detail kendaraan, pelanggan, keluhan, status pengerjaan, status pembayaran, dan opsi tindakan.
+
+\manualimage[width=0.9\textwidth]{08-antrean-table.png}{Tabel Antrean Servis}
+
+\section{Tampilan Kanban Antrean}
+Tampilan kanban digunakan untuk memantau kendaraan berdasarkan status pengerjaan. Tampilan ini memudahkan pengguna melihat alur pekerjaan secara visual.
+
+\manualimage[width=0.9\textwidth]{09-antrean-kanban.png}{Kanban Board Antrean Servis}
+
+\section{Membuat Work Order}
+Untuk membuat work order, klik tombol entry antrean baru, lalu isi data pelanggan, kendaraan, keluhan, layanan, estimasi biaya, dan catatan tambahan.
+
+\manualimage[width=0.85\textwidth]{10-work-order-create.png}{Form Entry Work Order}
+
+\section{Mengubah Work Order}
+Admin atau Owner dapat mengubah data work order jika terdapat kesalahan data atau perubahan informasi pekerjaan.
+
+\manualimage[width=0.85\textwidth]{11-work-order-edit.png}{Form Ubah Work Order}
+
+\section{Mencetak SPK}
+SPK atau Surat Perintah Kerja digunakan sebagai dokumen kerja untuk kendaraan yang masuk servis.
+
+\manualimage[width=0.85\textwidth]{12-spk-preview.png}{Preview Cetak SPK}
+
+%----------------------------------------------------------------------------------------
+%   BAB 5: INSPECTION CHECKLIST
+%----------------------------------------------------------------------------------------
+\chapter{Inspection Checklist}
+
+\section{Fungsi Inspection Checklist}
+Inspection checklist digunakan untuk mencatat kondisi kendaraan secara sistematis. Checklist ini mengikuti format formulir bengkel yang mencakup area mesin, area dalam kabin, exterior, understel, catatan perbaikan, dan permintaan servis.
+
+\section{Header Checklist}
+Bagian header berisi identitas kendaraan, pelanggan, tanggal, mekanik, keluhan, kilometer, dan pekerjaan.
+
+\manualimage[width=0.85\textwidth]{13-inspection-header.png}{Header Inspection Checklist}
+
+\section{Pengecekan Area Mesin}
+Area mesin mencakup pemeriksaan oli mesin, filter udara, belt, kebocoran oli atau air, aki, pengisian, starter, engine mounting, radiator, tutup radiator, oli power steering, getaran mesin, minyak rem atau kopling, dan air washer.
+
+\manualimage[width=0.85\textwidth]{14-inspection-engine.png}{Checklist Pengecekan Area Mesin}
+
+\section{Pengecekan Area Dalam Kabin}
+Area dalam kabin mencakup indikator dashboard, check engine dan DTC, doorlock, power window, lampu kabin, mirror, doortrim, handrem, pedal rem dan kopling, audio, AC, filter kabin, dan freeplay steering.
+
+\manualimage[width=0.85\textwidth]{15-inspection-cabin.png}{Checklist Pengecekan Area Dalam Kabin}
+
+\section{Pengecekan Exterior, Understel, dan Catatan}
+Bagian ini digunakan untuk mencatat kondisi lampu, pintu, velg, ban, discbrake, kaki-kaki, fleksibel rem, shock, catatan perbaikan, dan permintaan servis yang sudah dikerjakan.
+
+\manualimage[width=0.85\textwidth]{16-inspection-exterior-notes.png}{Checklist Exterior, Understel, dan Catatan}
+
+\begin{tipbox}[Saran Penggunaan]
+Mekanik sebaiknya mengisi checklist saat kendaraan sedang diperiksa, bukan setelah pekerjaan selesai, agar data kondisi kendaraan lebih akurat.
+\end{tipbox}
+
+%----------------------------------------------------------------------------------------
+%   BAB 6: KASIR DAN TRANSAKSI
+%----------------------------------------------------------------------------------------
+\chapter{Kasir dan Transaksi}
+
+\section{Daftar Transaksi}
+Modul kasir digunakan untuk membuat transaksi, melihat status pembayaran, dan mencetak invoice.
+
+\manualimage[width=0.9\textwidth]{17-kasir-transaction-list.png}{Daftar Transaksi Kasir}
+
+\section{Membuat Transaksi}
+Kasir dapat membuat transaksi baru dengan memilih pelanggan, kendaraan, jasa, sparepart, jumlah, diskon, metode pembayaran, dan catatan transaksi.
+
+\manualimage[width=0.85\textwidth]{18-kasir-create-transaction.png}{Form Pembuatan Transaksi}
+
+\section{Transaksi dari Work Order}
+Work order yang sudah selesai atau siap dibayar dapat dilanjutkan ke kasir sehingga data pelanggan, kendaraan, layanan, dan estimasi biaya otomatis terbawa.
+
+\manualimage[width=0.85\textwidth]{19-kasir-from-work-order.png}{Pembayaran dari Work Order}
+
+\section{Preview Invoice}
+Invoice digunakan sebagai bukti pembayaran pelanggan. Invoice dapat dicetak atau digunakan sebagai arsip transaksi.
+
+\manualimage[width=0.85\textwidth]{20-invoice-preview.png}{Preview Invoice}
+
+%----------------------------------------------------------------------------------------
+%   BAB 7: INVENTORI DAN STOK
+%----------------------------------------------------------------------------------------
+\chapter{Inventori dan Stok}
+
+\section{Daftar Sparepart}
+Daftar sparepart menampilkan item, kategori, satuan, harga, stok, dan status stok rendah.
+
+\manualimage[width=0.9\textwidth]{21-inventory-list.png}{Daftar Sparepart}
+
+\section{Menambah atau Mengubah Sparepart}
+Admin dapat menambah sparepart baru atau mengubah data item yang sudah ada.
+
+\manualimage[width=0.85\textwidth]{22-inventory-add-item.png}{Form Sparepart}
+
+\section{Barcode Sparepart}
+Barcode digunakan untuk mempercepat identifikasi item sparepart saat transaksi atau pengecekan stok.
+
+\manualimage[width=0.85\textwidth]{23-inventory-barcode.png}{Barcode Sparepart}
+
+\section{Kategori dan Satuan}
+Kategori dan satuan membantu mengelompokkan item agar pengelolaan stok lebih rapi.
+
+\manualimage[width=0.9\textwidth]{24-inventory-category-unit.png}{Kategori dan Satuan}
+
+\manualimage[width=0.85\textwidth]{25-inventory-category-form.png}{Form Kategori Sparepart}
+
+\section{Stok Masuk dan Stok Keluar}
+Modul stok masuk/keluar digunakan untuk mencatat pergerakan stok, baik karena pembelian, pemakaian, penyesuaian, maupun pengurangan stok.
+
+\manualimage[width=0.9\textwidth]{26-stock-movement-list.png}{Riwayat Stok Masuk dan Keluar}
+
+\manualimage[width=0.85\textwidth]{27-stock-movement-form.png}{Form Stok Masuk atau Keluar}
+
+%----------------------------------------------------------------------------------------
+%   BAB 8: STOCK OPNAME
+%----------------------------------------------------------------------------------------
+\chapter{Stock Opname}
+
+\section{Sesi Stock Opname}
+Stock opname digunakan untuk mencocokkan stok sistem dengan stok fisik di bengkel.
+
+\manualimage[width=0.9\textwidth]{28-stock-opname-session.png}{Sesi Stock Opname}
+
+\section{Item Stock Opname}
+Pada detail opname, pengguna mengisi stok fisik dan melihat selisih antara stok sistem dan stok nyata.
+
+\manualimage[width=0.9\textwidth]{29-stock-opname-items.png}{Item Stock Opname}
+
+\begin{warningbox}[Perhatian]
+Pastikan proses opname dilakukan pada waktu yang disepakati agar mutasi stok tidak berubah saat penghitungan fisik sedang berlangsung.
+\end{warningbox}
+
+%----------------------------------------------------------------------------------------
+%   BAB 9: DATA MASTER
+%----------------------------------------------------------------------------------------
+\chapter{Data Pelanggan dan Kendaraan}
+
+\section{Daftar Pelanggan}
+Data pelanggan digunakan untuk menyimpan nama, nomor telepon, alamat, dan riwayat servis.
+
+\manualimage[width=0.9\textwidth]{30-customer-list.png}{Daftar Pelanggan}
+
+\manualimage[width=0.85\textwidth]{31-customer-form.png}{Form Pelanggan}
+
+\section{Daftar Kendaraan}
+Data kendaraan berisi plat nomor, tipe kendaraan, merek, model, tahun, dan pemilik kendaraan.
+
+\manualimage[width=0.9\textwidth]{32-vehicle-list.png}{Daftar Kendaraan}
+
+\manualimage[width=0.85\textwidth]{33-vehicle-form.png}{Form Kendaraan}
+
+%----------------------------------------------------------------------------------------
+%   BAB 10: KATALOG JASA
+%----------------------------------------------------------------------------------------
+\chapter{Katalog Jasa dan Paket Servis}
+
+\section{Daftar Jasa dan Paket}
+Katalog jasa digunakan untuk mengelola layanan bengkel seperti servis ringan, spooring, balancing, tune up, atau paket servis tertentu.
+
+\manualimage[width=0.9\textwidth]{34-service-catalog-list.png}{Katalog Jasa dan Paket Servis}
+
+\section{Form Jasa atau Paket}
+Admin dapat menambah jasa atau paket servis agar dapat dipilih pada work order dan transaksi kasir.
+
+\manualimage[width=0.85\textwidth]{35-service-catalog-form.png}{Form Jasa atau Paket Servis}
+
+%----------------------------------------------------------------------------------------
+%   BAB 11: REMINDER DAN LAPORAN
+%----------------------------------------------------------------------------------------
+\chapter{Reminder dan Laporan}
+
+\section{Reminder Follow-up}
+Reminder digunakan untuk mengingatkan pelanggan terkait servis berkala, follow-up pekerjaan, atau informasi lain melalui WhatsApp.
+
+\manualimage[width=0.9\textwidth]{36-reminder-list.png}{Reminder dan Follow-up Pelanggan}
+
+\section{Laporan}
+Modul laporan membantu Owner atau Admin membaca performa bengkel dari sisi keuangan, analitik layanan, dan stok.
+
+\manualimage[width=0.9\textwidth]{37-report-tabs.png}{Halaman Laporan AutoService}
+
+%----------------------------------------------------------------------------------------
+%   BAB 12: PENGATURAN DAN PERMISSION
+%----------------------------------------------------------------------------------------
+\chapter{Pengaturan dan Manajemen Akun}
+
+\section{Profil Bengkel}
+Profil bengkel digunakan untuk menyimpan informasi identitas bengkel seperti nama, alamat, nomor telepon, dan pengaturan umum yang muncul pada dokumen sistem.
+
+\manualimage[width=0.9\textwidth]{38-settings-profile.png}{Pengaturan Profil Bengkel}
+
+\section{Manajemen Akun dan Permission}
+Owner atau Admin dapat mengelola akun pengguna dan hak akses. Fitur ini penting agar Kasir dan Mekanik tidak mendapat akses ke menu yang bukan tanggung jawabnya.
+
+\manualimage[width=0.9\textwidth]{39-settings-accounts-permissions.png}{Manajemen Akun dan Permission}
+
+\section{Akses Mekanik}
+Role Mekanik hanya diarahkan ke modul antrean dan inspection checklist. Mekanik tidak diberi akses untuk mengubah kasir, laporan, inventori, data master, atau pengaturan.
+
+\manualimage[width=0.9\textwidth]{40-mechanic-queue-inspection.png}{Tampilan Role Mekanik}
+
+%----------------------------------------------------------------------------------------
+%   BAB 13: FAQ
+%----------------------------------------------------------------------------------------
+\chapter{FAQ dan Troubleshooting}
+
+\section{Tidak Bisa Login}
+Periksa kembali username dan password. Jika masih gagal, hubungi Owner atau Admin untuk memastikan akun aktif dan role sudah benar.
+
+\section{Menu Tidak Muncul}
+Menu yang tampil mengikuti role pengguna. Jika sebuah menu tidak muncul, kemungkinan role pengguna memang tidak memiliki akses ke menu tersebut.
+
+\section{Data Tidak Tersimpan}
+Pastikan koneksi internet stabil dan backend sedang aktif. Jika muncul pesan HTTP 401, sesi login kemungkinan habis dan pengguna perlu login ulang. Jika muncul HTTP 500, hubungi tim teknis untuk memeriksa backend atau database.
+
+\section{Screenshot Manual Belum Muncul di PDF}
+Jalankan script berikut untuk membuat screenshot:
+
+\begin{verbatim}
+npm run manual:screenshots
+\end{verbatim}
+
+Screenshot akan tersimpan di folder:
+
+\begin{verbatim}
+user-manual/images/autoservice/
+\end{verbatim}
+
+\end{document}

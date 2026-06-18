@@ -1,0 +1,1779 @@
+\documentclass[12pt,a4paper]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[bahasa]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{menukeys}
+
+% Configuration
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=3cm,
+    right=2.5cm,
+    headheight=14.5pt
+}
+
+\graphicspath{{./images/}}
+
+% Command untuk gambar dengan border
+\newcommand{\includegraphicsWithBorder}[2][]{%
+    \fbox{\includegraphics[#1]{#2}}%
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={User Manual - PT. Surya Kencana Gemilang Teknik},
+    pdfauthor={Janu, Fahim, Hafidz, Akmal},
+}
+
+% Header & Footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{User Manual Website}
+\lhead{PT. Surya Kencana Gemilang Teknik}
+\cfoot{\thepage}
+
+% Title Format
+\titleformat{\chapter}[display]
+  {\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+% Custom boxes
+\newtcolorbox{infobox}[1][]{
+  colback=blue!5!white,
+  colframe=blue!75!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{warningbox}[1][]{
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\newtcolorbox{tipbox}[1][]{
+  colback=green!5!white,
+  colframe=green!75!black,
+  fonttitle=\bfseries,
+  title=#1
+}
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%   TITLE PAGE
+%----------------------------------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+
+    {\Huge \textbf{PANDUAN PENGGUNA SISTEM}}\\[0.5cm]
+    {\LARGE \textbf{(USER MANUAL)}}\\[1.5cm]
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.4\textwidth]{logo.png}
+        \label{fig:logo-company}
+    \end{figure}
+
+    \vspace{1.5cm}
+
+    {\Large \textbf{WEBSITE COMPANY PROFILE}}\\[0.5cm]
+    {\Huge \textbf{PT. SURYA KENCANA}}\\[0.2cm]
+    {\Huge \textbf{GEMILANG TEKNIK}}\\[2cm]
+
+    \textbf{Disusun Oleh Tim Pengembang:}\\
+    \vspace{0.5cm}
+    \begin{tabular}{ll}
+        \textbf{Project Manager:} & Januarsyah Akbar (24/535846/SV/24314) \\
+        \textbf{UI/UX Designer:} & Ahmad Fahim (24/535644/SV/24279) \\
+        \textbf{Frontend Developer:} & Hafidz Rizqullah Prasetya (24/535493/SV/24243) \\
+        \textbf{Backend Developer:} & Akmal Manggala Putra (24/536182/SV/24402) \\
+    \end{tabular}\\
+    \vspace{0.5cm}
+    \textbf{Asisten Praktikum:} Nadzira Azhani Farahiya\\[0.3cm]
+    \textbf{Dosen Pembimbing:} Galih Malela Damaraji S.Pd M.Eng.\\[1cm]
+
+\end{titlepage}
+
+%----------------------------------------------------------------------------------------
+%   TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+\clearpage
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%   BAB 1: PENDAHULUAN
+%----------------------------------------------------------------------------------------
+\chapter{Pendahuluan}
+
+\section{Pengertian Website Profil Perusahaan PT. Surya Kencana Gemilang Teknik}
+Website Profil Perusahaan PT. Surya Kencana Gemilang Teknik adalah platform digital yang dirancang khusus untuk memperkenalkan, mempromosikan, dan menyajikan informasi lengkap tentang perusahaan kami kepada calon klien dan mitra bisnis. Website ini berfungsi sebagai representasi digital dari identitas perusahaan, menampilkan produk-produk unggulan, sejarah perusahaan, portofolio, serta informasi kontak yang mudah diakses oleh pengunjung dari seluruh dunia.
+
+Platform ini dirancang dengan pendekatan modern dan responsif, memungkinkan pengunjung untuk mengakses informasi perusahaan dengan cepat dan mudah melalui berbagai perangkat, baik desktop maupun mobile. Website ini juga dilengkapi dengan sistem manajemen konten (CMS) yang memungkinkan tim internal untuk mengelola dan memperbarui informasi secara mandiri tanpa ketergantungan pada pihak eksternal.
+
+\section{Tentang Dokumen Ini}
+Dokumen ini adalah panduan teknis mendalam untuk penggunaan Website Company Profile PT. Surya Kencana Gemilang Teknik. Panduan ini mencakup instruksi langkah demi langkah untuk setiap fitur yang tersedia di panel administrasi (CMS) dan penjelasan mengenai antarmuka publik. Dokumen ini ditujukan untuk administrator sistem, staf marketing, dan pihak-pihak terkait lainnya yang bertanggung jawab atas pengelolaan konten website.
+
+\section{Deskripsi Sistem}
+Website ini dikembangkan menggunakan teknologi modern untuk menjamin kecepatan dan kemudahan penggunaan:
+\begin{itemize}
+    \item \textbf{Frontend}: Vue.js dengan TypeScript dan Tailwind CSS.
+    \item \textbf{Backend}: Laravel API.
+\end{itemize}
+
+\section{Hak Akses Pengguna}
+Sistem membedakan dua tingkat akses administrator:
+\begin{enumerate}
+    \item \textbf{Admin}: Memiliki akses penuh untuk mengelola konten (Produk, Klien, Testimoni, Hero, dll).
+    \item \textbf{Super Admin}: Memiliki semua akses Admin ditambah hak khusus untuk \textbf{Manajemen Admin} (menambah, mengedit, atau menghapus akun admin lain).
+\end{enumerate}
+
+\section{Persyaratan Sistem}
+Untuk menggunakan sistem dengan optimal, pastikan perangkat Anda memenuhi persyaratan berikut:
+\begin{itemize}
+    \item Browser modern (Chrome, Firefox, Safari, Edge versi terbaru)
+    \item Koneksi internet stabil
+\end{itemize}
+
+%----------------------------------------------------------------------------------------
+%   BAB 2: ANTARMUKA PUBLIK (FRONTEND)
+%----------------------------------------------------------------------------------------
+\chapter{Antarmuka Publik}
+
+Halaman depan website dirancang untuk memberikan informasi lengkap kepada pengunjung dalam satu halaman (Landing Page) yang terdiri dari beberapa segmen yang dapat diakses melalui navigasi halus. Tampilan halaman ini mencerminkan identitas dan profesionalisme PT. Surya Kencana Gemilang Teknik kepada pengunjung.
+
+\section{Struktur Halaman Utama}
+Halaman utama menyajikan informasi perusahaan secara komprehensif dalam format satu halaman yang responsif. Setiap bagian memiliki fungsi spesifik dalam menyampaikan informasi perusahaan:
+
+\subsection{Hero Section}
+\begin{itemize}
+    \item \textbf{Slider Gambar Latar Belakang}: Area banner utama dengan gambar latar belakang yang dapat diubah melalui panel admin.
+    \item \textbf{Judul Besar}: Teks besar yang menjadi fokus utama dari pesan utama perusahaan.
+    \item \textbf{Lokasi Perusahaan}: Informasi lokasi yang ditampilkan dengan menarik.
+    \item \textbf{Statistik Ringkas}: Informasi numerik penting seperti Jumlah Mesin, Klien, Pelanggan, dan Pengalaman perusahaan.
+\end{itemize}
+
+% Placeholder untuk screenshot Hero Section
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{hero.png}
+    \caption{Hero Section - Bagian Atas Halaman Utama}
+    \label{fig:frontpage-hero}
+\end{figure}
+
+\subsection{Tentang Kami (Visi \& Misi)}
+\begin{itemize}
+    \item Menampilkan visi perusahaan yang menjelaskan tujuan jangka panjang.
+    \item Menampilkan daftar poin misi yang dapat diperbarui melalui panel admin.
+    \item Bagian ini memberikan wawasan tentang nilai-nilai dan komitmen perusahaan.
+\end{itemize}
+
+% Placeholder untuk screenshot Tentang Kami
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{about.png}
+    \caption{Bagian Tentang Kami (Visi \& Misi)}
+    \label{fig:frontpage-about}
+\end{figure}
+
+\subsection{Produk}
+\begin{itemize}
+    \item Katalog produk unggulan perusahaan yang ditampilkan dalam bentuk kartu.
+    \item Setiap produk menampilkan gambar, deskripsi, dan harga (jika tidak disembunyikan).
+    \item Pengunjung dapat melihat detail produk lebih lengkap dengan klik pada kartu produk.
+    \item Terdapat tombol langsung ke WhatsApp untuk pemesanan atau informasi lebih lanjut.
+\end{itemize}
+
+% Placeholder untuk screenshot bagian Produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{products.png}
+    \caption{Bagian Produk - Katalog Produk Unggulan}
+    \label{fig:frontpage-products}
+\end{figure}
+
+\subsection{Gallery (Riwayat)}
+\begin{itemize}
+    \item Linimasa sejarah perusahaan yang menampilkan pencapaian penting berdasarkan tahun.
+    \item Menampilkan milestone dan perkembangan perusahaan sejak berdiri.
+    \item Dapat dikelola melalui panel admin sesuai kebutuhan dokumentasi.
+\end{itemize}
+
+% Placeholder untuk screenshot Gallery Riwayat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{gallery.png}
+    \caption{Bagian Gallery (Riwayat) - Linimasa Sejarah Perusahaan}
+    \label{fig:frontpage-gallery}
+\end{figure}
+
+\subsection{Klien (Our Client)}
+\begin{itemize}
+    \item Tampilan grid logo-logo perusahaan yang menjadi mitra kerja.
+    \item Menunjukkan kredibilitas dan kepercayaan dari pelanggan serta mitra bisnis.
+    \item Logo dapat diupdate melalui panel admin sesuai dengan perkembangan kemitraan.
+\end{itemize}
+
+% Placeholder untuk screenshot Our Client
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{clients.png}
+    \caption{Bagian Our Client - Logo Mitra Kerja}
+    \label{fig:frontpage-clients}
+\end{figure}
+
+\subsection{Testimoni}
+\begin{itemize}
+    \item Slider ulasan dari pelanggan sebelumnya yang mencerminkan kepuasan layanan.
+    \item Menunjukkan kredibilitas dan reputasi perusahaan di mata pelanggan.
+    \item Ulasan dapat dikelola dan diperbarui melalui panel admin.
+\end{itemize}
+
+% Placeholder untuk screenshot Testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{testimonials.png}
+    \caption{Bagian Testimoni - Ulasan Pelanggan}
+    \label{fig:frontpage-testimonials}
+\end{figure}
+
+\subsection{Kontak}
+\begin{itemize}
+    \item Menyediakan informasi alamat lengkap kantor/pabrik perusahaan.
+    \item Menampilkan peta lokasi (Google Maps yang dapat dikonfigurasi).
+    \item Menyediakan form kontak WhatsApp untuk komunikasi langsung.
+\end{itemize}
+
+% Placeholder untuk screenshot bagian Kontak
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{contact.png}
+    \caption{Bagian Kontak - Informasi Komunikasi Perusahaan}
+    \label{fig:frontpage-contact}
+\end{figure}
+
+
+\section{Fitur Interaktif}
+Antarmuka publik dilengkapi dengan berbagai fitur interaktif untuk meningkatkan pengalaman pengguna:
+
+\subsection{Floating WhatsApp}
+\begin{itemize}
+    \item Tombol WhatsApp melayang di pojok kanan bawah untuk komunikasi instan.
+    \item Terhubung langsung dengan nomor yang telah dikonfigurasi di panel admin.
+    \item Memudahkan pengunjung untuk menghubungi perusahaan secara langsung.
+\end{itemize}
+
+% Placeholder untuk screenshot Floating WhatsApp
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{wa.png}
+    \caption{Fitur Floating WhatsApp}
+    \label{fig:feature-whatsapp}
+\end{figure}
+
+\subsection{Detail Produk}
+\begin{itemize}
+    \item Klik pada kartu produk untuk membuka galeri gambar produk secara penuh (lightbox).
+    \item Menampilkan deskripsi lengkap produk beserta informasi kontak.
+    \item Memungkinkan pengunjung untuk melihat detail produk secara menyeluruh.
+\end{itemize}
+
+% Placeholder untuk screenshot Detail Produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{detail-produk.png}
+    \caption{Fitur Detail Produk}
+    \label{fig:feature-product-detail}
+\end{figure}
+
+\subsection{Mobile Menu}
+\begin{itemize}
+    \item Pada tampilan seluler, menu navigasi tersimpan dalam tombol \textit{hamburger} di pojok kanan atas.
+    \item Memberikan pengalaman mobile yang optimal dengan navigasi yang mudah diakses.
+    \item Memastikan aksesibilitas menu di berbagai ukuran perangkat.
+\end{itemize}
+
+% Placeholder untuk screenshot Mobile Menu
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{menu.png}
+    \caption{Fitur Mobile Menu}
+    \label{fig:feature-mobile-menu}
+\end{figure}
+
+% Placeholder untuk screenshot Responsive Design
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{responsive.png}
+    \caption{Fitur Responsive Design}
+    \label{fig:feature-responsive}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+%   BAB 3: LOGIN SISTEM
+%----------------------------------------------------------------------------------------
+\chapter{Login Administrator}
+
+Untuk masuk ke area pengelolaan konten, ikuti langkah berikut:
+
+\section{Langkah-Langkah Login}
+Proses login merupakan langkah penting untuk mengakses sistem administrasi. Pastikan Anda memiliki kredensial yang valid sebelum melanjutkan.
+
+\subsection{Langkah 1: Akses Halaman Login}
+\begin{enumerate}
+    \item Buka browser web (Chrome, Firefox, Safari, atau Edge) di perangkat Anda.
+    \item Ketik alamat website pada address bar: \url{/login} atau \url{/admin}.
+    \item Tekan tombol Enter atau klik tombol Go di browser.
+\end{enumerate}
+
+% Placeholder untuk screenshot halaman login - tampilan awal
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{login.png}
+    \caption{Halaman Login - Tampilan Awal}
+    \label{fig:login-page-1}
+\end{figure}
+
+\subsection{Langkah 2: Masukkan Username}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Mengatur nomor urutan ke 2
+    \item Pada kotak pertama yang bertuliskan "Username", masukkan username Anda.
+    \item Username biasanya berupa kombinasi huruf dan/atau angka yang telah ditetapkan oleh administrator sistem.
+    \item Pastikan tidak ada spasi tambahan di awal atau akhir username.
+\end{enumerate}
+
+% Placeholder untuk screenshot form username
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{username.png}
+    \caption{Form Input Username}
+    \label{fig:login-username}
+\end{figure}
+
+\subsection{Langkah 3: Masukkan Password}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Mengatur nomor urutan ke 3
+    \item Pada kotak kedua yang bertuliskan "Password", masukkan password yang sesuai dengan username Anda.
+    \item Pastikan password diketik dengan benar, karena sistem membedakan huruf besar dan kecil (case-sensitive).
+    \item Jika ingin melihat karakter yang diketik, klik ikon \textbf{Mata} di sebelah kanan kolom password.
+    \item Gunakan tombol Backspace jika perlu mengoreksi karakter yang salah.
+\end{enumerate}
+
+% Placeholder untuk screenshot form password
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{password.png}
+    \caption{Form Input Password dengan Ikon Mata}
+    \label{fig:login-password}
+\end{figure}
+
+\subsection{Langkah 4: Klik Tombol Login}
+\begin{enumerate}
+    \setcounter{enumi}{3} % Mengatur nomor urutan ke 4
+    \item Setelah memasukkan username dan password dengan benar, klik tombol \textbf{Login} yang berwarna biru dan terletak di bagian bawah form.
+    \item Tunggu beberapa saat (1-3 detik) hingga sistem memproses permintaan login.
+\end{enumerate}
+
+% Placeholder untuk screenshot tombol login
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{login_button.png}
+    \caption{Tombol Login pada Form}
+    \label{fig:login-button}
+\end{figure}
+
+\subsection{Langkah 5: Verifikasi Login dan Akses Dashboard}
+\begin{enumerate}
+    \setcounter{enumi}{4} % Mengatur nomor urutan ke 5
+    \item Jika login berhasil, Anda akan diarahkan secara otomatis ke halaman \textbf{Dashboard}.
+    \item Periksa bagian atas layar untuk memastikan bahwa Anda telah login dengan akun yang benar.
+    \item Jika login gagal, periksa kembali username dan password Anda, serta pastikan tidak ada kesalahan pengetikan.
+\end{enumerate}
+
+% Placeholder untuk screenshot hasil login sukses ke dashboard
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{login_success.png}
+    \caption{Login Berhasil - Akses ke Dashboard}
+    \label{fig:login-success}
+\end{figure}
+
+\section{Keamanan Akun}
+\begin{itemize}
+    \item Pastikan untuk menggunakan kombinasi username dan password yang kuat.
+    \item Jangan pernah membagikan akun Anda kepada pihak yang tidak berwenang.
+    \item Logout setelah selesai menggunakan panel admin, terutama saat menggunakan perangkat bersama.
+    \item Ganti password secara berkala untuk menjaga keamanan sistem.
+    \item Gunakan fitur "Remember Me" hanya di perangkat pribadi, hindari di perangkat umum.
+\end{itemize}
+
+\begin{warningbox}[Keamanan]
+Jika gagal login, pesan error akan muncul di bagian atas form. Periksa kembali huruf besar/kecil (case-sensitive). Sistem juga memiliki fitur pembatasan login otomatis setelah beberapa percobaan gagal untuk mencegah serangan brute-force.
+\end{warningbox}
+
+%----------------------------------------------------------------------------------------
+%   BAB 4: DASHBOARD
+%----------------------------------------------------------------------------------------
+\chapter{Dashboard}
+
+Dashboard adalah halaman pertama yang muncul setelah login. Halaman ini memberikan ringkasan performa data website dan akses cepat ke fungsi administrasi utama. Dashboard dirancang untuk memberikan informasi penting secara visual dan memudahkan administrator dalam mengakses fitur-fitur penting.
+
+\section{Statistik Utama}
+Di bagian atas dashboard, terdapat 4 kartu statistik yang memberikan gambaran cepat tentang kondisi konten website:
+
+\subsection{Total Produk}
+\begin{itemize}
+    \item Menampilkan jumlah produk aktif di katalog yang ditampilkan di halaman publik.
+    \item Data ini mencakup semua produk yang sedang dipromosikan di situs.
+    \item Angka ini terhubung langsung dengan modul Manajemen Produk.
+\end{itemize}
+
+% Placeholder untuk screenshot kartu Total Produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{statistik_produk.png}
+    \caption{Kartu Statistik - Total Produk}
+    \label{fig:dashboard-products}
+\end{figure}
+
+\subsection{Total Klien}
+\begin{itemize}
+    \item Menunjukkan jumlah mitra kerja yang ditampilkan di bagian Our Client di situs publik.
+    \item Data ini mencerminkan jumlah logo klien yang sedang aktif ditampilkan.
+    \item Terhubung langsung dengan modul Manajemen Klien.
+\end{itemize}
+
+% Placeholder untuk screenshot kartu Total Klien
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{statistik_klien.png}
+    \caption{Kartu Statistik - Total Klien}
+    \label{fig:dashboard-clients}
+\end{figure}
+
+\subsection{Total Testimoni}
+\begin{itemize}
+    \item Menampilkan jumlah ulasan pelanggan yang ditampilkan di halaman publik.
+    \item Data ini mencakup semua testimoni yang sedang tayang di situs.
+    \item Terhubung langsung dengan modul Manajemen Testimoni.
+\end{itemize}
+
+% Placeholder untuk screenshot kartu Total Testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{statistik_testimoni.png}
+    \caption{Kartu Statistik - Total Testimoni}
+    \label{fig:dashboard-testimonials}
+\end{figure}
+
+\subsection{Total Admin}
+\begin{itemize}
+    \item Menunjukkan jumlah akun pengelola sistem termasuk super admin.
+    \item Data ini mencakup semua akun yang memiliki akses ke sistem administrasi.
+    \item Terhubung langsung dengan modul Manajemen Admin (untuk super admin).
+\end{itemize}
+
+% Placeholder untuk screenshot kartu Total Admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{statistik_admin.png}
+    \caption{Kartu Statistik - Total Admin}
+    \label{fig:dashboard-admins}
+\end{figure}
+
+\section{Aktivitas Terbaru}
+Bagian ini menampilkan dua panel daftar yang menunjukkan konten terbaru yang ditambahkan ke sistem:
+
+\subsection{Panel Produk Terbaru}
+\begin{enumerate}
+    \item Menampilkan daftar 5 produk terakhir yang ditambahkan ke sistem.
+    \item Setiap entri mencakup nama produk dan harga (jika ditampilkan).
+    \item Klik tombol \menu{Lihat Semua} di header panel untuk menuju ke halaman \textbf{Manajemen Produk}.
+\end{enumerate}
+
+% Placeholder untuk screenshot panel Produk Terbaru
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{produk-terbaru.png}
+    \caption{Panel Aktivitas Terbaru - Produk}
+    \label{fig:dashboard-recent-products}
+\end{figure}
+
+\subsection{Panel Testimoni Terbaru}
+\begin{enumerate}
+    \item Menampilkan daftar testimoni pelanggan yang baru-baru ini ditambahkan.
+    \item Setiap entri mencakup nama pengirim dan tanggal penambahan.
+    \item Klik tombol \menu{Lihat Semua} di header panel untuk menuju ke halaman \textbf{Manajemen Testimoni}.
+\end{enumerate}
+
+% Placeholder untuk screenshot panel Testimoni Terbaru
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{testimoni_terbaru.png}
+    \caption{Panel Aktivitas Terbaru - Testimoni}
+    \label{fig:dashboard-recent-testimonials}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+%   BAB 5: MANAJEMEN HERO & VISUAL
+%----------------------------------------------------------------------------------------
+\chapter{Manajemen Hero (Banner Utama)}
+
+Menu ini digunakan untuk mengatur tampilan paling atas website (Banner). Bagian Hero adalah elemen pertama yang dilihat pengunjung dan berfungsi sebagai representasi visual utama dari perusahaan.
+
+\section{Pengaturan Gambar Slider}
+Anda dapat mengupload lebih dari satu gambar background yang akan berganti secara otomatis (slider) untuk memberikan kesan dinamis pada tampilan utama website.
+
+\subsection{Langkah 1: Akses Menu Hero}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun yang memiliki akses.
+    \item Klik menu \menu{Hero} di sidebar navigasi sebelah kiri.
+    \item Tunggu beberapa detik hingga halaman Hero Management dimuat.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu hero
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{hero_access.png}
+    \caption{Akses Menu Hero dari Sidebar}
+    \label{fig:hero-access}
+\end{figure}
+
+\subsection{Langkah 2: Upload Gambar Background}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Mengatur urutan ke 2
+    \item Di bagian \textbf{Gambar Background Slider}, temukan tombol atau area upload bertuliskan \textbf{"Klik untuk upload gambar"}.
+    \item Klik area tersebut untuk membuka dialog pemilihan file dari komputer Anda.
+    \item Pilih satu atau beberapa gambar sekaligus dari komputer Anda (format yang didukung: JPEG, PNG, WebP).
+\end{enumerate}
+
+% Placeholder untuk screenshot area upload gambar
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{hero_upload_area.png}
+    \caption{Area Upload Gambar Background}
+    \label{fig:hero-upload-area}
+\end{figure}
+
+\subsection{Langkah 3: Pengelolaan Gambar}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Mengatur urutan ke 3
+    \item Gambar baru akan muncul di daftar preview dan akan ditampilkan sebagai bagian dari slider.
+    \item Untuk menghapus gambar lama, arahkan kursor ke gambar tersebut dan klik ikon \textbf{Silang (X)} merah di pojok kanan atas gambar.
+    \item Untuk mengganti gambar yang sudah ada, Anda bisa meng-upload gambar baru dan menghapus gambar lama.
+    \item Urutan gambar pada slider akan mengikuti urutan gambar dalam daftar preview.
+\end{enumerate}
+
+% Placeholder untuk screenshot pengelolaan gambar
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{hero_manage_images.png}
+    \caption{Pengelolaan Gambar Slider di Hero Section}
+    \label{fig:hero-manage-images}
+\end{figure}
+
+\section{Pengaturan Teks \& Statistik}
+Di bawah bagian gambar, terdapat form untuk mengubah teks yang tampil di banner, termasuk elemen yang menarik perhatian pengunjung:
+
+\subsection{Pengaturan Lokasi}
+\begin{itemize}
+    \item Pada kolom \textbf{Lokasi}, masukkan teks lokasi perusahaan yang ditampilkan secara menarik (misal: "Jakarta, Indonesia").
+    \item Teks ini akan muncul di bawah judul besar dan memberikan informasi geografis tentang perusahaan.
+    \item Pastikan penulisan lokasi konsisten dengan format yang Anda gunakan di sumber lain.
+\end{itemize}
+
+% Placeholder untuk screenshot pengaturan lokasi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_hero_location.png}
+    \caption{Pengaturan Teks Lokasi di Hero Section}
+    \label{fig:hero-location}
+\end{figure}
+
+\subsection{Pengaturan Judul Utama}
+\begin{itemize}
+    \item Pada kolom \textbf{Judul Utama}, masukkan headline besar yang menjadi fokus utama (misal: "Mesin Custom untuk Industri").
+    \item Judul ini adalah elemen teks paling menonjol di bagian Hero.
+    \item Buat judul yang singkat namun menarik dan mencerminkan nilai utama perusahaan.
+\end{itemize}
+
+% Placeholder untuk screenshot pengaturan judul utama
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_hero_main_title.png}
+    \caption{Pengaturan Judul Utama di Hero Section}
+    \label{fig:hero-main-title}
+\end{figure}
+
+\subsection{Pengaturan Statistik}
+\begin{itemize}
+    \item Pada bagian \textbf{Statistik}, masukkan angka untuk data statistik perusahaan yang ditampilkan dalam bentuk visual menarik:
+    \item \textbf{Jumlah Mesin}: Jumlah total mesin yang pernah dibuat/diproduksi
+    \item \textbf{Jumlah Klien}: Jumlah klien yang pernah menggunakan jasa/produk
+    \item \textbf{Jumlah Pelanggan}: Jumlah pelanggan yang puas
+    \item \textbf{Tahun Pengalaman}: Tahun berdirinya perusahaan atau pengalaman di industri
+    \item \textbf{Tahun Kepercayaan}: Tahun kepercayaan pelanggan terhadap perusahaan
+\end{itemize}
+
+% Placeholder untuk screenshot pengaturan statistik
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_hero_statistics.png}
+    \caption{Pengaturan Statistik di Hero Section}
+    \label{fig:hero-statistics}
+\end{figure}
+
+
+%----------------------------------------------------------------------------------------
+%   BAB 6: MANAJEMEN PRODUK
+%----------------------------------------------------------------------------------------
+\chapter{Manajemen Produk}
+
+Menu ini adalah inti dari website, tempat Anda mengelola katalog mesin dan informasi produk secara lengkap. Produk yang dikelola di sini akan langsung tampil di halaman publik untuk dilihat oleh pengunjung website.
+
+\section{Langkah 1: Akses Menu Produk}
+\begin{enumerate}
+    \item Setelah login ke panel administrasi, temukan dan klik menu \menu{Produk} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman daftar produk dimuat sepenuhnya. Anda akan melihat daftar produk yang telah dibuat sebelumnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_product_menu_access.png}
+    \caption{Akses Menu Produk dari Sidebar Administrasi}
+    \label{fig:product-menu-access}
+\end{figure}
+
+\section{Langkah 2: Menambah Produk Baru}
+\begin{enumerate}
+    \setcounter{enumi}{1} % Atur urutan ke 2
+    \item Di pojok kanan atas halaman daftar produk, klik tombol hijau bertuliskan \menu{+ Tambah Produk}.
+    \item Form penambahan produk akan muncul dalam modal atau halaman baru.
+\end{enumerate}
+
+\subsection{Isian Form Penambahan Produk}
+Saat menambahkan produk baru, Anda perlu mengisi beberapa informasi penting:
+
+\subsubsection{Nama Produk}
+\begin{itemize}
+    \item Wajib diisi dengan nama produk yang jelas dan deskriptif (contoh: "Mesin CNC 5 Axis").
+    \item Gunakan penamaan yang konsisten dengan standar penamaan produk perusahaan.
+    \item Hindari penggunaan karakter khusus yang berlebihan.
+\end{itemize}
+
+% Placeholder untuk gambar form nama produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_product_name.png}
+    \caption{Input Nama Produk}
+    \label{fig:product-name}
+\end{figure}
+
+\subsubsection{Harga Produk}
+\begin{itemize}
+    \item Masukkan angka harga tanpa simbol mata uang, hanya angka (contoh: 250000000).
+    \item Sistem akan otomatis memformat tampilan harga menjadi format mata uang Indonesia~(Rp) dengan pemisah ribuan.
+    \item Harga hanya akan muncul di halaman publik jika opsi "Sembunyikan Harga" tidak dicentang.
+\end{itemize}
+
+\subsubsection{Opsi Sembunyikan Harga}
+\begin{itemize}
+    \item Centang kotak ini jika Anda tidak ingin harga tampil di publik.
+    \item Jika dicentang, harga akan diganti dengan teks "Hubungi Kami" untuk mendorong interaksi langsung dengan pelanggan.
+    \item Opsi ini berguna untuk produk yang harganya perlu dinegosiasikan atau informasi harganya sensitif.
+\end{itemize}
+
+% Placeholder untuk gambar form harga produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_product_price.png}
+    \caption{Input Harga Produk}
+    \label{fig:product-price}
+\end{figure}
+
+\subsubsection{Deskripsi Produk}
+\begin{itemize}
+    \item Teks penjelasan detail mengenai spesifikasi, keunggulan, dan fitur produk.
+    \item Gunakan format paragraf yang mudah dipahami oleh pelanggan potensial.
+    \item Cantumkan informasi penting seperti spesifikasi teknis, material, ukuran, dan keunggulan kompetitif.
+\end{itemize}
+
+% Placeholder untuk gambar form deskripsi produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_product_description.png}
+    \caption{Form Deskripsi Produk}
+    \label{fig:product-description}
+\end{figure}
+
+\subsubsection{Gambar Produk Utama}
+\begin{itemize}
+    \item Gambar wajib diunggah (format: JPEG, PNG, WebP) yang akan tampil di kartu produk di halaman publik.
+    \item Gunakan gambar beresolusi tinggi untuk tampilan profesional.
+    \item Disarankan gambar memiliki rasio tertentu (misalnya 4:3 atau 1:1) untuk konsistensi tampilan.
+\end{itemize}
+
+% Placeholder untuk area upload gambar produk utama
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_main_product_image.png}
+    \caption{Area Upload Gambar Produk Utama}
+    \label{fig:main-product-image}
+\end{figure}
+
+\subsubsection{Gambar Album Produk}
+\begin{itemize}
+    \item Gambar opsional yang akan ditampilkan di galeri detail produk saat pengunjung mengklik produk.
+    \item Anda bisa meng-upload lebih dari satu gambar sekaligus untuk menunjukkan detail atau sisi berbeda dari produk.
+    \item Gunakan tombol upload ganda untuk memilih lebih dari satu file gambar sekaligus.
+\end{itemize}
+
+% Placeholder untuk area upload album produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_product_album.png}
+    \caption{Area Upload Album Gambar Produk}
+    \label{fig:product-album}
+\end{figure}
+
+\subsection{Menyimpan Produk Baru}
+\begin{enumerate}
+    \setcounter{enumi}{2} % Atur urutan ke 3
+    \item Setelah mengisi semua informasi produk yang diperlukan, klik tombol \menu{Tambah Produk} di bagian bawah form.
+    \item Tunggu proses penyimpanan. Setelah berhasil, Anda akan melihat notifikasi sukses dan produk baru muncul di daftar produk.
+\end{enumerate}
+
+% Placeholder untuk screenshot form penambahan produk lengkap
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_add_product_full.png}
+    \caption{Form Lengkap Penambahan Produk Baru}
+    \label{fig:add-product-full}
+\end{figure}
+
+\section{Mengelola Produk Eksisting}
+Setelah produk ditambahkan, Anda bisa melakukan berbagai operasi pengelolaan:
+
+\subsection{Melihat Daftar Produk}
+\begin{itemize}
+    \item Halaman daftar produk menampilkan semua produk yang telah dibuat dalam bentuk kartu-kartu.
+    \item Setiap kartu menampilkan gambar produk, nama produk, harga (jika tidak disembunyikan), dan tombol aksi.
+    \item Gunakan fitur pencarian dan filter jika Anda memiliki banyak produk untuk menemukan produk tertentu.
+\end{itemize}
+
+% Placeholder untuk screenshot daftar produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_product_list_view.png}
+    \caption{Tampilan Daftar Seluruh Produk}
+    \label{fig:product-list-view}
+\end{figure}
+
+\subsection{Mengatur Urutan Produk (Drag \& Drop)}
+Fitur unggulan sistem ini adalah kemampuan mengurutkan produk secara visual untuk menentukan prioritas tampilan di halaman publik:
+\begin{enumerate}
+    \item Pada halaman daftar produk, klik dan tahan pada kartu produk yang ingin dipindahkan.
+    \item Geser (\textit{drag}) ke posisi urutan yang diinginkan.
+    \item Lepaskan (\textit{drop}).
+    \item Sistem akan otomatis menyimpan urutan baru dan menampilkan notifikasi sukses.
+    \item Urutan produk akan langsung terlihat di halaman publik sesuai dengan urutan yang telah ditentukan.
+\end{enumerate}
+
+% Placeholder untuk screenshot fitur drag & drop
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_drag_drop_order.png}
+    \caption{Fitur Drag \& Drop untuk Mengatur Urutan Produk}
+    \label{fig:drag-drop-order}
+\end{figure}
+
+\subsection{Mengedit Produk}
+\begin{enumerate}
+    \item Temukan produk yang ingin diedit di daftar produk.
+    \item Klik ikon \textbf{Pensil} (Edit) pada kartu produk.
+    \item Form edit akan muncul dengan informasi produk yang sudah terisi.
+    \item Lakukan perubahan yang diperlukan (nama, harga, deskripsi, gambar, dll).
+    \item Tambahkan atau hapus gambar album produk sesuai kebutuhan.
+    \item Klik \menu{Simpan Perubahan} untuk menyimpan update produk.
+\end{enumerate}
+
+% Placeholder untuk screenshot proses edit produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_edit_product_process.png}
+    \caption{Proses Mengedit Informasi Produk}
+    \label{fig:edit-product-process}
+\end{figure}
+
+\subsection{Menghapus Produk}
+\begin{enumerate}
+    \item Temukan produk yang ingin dihapus di daftar produk.
+    \item Klik ikon \textbf{Sampah} (Delete) pada kartu produk.
+    \item Konfirmasi penghapusan pada dialog yang muncul.
+    \item Produk yang dihapus tidak akan lagi tampil di halaman publik.
+    \item Peringatan: Penghapusan produk tidak dapat dibatalkan (tidak dapat dikembalikan).
+\end{enumerate}
+
+% Placeholder untuk screenshot konfirmasi penghapusan produk
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_delete_product_confirm.png}
+    \caption{Konfirmasi Penghapusan Produk}
+    \label{fig:delete-product-confirm}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+%   BAB 7: MANAJEMEN KLIEN & TESTIMONI
+%----------------------------------------------------------------------------------------
+\chapter{Manajemen Klien \& Testimoni}
+
+\section{Manajemen Klien (Our Client)}
+Menu ini untuk menampilkan logo mitra kerja sebagai bentuk kepercayaan dan hubungan kerja dengan perusahaan lain. Bagian ini penting dalam membangun kredibilitas perusahaan.
+
+\subsection{Langkah 1: Akses Menu Our Client}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun yang memiliki akses.
+    \item Klik menu \menu{Our Client} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman daftar klien dimuat sepenuhnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu client
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_client_access.png}
+    \caption{Akses Menu Our Client dari Sidebar}
+    \label{fig:client-access}
+\end{figure}
+
+\subsection{Langkah 2: Menambah Klien Baru}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item Di pojok kanan atas halaman, klik tombol hijau bertuliskan \menu{+ Tambah Client}.
+    \item Form penambahan klien akan muncul dalam modal atau halaman baru.
+\end{enumerate}
+
+% Placeholder untuk screenshot tombol tambah client
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_add_client_button.png}
+    \caption{Tombol Tambah Client}
+    \label{fig:add-client-button}
+\end{figure}
+
+\subsection{Langkah 3: Mengisi Form Klien}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Nama Client}: Masukkan nama resmi perusahaan klien/mitra dengan lengkap dan benar.
+    \item \textbf{Upload Logo}: Klik area upload untuk memilih file logo dari komputer Anda.
+        \begin{itemize}
+            \item Format yang didukung: PNG, JPG, JPEG, WebP
+            \item Saran: Gunakan file PNG dengan latar transparan untuk hasil terbaik
+            \item Ukuran yang disarankan: minimal 200x200 piksel
+        \end{itemize}
+\end{enumerate}
+
+% Placeholder untuk screenshot form input client
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_client_form.png}
+    \caption{Form Input Data Klien}
+    \label{fig:client-form}
+\end{figure}
+
+\subsection{Langkah 4: Menyimpan Data Klien}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Setelah semua data terisi dengan benar, klik tombol \menu{Simpan} di bagian bawah form.
+    \item Sistem akan memproses dan menyimpan data klien baru.
+    \item Logo klien akan langsung muncul di daftar dan di halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot daftar client
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_client_list.png}
+    \caption{Daftar Klien yang Telah Ditambahkan}
+    \label{fig:client-list}
+\end{figure}
+
+\subsection{Langkah 5: Mengedit Klien}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Pada daftar klien, temukan klien yang ingin diedit.
+    \item Klik ikon \textbf{Pensil} pada kartu klien tersebut.
+    \item Ubah nama atau logo sesuai kebutuhan.
+    \item Klik tombol \menu{Simpan Perubahan} untuk menyimpan update.
+\end{enumerate}
+
+% Placeholder untuk screenshot edit client
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_edit_client.png}
+    \caption{Form Edit Data Klien}
+    \label{fig:edit-client}
+\end{figure}
+
+\subsection{Langkah 6: Menghapus Klien}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Pada daftar klien, temukan klien yang ingin dihapus.
+    \item Klik ikon \textbf{Sampah} berwarna merah pada kartu klien tersebut.
+    \item Konfirmasi penghapusan pada dialog yang muncul.
+    \item Data klien akan terhapus dari sistem dan tidak lagi tampil di halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot delete client
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_delete_client.png}
+    \caption{Konfirmasi Hapus Klien}
+    \label{fig:delete-client}
+\end{figure}
+
+\subsection{Langkah 7: Mengatur Urutan Klien}
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Untuk mengatur urutan tampilan logo klien, gunakan fitur \textit{Drag \& Drop}.
+    \item Klik dan tahan pada kartu klien yang ingin dipindahkan.
+    \item Geser ke posisi yang diinginkan.
+    \item Lepaskan untuk menyimpan urutan baru.
+    \item Urutan ini akan langsung diterapkan di halaman publik.
+\end{enumerate}
+
+\section{Manajemen Testimoni}
+Menu ini untuk menampilkan ulasan pelanggan sebagai bentuk kepuasan dan rekomendasi terhadap layanan/perusahaan. Testimoni berperan penting dalam membangun kepercayaan calon klien.
+
+\subsection{Langkah 1: Akses Menu Testimoni}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun yang memiliki akses.
+    \item Klik menu \menu{Testimoni} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman daftar testimoni dimuat sepenuhnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_testimonial_access.png}
+    \caption{Akses Menu Testimoni dari Sidebar}
+    \label{fig:testimonial-access}
+\end{figure}
+
+\subsection{Langkah 2: Menambah Testimoni Baru}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item Di pojok kanan atas halaman, klik tombol hijau bertuliskan \menu{+ Tambah Testimoni}.
+    \item Form penambahan testimoni akan muncul dalam modal atau halaman baru.
+\end{enumerate}
+
+% Placeholder untuk screenshot tombol tambah testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_add_testimonial_button.png}
+    \caption{Tombol Tambah Testimoni}
+    \label{fig:add-testimonial-button}
+\end{figure}
+
+\subsection{Langkah 3: Mengisi Form Testimoni}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{Nama Klien}: Masukkan nama lengkap orang yang memberikan testimoni.
+    \item \textbf{Institusi}: Masukkan jabatan atau nama perusahaan asal klien.
+    \item \textbf{Testimoni}: Ketik atau salin teks ulasan yang asli dan otentik. Pastikan testimonial mencerminkan pengalaman nyata dan spesifik.
+    \item \textbf{Tanggal}: Pilih tanggal testimoni diberikan menggunakan date picker.
+\end{enumerate}
+
+% Placeholder untuk screenshot form testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_testimonial_form.png}
+    \caption{Form Input Data Testimoni}
+    \label{fig:testimonial-form}
+\end{figure}
+
+\subsection{Langkah 4: Menyimpan Data Testimoni}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Setelah semua data terisi dengan lengkap, klik tombol \menu{Simpan} di bagian bawah form.
+    \item Sistem akan memproses dan menyimpan testimoni baru.
+    \item Testimoni akan langsung muncul di daftar dan di slider halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot daftar testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_testimonial_list.png}
+    \caption{Daftar Testimoni yang Telah Ditambahkan}
+    \label{fig:testimonial-list}
+\end{figure}
+
+\subsection{Langkah 5: Mengedit Testimoni}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Pada daftar testimoni, temukan testimoni yang ingin diedit.
+    \item Klik ikon \textbf{Pensil} pada kartu testimoni tersebut.
+    \item Ubah nama, institusi, teks testimoni, atau tanggal sesuai kebutuhan.
+    \item Klik tombol \menu{Simpan Perubahan} untuk menyimpan update.
+\end{enumerate}
+
+% Placeholder untuk screenshot edit testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_edit_testimonial.png}
+    \caption{Form Edit Data Testimoni}
+    \label{fig:edit-testimonial}
+\end{figure}
+
+\subsection{Langkah 6: Menghapus Testimoni}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Pada daftar testimoni, temukan testimoni yang ingin dihapus.
+    \item Klik ikon \textbf{Sampah} berwarna merah pada kartu testimoni tersebut.
+    \item Konfirmasi penghapusan pada dialog yang muncul.
+    \item Data testimoni akan terhapus dari sistem dan tidak lagi tampil di halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot delete testimoni
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_delete_testimonial.png}
+    \caption{Konfirmasi Hapus Testimoni}
+    \label{fig:delete-testimonial}
+\end{figure}
+
+\subsection{Langkah 7: Mengatur Urutan Testimoni}
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Untuk mengatur urutan tampilan testimoni di slider, gunakan fitur \textit{Drag \& Drop}.
+    \item Klik dan tahan pada kartu testimoni yang ingin dipindahkan.
+    \item Geser ke posisi yang diinginkan berdasarkan prioritas atau relevansi.
+    \item Lepaskan untuk menyimpan urutan baru.
+    \item Urutan ini akan langsung diterapkan di slider halaman publik.
+\end{enumerate}
+
+%----------------------------------------------------------------------------------------
+%   BAB 8: MANAJEMEN HALAMAN LAINNYA
+%----------------------------------------------------------------------------------------
+\chapter{Manajemen Halaman Lainnya}
+
+\section{Visi \& Misi}
+Bagian ini menampilkan filosofi dan tujuan strategis perusahaan. Visi dan Misi merupakan elemen penting dalam menyampaikan identitas dan arah perusahaan kepada pengunjung.
+
+\subsection{Langkah 1: Akses Menu Visi \& Misi}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun yang memiliki akses.
+    \item Klik menu \menu{Visi \& Misi} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman editor Visi \& Misi dimuat sepenuhnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu visi misi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_vision_access.png}
+    \caption{Akses Menu Visi \& Misi dari Sidebar}
+    \label{fig:vision-access}
+\end{figure}
+
+\subsection{Langkah 2: Mengedit Visi Perusahaan}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item Temukan kotak teks berlabel \textbf{Visi} di bagian atas form.
+    \item Klik pada area teks untuk mulai mengedit.
+    \item Ketik atau edit teks visi perusahaan. Visi sebaiknya mencerminkan cita-cita jangka panjang perusahaan.
+    \item Pastikan teks visi ringkas namun bermakna dan inspiratif.
+\end{enumerate}
+
+% Placeholder untuk screenshot edit visi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_edit_vision.png}
+    \caption{Form Edit Visi Perusahaan}
+    \label{fig:edit-vision}
+\end{figure}
+
+\subsection{Langkah 3: Mengedit Poin Misi}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item Di bagian \textbf{Misi}, Anda akan melihat daftar poin misi yang sudah ada.
+    \item Klik pada kolom teks poin misi yang ingin diedit.
+    \item Ubah teks sesuai kebutuhan. Setiap poin misi sebaiknya spesifik dan menggambarkan langkah-langkah untuk mencapai visi.
+\end{enumerate}
+
+% Placeholder untuk screenshot edit misi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_edit_mission.png}
+    \caption{Form Edit Poin Misi}
+    \label{fig:edit-mission}
+\end{figure}
+
+\subsection{Langkah 4: Menambah Poin Misi Baru}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Scroll ke bagian bawah daftar poin misi.
+    \item Klik tombol \menu{+ Tambah Poin Misi}.
+    \item Kolom teks baru akan muncul di bawah poin terakhir.
+    \item Ketik poin misi baru pada kolom yang tersedia.
+\end{enumerate}
+
+% Placeholder untuk screenshot tambah poin misi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_add_mission_point.png}
+    \caption{Tombol Tambah Poin Misi}
+    \label{fig:add-mission-point}
+\end{figure}
+
+\subsection{Langkah 5: Menghapus Poin Misi}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Temukan poin misi yang ingin dihapus.
+    \item Klik ikon \textbf{Sampah} berwarna merah di sebelah kanan poin tersebut.
+    \item Poin misi akan langsung terhapus dari daftar.
+    \item Pastikan untuk menyimpan perubahan setelah menghapus.
+\end{enumerate}
+
+% Placeholder untuk screenshot hapus poin misi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_delete_mission_point.png}
+    \caption{Ikon Hapus Poin Misi}
+    \label{fig:delete-mission-point}
+\end{figure}
+
+\subsection{Langkah 6: Pratinjau Real-Time}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Panel kanan (desktop) atau bawah (mobile) menampilkan \textbf{Pratinjau (Preview)} secara \textit{real-time}.
+    \item Setiap perubahan yang Anda buat akan langsung terlihat di pratinjau.
+    \item Gunakan pratinjau ini untuk memastikan tampilan sesuai dengan yang diharapkan sebelum menyimpan.
+\end{enumerate}
+
+% Placeholder untuk screenshot preview visi misi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_vision_preview.png}
+    \caption{Panel Pratinjau Visi \& Misi}
+    \label{fig:vision-preview}
+\end{figure}
+
+\subsection{Langkah 7: Menyimpan Perubahan}
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Setelah selesai melakukan semua perubahan, scroll ke bagian bawah halaman.
+    \item Klik tombol \menu{Simpan Perubahan} berwarna biru.
+    \item Sistem akan memproses dan menyimpan perubahan.
+    \item Perubahan akan langsung terlihat di halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot simpan visi misi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_save_vision.png}
+    \caption{Tombol Simpan Perubahan Visi \& Misi}
+    \label{fig:save-vision}
+\end{figure}
+
+\section{Kontak}
+Bagian ini mengelola informasi kontak yang tampil di Footer dan halaman Kontak. Ini adalah titik penting bagi pengunjung untuk menghubungi perusahaan.
+
+\subsection{Langkah 1: Akses Menu Kontak}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun yang memiliki akses.
+    \item Klik menu \menu{Kontak} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman editor Kontak dimuat sepenuhnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu kontak
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_contact_access.png}
+    \caption{Akses Menu Kontak dari Sidebar}
+    \label{fig:contact-access}
+\end{figure}
+
+\subsection{Langkah 2: Mengisi Informasi Email}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item Temukan kolom \textbf{Email} di form.
+    \item Masukkan alamat email resmi perusahaan yang dapat dihubungi oleh klien/pelanggan.
+    \item Pastikan email yang dimasukkan aktif dan termonitor secara berkala.
+\end{enumerate}
+
+% Placeholder untuk screenshot input email
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_contact_email.png}
+    \caption{Form Input Email Perusahaan}
+    \label{fig:contact-email}
+\end{figure}
+
+\subsection{Langkah 3: Mengisi Nomor WhatsApp}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item Temukan kolom \textbf{Nomor WhatsApp} di form.
+    \item Masukkan nomor WhatsApp aktif (boleh format 08xx atau +62xx).
+    \item Sistem akan otomatis memformatnya menjadi link WhatsApp yang dapat diklik langsung oleh pengunjung.
+    \item Pastikan nomor yang dimasukkan aktif dan siap menerima pesan dari calon klien.
+\end{enumerate}
+
+% Placeholder untuk screenshot input whatsapp
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_contact_whatsapp.png}
+    \caption{Form Input Nomor WhatsApp}
+    \label{fig:contact-whatsapp}
+\end{figure}
+
+\subsection{Langkah 4: Mengisi Alamat Perusahaan}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Temukan kolom \textbf{Alamat} di form.
+    \item Masukkan alamat lengkap kantor/pabrik perusahaan.
+    \item Alamat ini akan ditampilkan di halaman kontak dan juga di peta.
+    \item Pastikan alamat ditulis dengan jelas dan lengkap untuk memudahkan pengunjung menemukan lokasi.
+\end{enumerate}
+
+% Placeholder untuk screenshot input alamat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_contact_address.png}
+    \caption{Form Input Alamat Perusahaan}
+    \label{fig:contact-address}
+\end{figure}
+
+\subsection{Langkah 5: Mengisi Nama Lokasi Maps}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Temukan kolom \textbf{Nama Lokasi Maps} di form.
+    \item Masukkan nama tempat untuk pencarian peta Google.
+    \item Nama ini akan membantu pengunjung dalam menemukan lokasi perusahaan di Google Maps.
+\end{enumerate}
+
+% Placeholder untuk screenshot input maps location
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_contact_maps_name.png}
+    \caption{Form Input Nama Lokasi Maps}
+    \label{fig:contact-maps-name}
+\end{figure}
+
+\subsection{Langkah 6: Mengisi Tautan Maps (Opsional)}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Temukan kolom \textbf{Tautan Maps} di form (opsional).
+    \item Masukkan link embed atau link share dari Google Maps untuk peta yang lebih akurat.
+    \item Cara mendapatkan link: Buka Google Maps, cari lokasi perusahaan, klik Share, lalu copy link.
+    \item Link ini akan membuat peta lebih interaktif di halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot input maps link
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_contact_maps_link.png}
+    \caption{Form Input Tautan Maps}
+    \label{fig:contact-maps-link}
+\end{figure}
+
+\subsection{Langkah 7: Pratinjau dan Menyimpan}
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Panel \textbf{Pratinjau} di sebelah kanan akan menampilkan hasil inputan secara real-time.
+    \item Periksa apakah semua informasi tampil dengan benar.
+    \item Klik tombol \menu{Simpan Perubahan} di bagian bawah untuk menyimpan.
+    \item Perubahan akan langsung terlihat di halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot preview kontak
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_contact_preview.png}
+    \caption{Pratinjau dan Simpan Informasi Kontak}
+    \label{fig:contact-preview}
+\end{figure}
+
+\section{Riwayat Perusahaan (Company History)}
+Bagian ini menampilkan \textit{milestone} atau sejarah penting dan pencapaian perusahaan secara kronologis, yang penting untuk membangun kredibilitas dan kepercayaan.
+
+\subsection{Langkah 1: Akses Menu Riwayat Perusahaan}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun yang memiliki akses.
+    \item Klik menu \menu{Riwayat Perusahaan} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman daftar riwayat dimuat sepenuhnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu riwayat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_history_access.png}
+    \caption{Akses Menu Riwayat Perusahaan dari Sidebar}
+    \label{fig:history-access}
+\end{figure}
+
+\subsection{Langkah 2: Menambah Riwayat Baru}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item Di pojok kanan atas halaman, klik tombol hijau bertuliskan \menu{+ Tambah Riwayat}.
+    \item Form penambahan riwayat akan muncul dalam modal atau halaman baru.
+\end{enumerate}
+
+% Placeholder untuk screenshot tombol tambah riwayat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_add_history_button.png}
+    \caption{Tombol Tambah Riwayat}
+    \label{fig:add-history-button}
+\end{figure}
+
+\subsection{Langkah 3: Mengisi Tahun Peristiwa}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item Temukan kolom \textbf{Tahun} di form.
+    \item Masukkan tahun terjadinya milestone penting (contoh: 2015).
+    \item Tahun ini akan ditampilkan secara prominent di timeline.
+\end{enumerate}
+
+% Placeholder untuk screenshot input tahun
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_history_year.png}
+    \caption{Form Input Tahun Peristiwa}
+    \label{fig:history-year}
+\end{figure}
+
+\subsection{Langkah 4: Mengisi Judul Peristiwa}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Temukan kolom \textbf{Judul Peristiwa} di form.
+    \item Masukkan deskripsi singkat dari peristiwa penting (contoh: "Pendirian Perusahaan").
+    \item Judul sebaiknya ringkas namun deskriptif.
+\end{enumerate}
+
+% Placeholder untuk screenshot input judul peristiwa
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_history_title.png}
+    \caption{Form Input Judul Peristiwa}
+    \label{fig:history-title}
+\end{figure}
+
+\subsection{Langkah 5: Mengisi Deskripsi}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Temukan kolom \textbf{Deskripsi} di form.
+    \item Masukkan penjelasan lengkap tentang peristiwa dan dampaknya terhadap perusahaan.
+    \item Deskripsi dapat berupa beberapa paragraf untuk memberikan konteks yang jelas.
+\end{enumerate}
+
+% Placeholder untuk screenshot input deskripsi
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_history_description.png}
+    \caption{Form Input Deskripsi Peristiwa}
+    \label{fig:history-description}
+\end{figure}
+
+\subsection{Langkah 6: Upload Gambar Dokumentasi (Opsional)}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Temukan area upload \textbf{Gambar Dokumentasi} di form.
+    \item Klik area upload untuk memilih gambar dari komputer Anda (opsional).
+    \item Pilih gambar yang merepresentasikan peristiwa tersebut.
+    \item Format yang didukung: PNG, JPG, JPEG, WebP.
+\end{enumerate}
+
+% Placeholder untuk screenshot upload gambar riwayat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_history_image.png}
+    \caption{Upload Gambar Dokumentasi Riwayat}
+    \label{fig:history-image}
+\end{figure}
+
+\subsection{Langkah 7: Menyimpan Riwayat}
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Setelah semua data terisi, klik tombol \menu{Simpan} di bagian bawah form.
+    \item Sistem akan memproses dan menyimpan riwayat baru.
+    \item Riwayat akan langsung muncul di daftar dan di timeline halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot daftar riwayat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_history_list.png}
+    \caption{Daftar Riwayat Perusahaan}
+    \label{fig:history-list}
+\end{figure}
+
+\subsection{Langkah 8: Mengedit Riwayat}
+\begin{enumerate}
+    \setcounter{enumi}{7}
+    \item Pada daftar riwayat, temukan riwayat yang ingin diedit.
+    \item Klik ikon \textbf{Pensil} pada kartu riwayat tersebut.
+    \item Ubah tahun, judul, deskripsi, atau gambar sesuai kebutuhan.
+    \item Klik tombol \menu{Simpan Perubahan} untuk menyimpan update.
+\end{enumerate}
+
+% Placeholder untuk screenshot edit riwayat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_edit_history.png}
+    \caption{Form Edit Riwayat Perusahaan}
+    \label{fig:edit-history}
+\end{figure}
+
+\subsection{Langkah 9: Menghapus Riwayat}
+\begin{enumerate}
+    \setcounter{enumi}{8}
+    \item Pada daftar riwayat, temukan riwayat yang ingin dihapus.
+    \item Klik ikon \textbf{Sampah} berwarna merah pada kartu riwayat tersebut.
+    \item Konfirmasi penghapusan pada dialog yang muncul.
+    \item Data riwayat akan terhapus dari sistem dan tidak lagi tampil di halaman publik.
+\end{enumerate}
+
+% Placeholder untuk screenshot delete riwayat
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_delete_history.png}
+    \caption{Konfirmasi Hapus Riwayat}
+    \label{fig:delete-history}
+\end{figure}
+
+\subsection{Langkah 10: Mengatur Urutan Riwayat}
+\begin{enumerate}
+    \setcounter{enumi}{9}
+    \item Untuk mengatur urutan tampilan riwayat di timeline, gunakan fitur \textit{Drag \& Drop}.
+    \item Klik dan tahan pada kartu riwayat yang ingin dipindahkan.
+    \item Geser ke posisi yang diinginkan (biasanya kronologis dari terlama ke terbaru).
+    \item Lepaskan untuk menyimpan urutan baru.
+    \item Urutan ini akan langsung diterapkan di timeline halaman publik.
+\end{enumerate}
+
+%----------------------------------------------------------------------------------------
+%   BAB 9: PENGATURAN SITUS
+%----------------------------------------------------------------------------------------
+\chapter{Pengaturan Situs (Global)}
+
+Menu \textbf{Pengaturan Situs} memberikan kendali penuh atas elemen-elemen tampilan global website tanpa perlu mengubah kode program. Pengaturan ini memungkinkan penyesuaian tampilan secara menyeluruh untuk semua bagian website.
+
+\subsection{Langkah 1: Akses Menu Pengaturan Situs}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun yang memiliki akses.
+    \item Klik menu \menu{Pengaturan Situs} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman pengaturan dimuat sepenuhnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu pengaturan
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_access.png}
+    \caption{Akses Menu Pengaturan Situs dari Sidebar}
+    \label{fig:settings-access}
+\end{figure}
+
+\section{Tab 1: Info Dasar \& Hero}
+Tab pertama berisi pengaturan informasi dasar perusahaan dan elemen-elemen penting di bagian Hero.
+
+\subsection{Langkah 2: Mengubah Nama Perusahaan}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item Pastikan Anda berada di Tab 1 (Info Dasar \& Hero).
+    \item Temukan kolom \textbf{Company Name}.
+    \item Masukkan nama perusahaan yang akan muncul di footer, tab browser, dan elemen lain.
+    \item Nama ini akan diterapkan secara konsisten di seluruh website.
+\end{enumerate}
+
+% Placeholder untuk screenshot company name
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_company_name.png}
+    \caption{Form Input Nama Perusahaan}
+    \label{fig:settings-company-name}
+\end{figure}
+
+\subsection{Langkah 3: Upload Logo Perusahaan}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item Temukan area upload \textbf{Company Logo}.
+    \item Klik area upload untuk memilih file logo dari komputer Anda.
+    \item Logo akan digunakan di header, footer, dan sebagai favicon (ikon browser).
+    \item Format yang didukung: PNG, JPG, atau SVG.
+    \item Disarankan menggunakan logo dengan resolusi tinggi untuk hasil terbaik.
+\end{enumerate}
+
+% Placeholder untuk screenshot upload logo
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_logo.png}
+    \caption{Upload Logo Perusahaan}
+    \label{fig:settings-logo}
+\end{figure}
+
+\subsection{Langkah 4: Mengatur Hero Title}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Temukan kolom \textbf{Hero Title}.
+    \item Masukkan teks judul utama yang akan tampil di banner utama website.
+    \item Judul ini adalah elemen teks paling menonjol di halaman depan.
+\end{enumerate}
+
+% Placeholder untuk screenshot hero title
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_hero_title.png}
+    \caption{Form Input Hero Title}
+    \label{fig:settings-hero-title}
+\end{figure}
+
+\subsection{Langkah 5: Mengatur Visi Misi Label dan Title}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Temukan kolom \textbf{Visi Misi Label} dan \textbf{Visi Misi Title}.
+    \item Label adalah teks kecil di atas judul (contoh: "Tentang Kami").
+    \item Title adalah judul besar bagian tersebut (contoh: "Visi \& Misi").
+    \item Anda dapat mengubahnya sesuai preferensi (misal: "Filosofi Kami").
+\end{enumerate}
+
+% Placeholder untuk screenshot visi misi settings
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_vision_labels.png}
+    \caption{Form Input Label dan Title Visi Misi}
+    \label{fig:settings-vision-labels}
+\end{figure}
+
+\section{Tab 2: Produk, Klien \& Riwayat}
+Tab kedua mengelola label dan judul untuk bagian produk, klien, dan riwayat perusahaan.
+
+\subsection{Langkah 6: Navigasi ke Tab 2}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Klik tombol navigasi \textbf{Next} atau tab \textbf{2} di bagian bawah form.
+    \item Anda akan berpindah ke halaman pengaturan Tab 2.
+\end{enumerate}
+
+% Placeholder untuk screenshot tab 2
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_tab2.png}
+    \caption{Halaman Pengaturan Tab 2}
+    \label{fig:settings-tab2}
+\end{figure}
+
+\section{Tab 3: Testimoni \& Kontak}
+Tab ketiga mengelola label dan judul untuk bagian testimoni dan kontak.
+
+\subsection{Langkah 10: Navigasi ke Tab 3}
+\begin{enumerate}
+    \setcounter{enumi}{9}
+    \item Klik tombol navigasi \textbf{Next} atau tab \textbf{3} di bagian bawah form.
+    \item Anda akan berpindah ke halaman pengaturan Tab 3.
+\end{enumerate}
+
+% Placeholder untuk screenshot tab 3
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_tab3.png}
+    \caption{Halaman Pengaturan Tab 3}
+    \label{fig:settings-tab3}
+\end{figure}
+
+% Placeholder untuk screenshot simpan pengaturan
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_settings_save.png}
+    \caption{Tombol Simpan Pengaturan}
+    \label{fig:settings-save}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+%   BAB 10: MANAJEMEN ADMIN (SUPER ADMIN)
+%----------------------------------------------------------------------------------------
+\chapter{Manajemen Admin}
+
+\begin{warningbox}[Akses Terbatas]
+Menu ini hanya terlihat dan dapat diakses jika Anda login sebagai \textbf{Super Admin}. Pastikan hanya orang terpercaya yang memiliki akses super admin.
+\end{warningbox}
+
+Fitur ini digunakan untuk menambah personil yang boleh mengakses panel admin. Manajemen admin penting untuk mengatur pembagian tugas dalam pengelolaan website.
+
+\subsection{Langkah 1: Akses Menu Manajemen Admin}
+\begin{enumerate}
+    \item Login ke panel administrasi dengan akun \textbf{Super Admin}.
+    \item Klik menu \menu{Manajemen Admin} di sidebar navigasi sebelah kiri.
+    \item Tunggu hingga halaman daftar admin dimuat sepenuhnya.
+\end{enumerate}
+
+% Placeholder untuk screenshot akses menu admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_admin_access.png}
+    \caption{Akses Menu Manajemen Admin dari Sidebar}
+    \label{fig:admin-access}
+\end{figure}
+
+\section{Menambah Admin}
+
+\subsection{Langkah 2: Klik Tombol Tambah Admin}
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item Di pojok kanan atas halaman, klik tombol hijau bertuliskan \menu{+ Tambah Admin}.
+    \item Form penambahan admin akan muncul dalam modal atau halaman baru.
+\end{enumerate}
+
+% Placeholder untuk screenshot tombol tambah admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_add_admin_button.png}
+    \caption{Tombol Tambah Admin}
+    \label{fig:add-admin-button}
+\end{figure}
+
+\subsection{Langkah 3: Mengisi Username}
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item Temukan kolom \textbf{Username} di form.
+    \item Masukkan nama pengguna unik yang akan digunakan untuk login.
+    \item Hanya huruf, angka, dan underscore yang diperbolehkan.
+    \item Pastikan username mudah diingat dan mencerminkan identitas pengguna.
+\end{enumerate}
+
+% Placeholder untuk screenshot input username admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_admin_username.png}
+    \caption{Form Input Username Admin}
+    \label{fig:admin-username}
+\end{figure}
+
+\subsection{Langkah 4: Mengisi Password}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Temukan kolom \textbf{Password} di form.
+    \item Masukkan kata sandi (minimal 6 karakter).
+    \item Pastikan menggunakan password yang kuat dan aman.
+    \item Kombinasikan huruf besar, huruf kecil, angka, dan simbol untuk keamanan maksimal.
+\end{enumerate}
+
+% Placeholder untuk screenshot input password admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_admin_password.png}
+    \caption{Form Input Password Admin}
+    \label{fig:admin-password}
+\end{figure}
+
+\subsection{Langkah 5: Menyimpan Akun Admin Baru}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Setelah username dan password terisi, klik tombol \menu{Tambah Admin}.
+    \item Sistem akan memproses dan menyimpan akun admin baru.
+    \item Akun baru akan langsung muncul di daftar admin.
+    \item Informasikan username dan password kepada admin yang bersangkutan secara aman.
+\end{enumerate}
+
+% Placeholder untuk screenshot daftar admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_admin_list.png}
+    \caption{Daftar Admin yang Telah Ditambahkan}
+    \label{fig:admin-list}
+\end{figure}
+
+\section{Mengedit Admin}
+
+\subsection{Langkah 6: Akses Form Edit Admin}
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Pada daftar admin, temukan admin yang ingin diedit.
+    \item Klik ikon \textbf{Pensil} pada kartu admin tersebut.
+    \item Form edit admin akan muncul.
+\end{enumerate}
+
+% Placeholder untuk screenshot edit admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_edit_admin_form.png}
+    \caption{Form Edit Admin}
+    \label{fig:edit-admin-form}
+\end{figure}
+
+\subsection{Langkah 7: Mengubah Username atau Password}
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Anda dapat mengubah username jika diperlukan.
+    \item Untuk password: Kosongkan field password jika tidak ingin mengubahnya.
+    \item Isi field password hanya jika ingin mereset atau mengganti password.
+    \item Klik tombol \menu{Simpan Perubahan} untuk menyimpan update.
+\end{enumerate}
+
+% Placeholder untuk screenshot update admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_update_admin.png}
+    \caption{Update Informasi Admin}
+    \label{fig:update-admin}
+\end{figure}
+
+\section{Menghapus Admin}
+
+\subsection{Langkah 8: Menghapus Akun Admin}
+\begin{enumerate}
+    \setcounter{enumi}{7}
+    \item Pada daftar admin, temukan admin yang ingin dihapus.
+    \item Klik ikon \textbf{Sampah} berwarna merah pada kartu admin tersebut.
+    \item Konfirmasi penghapusan pada dialog yang muncul.
+    \item Akun admin akan terhapus dan tidak bisa login lagi ke sistem.
+\end{enumerate}
+
+% Placeholder untuk screenshot delete admin
+\begin{figure}[H]
+    \centering
+    \includegraphicsWithBorder[width=0.8\textwidth]{placeholder_delete_admin_confirm.png}
+    \caption{Konfirmasi Hapus Admin}
+    \label{fig:delete-admin-confirm}
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+%   BAB 11: PENUTUP
+%----------------------------------------------------------------------------------------
+\chapter{Penutup}
+
+Demikian panduan lengkap penggunaan sistem informasi profil perusahaan PT. Surya Kencana Gemilang Teknik. Dokumen ini dirancang sebagai referensi komprehensif untuk penggunaan dan pengelolaan sistem secara efektif dan efisien.
+
+Sistem ini dibangun dengan teknologi modern untuk memastikan fleksibilitas, kinerja optimal, serta kemudahan dalam pengelolaan konten perusahaan. Dengan berbagai fitur yang telah disediakan, tim manajemen dapat secara mandiri memperbarui informasi perusahaan kepada publik tanpa ketergantungan pada pihak eksternal.
+
+\section{Dukungan Teknis}
+Untuk bantuan teknis lebih lanjut, permintaan fitur tambahan, atau pelaporan kendala (bug), silakan menghubungi tim pengembang yang tertera pada halaman depan dokumen ini. Kami siap memberikan dukungan yang diperlukan untuk memastikan sistem berfungsi optimal sesuai kebutuhan perusahaan.
+
+\section{Pembaruan Dokumentasi}
+Dokumentasi ini akan terus diperbarui seiring dengan pengembangan sistem. Pastikan untuk selalu menggunakan versi terbaru dari dokumen ini sebagai referensi utama dalam penggunaan sistem. Setiap pembaruan akan mencakup penjelasan tentang fitur-fitur baru, perubahan signifikan, dan panduan penggunaan yang ditingkatkan.
+
+\section{Kesimpulan}
+Dengan mengikuti panduan dalam dokumen ini, pengguna diharapkan dapat memanfaatkan seluruh fitur sistem secara maksimal untuk mendukung kegiatan pengelolaan informasi perusahaan. Keberhasilan penggunaan sistem sangat bergantung pada pemahaman dan implementasi yang tepat terhadap panduan yang telah disediakan.
+
+\end{document}

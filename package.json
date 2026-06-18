@@ -6,7 +6,8 @@
     "dev": "next dev -p 3333",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "manual:screenshots": "node user-manual/scripts/capture-screenshots.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@next/eslint-plugin-next": "^16.2.4",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^22",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
