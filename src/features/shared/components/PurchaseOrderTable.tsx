@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   useReactTable,
@@ -119,6 +120,9 @@ export function PurchaseOrderTable() {
   const [data, setData] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const isMobile = useIsMobile();
+  const actualPageSize = isMobile ? 5 : 10;
+
   React.useEffect(() => {
     async function fetchData() {
       try {
@@ -230,6 +234,10 @@ export function PurchaseOrderTable() {
     getRowCanExpand: () => true,
     initialState: { pagination: { pageSize: 10 } },
   });
+
+  useEffect(() => {
+    table.setPageSize(actualPageSize);
+  }, [actualPageSize, table]);
 
   if (loading) {
     return (

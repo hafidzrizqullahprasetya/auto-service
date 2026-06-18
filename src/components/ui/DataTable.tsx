@@ -20,7 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Icons } from "@/components/Icons";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
@@ -68,6 +69,9 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = useState("");
   const debouncedFilter = useDebounce(globalFilter, SEARCH_DEBOUNCE_MS);
 
+  const isMobile = useIsMobile();
+  const actualPageSize = isMobile ? Math.min(5, pageSize) : pageSize;
+
   const table = useReactTable({
     data,
     columns,
@@ -90,6 +94,10 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     initialState: { pagination: { pageSize } },
   });
+
+  useEffect(() => {
+    table.setPageSize(actualPageSize);
+  }, [actualPageSize, table]);
 
   const rows = table.getRowModel().rows;
   const totalRows = rows.length;
@@ -207,7 +215,7 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableHeader>
                 <TableBody>
-                  {Array.from({ length: pageSize }).map((_, index) => (
+                  {Array.from({ length: actualPageSize }).map((_, index) => (
                     <TableRow
                       key={`skeleton-${index}`}
                       className="h-[84px] border-b border-stroke bg-white"
@@ -231,7 +239,7 @@ export function DataTable<TData, TValue>({
 
             {/* Mobile Loading Skeleton */}
             <div className="sm:hidden divide-y divide-stroke">
-              {Array.from({ length: pageSize }).map((_, index) => (
+              {Array.from({ length: actualPageSize }).map((_, index) => (
                 <div
                   key={`skeleton-mobile-${index}`}
                   className={cn(
