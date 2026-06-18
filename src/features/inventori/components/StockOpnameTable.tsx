@@ -76,6 +76,19 @@ function ActiveOpnameModal({
     );
   };
 
+  const updateNote = (itemId: string, note: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              note,
+            }
+          : item,
+      ),
+    );
+  };
+
   const totalDiff = items.reduce((sum, i) => sum + i.difference, 0);
   const allFilled = items.every(
     (i) => i.physicalCount > 0 || i.systemStock === 0,
@@ -184,6 +197,8 @@ function ActiveOpnameModal({
                   <input
                     type="text"
                     placeholder="Input catatan..."
+                    value={item.note || ""}
+                    onChange={(e) => updateNote(item.id, e.target.value)}
                     className="w-full rounded-lg border border-stroke bg-transparent px-3 py-1.5 text-xs outline-none focus:border-dark dark:border-dark-3 dark:bg-dark-2"
                   />
                 </td>
@@ -275,7 +290,15 @@ export function StockOpnameTable() {
   const pathname = usePathname();
 
   const { data: inventoryItems } = useInventory();
-  const { data: opnames, loading, error, refetch } = useOpnames();
+  const {
+    data: opnames,
+    loading,
+    error,
+    refetch,
+    createOpname,
+    closeOpname,
+    updateItem,
+  } = useOpnames();
   const [showActiveModal, setShowActiveModal] = useState(false);
   const [showStartConfirm, setShowStartConfirm] = useState(false);
   const [selectedOpname, setSelectedOpname] = useState<StockOpname | null>(
@@ -480,13 +503,16 @@ export function StockOpnameTable() {
               <ActionButton
                 variant="primary"
                 label="Mulai Sekarang"
-                onClick={() => {
+                onClick={async () => {
                   Notify.loading("Memulai sesi opname baru...");
-                  // Simulate start
-                  setTimeout(() => {
-                    Notify.close();
+                  try {
+                    const sessionName = `Opname — ${dayjs().format("DD/MM/YYYY")}`;
+                    await createOpname({ session_name: sessionName });
                     updateModalUrl("active-opname");
-                  }, 1000);
+                    Notify.toast("Sesi opname berhasil dimulai!", "success", "top");
+                  } catch (err) {
+                    Notify.alert("Gagal", err instanceof Error ? err.message : "Gagal membuat sesi opname", "error");
+                  }
                 }}
               />
             </div>
@@ -511,16 +537,26 @@ export function StockOpnameTable() {
         <ActiveOpnameModal
           opname={activeOpname}
           onClose={() => updateModalUrl(null)}
-          onFinish={(finalItems) => {
+          onFinish={async (finalItems) => {
             Notify.loading("Memproses rekonsiliasi stok...");
-            // Simulate API call
-            setTimeout(() => {
-              console.log("Saving items:", finalItems);
-              Notify.close();
+            try {
+              // Update each item on backend
+              await Promise.all(
+                finalItems.map((item) =>
+                  updateItem(activeOpname.id, item.id, {
+                    physical_count: item.physicalCount,
+                    note: item.note,
+                  })
+                )
+              );
+              // Close the session on backend
+              await closeOpname(activeOpname.id);
               updateModalUrl(null);
               refetch?.();
               Notify.toast("Sesi opname ditutup & stok diupdate!", "success", "top");
-            }, 1500);
+            } catch (err) {
+              Notify.alert("Gagal", err instanceof Error ? err.message : "Gagal memproses rekonsiliasi stok", "error");
+            }
           }}
         />
       )}
