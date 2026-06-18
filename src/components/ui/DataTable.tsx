@@ -81,11 +81,12 @@ export function DataTable<TData, TValue>({
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, _columnId, filterValue: string) => {
       if (!filterValue || filterValue.trim() === "") return true;
-      const search = filterValue.toLowerCase().trim();
+      const search = filterValue.toLowerCase().replace(/\s+/g, "");
       return row.getAllCells().some((cell) => {
         const val = cell.getValue();
         if (val == null) return false;
-        return String(val).toLowerCase().includes(search);
+        const cleanVal = String(val).toLowerCase().replace(/\s+/g, "");
+        return cleanVal.includes(search);
       });
     },
     getCoreRowModel: getCoreRowModel(),

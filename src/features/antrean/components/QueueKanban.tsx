@@ -32,6 +32,7 @@ import { SPKModal } from "./SPKModal";
 import { InspectionChecklistModal } from "./InspectionChecklistModal";
 import { ConfirmDeleteModal } from "@/features/shared";
 import { useAuth } from "@/hooks/useAuth";
+import { formatPlateNumber } from "@/utils/format-plate";
 
 interface KanbanCardProps {
   item: Antrean;
@@ -76,7 +77,7 @@ function KanbanCard({
           </div>
           <div className="flex flex-col">
             <span className="font-mono text-sm font-black uppercase text-dark dark:text-white">
-              {item.noPolisi}
+              {formatPlateNumber(item.noPolisi)}
             </span>
             <span className="text-[10px] font-bold uppercase text-dark-5">
               {item.kendaraan}

@@ -17,6 +17,7 @@ import { SPKModal } from "./SPKModal";
 import { InspectionChecklistModal } from "./InspectionChecklistModal";
 import { antreanToExcelRows } from "@/lib/excel";
 import { useAuth } from "@/hooks/useAuth";
+import { formatPlateNumber } from "@/utils/format-plate";
 
 const getStatusVariant = (status: Antrean["status"]) => {
   switch (status) {
@@ -85,7 +86,7 @@ export function QueueTable({ data, onUpdate, onDelete, onPay, isLoading = false 
               </div>
               <div className="flex flex-col">
                 <span className="font-mono text-sm font-black uppercase text-dark dark:text-white">
-                  {item.noPolisi}
+                  {formatPlateNumber(item.noPolisi)}
                 </span>
                 <span className="text-[10px] font-bold uppercase text-dark-5">
                   {item.kendaraan || "-"}

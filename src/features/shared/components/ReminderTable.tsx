@@ -10,6 +10,7 @@ import { DataTable } from "@/components/ui/DataTable";
 import { Badge, ActionButton } from "@/features/shared";
 import { ReminderFormModal } from "./ReminderFormModal";
 import { Notify } from "@/utils/notify";
+import { formatPlateNumber } from "@/utils/format-plate";
 
 const STATUS_VARIANT: Record<string, "success" | "info" | "danger" | "warning"> = {
   Aktif: "success",
@@ -124,7 +125,7 @@ export function ReminderTable() {
             <div className="flex flex-col gap-0.5">
               <p className="font-bold text-dark dark:text-white leading-tight">{r.pelanggan}</p>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-secondary text-xs uppercase">{r.noPolisi}</span>
+                <span className="font-bold text-secondary text-xs uppercase">{formatPlateNumber(r.noPolisi)}</span>
                 <span className="text-[11px] font-medium text-dark-5">{r.kendaraan}</span>
               </div>
               <p className="text-xs font-medium text-dark-5 leading-none mt-1">{r.phone}</p>

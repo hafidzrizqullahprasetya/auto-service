@@ -11,6 +11,7 @@ import { ActionButton, ExcelButtons, ConfirmDeleteModal } from "@/features/share
 import { ServiceHistoryModal } from "@/features/shared";
 import { VehicleFormModal } from "./VehicleFormModal";
 import { kendaraanToExcelRows } from "@/lib/excel";
+import { formatPlateNumber } from "@/utils/format-plate";
 
 export function VehicleTable() {
   const {
@@ -103,7 +104,7 @@ export function VehicleTable() {
                 )}
               </div>
               <span className="text-lg font-bold uppercase leading-none text-dark dark:text-white">
-                {v.plateNumber}
+                {formatPlateNumber(v.plateNumber)}
               </span>
             </div>
           );
