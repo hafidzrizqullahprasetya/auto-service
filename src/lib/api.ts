@@ -129,7 +129,10 @@ async function request<T>(
       } catch {
         throw new Error(`Format respon server tidak valid. Status: ${retryRes.status}`);
       }
-      if (!retryRes.ok) throw new Error(json.message ?? `HTTP ${retryRes.status}`);
+      if (!retryRes.ok) {
+        const errMsg = (json as any)?.error?.message || json.message || `HTTP ${retryRes.status}`;
+        throw new Error(errMsg);
+      }
       return json;
     }
 
@@ -156,7 +159,8 @@ async function request<T>(
   }
 
   if (!res.ok) {
-    throw new Error(json.message ?? `HTTP ${res.status}`);
+    const errMsg = (json as any)?.error?.message || json.message || `HTTP ${res.status}`;
+    throw new Error(errMsg);
   }
 
   return json;
