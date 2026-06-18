@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputGroup from "@/components/ui/InputGroup";
 import { Checkbox } from "@/components/ui/checkbox";
 import { authService, normalizeRole } from "@/services/auth.service";
@@ -21,6 +21,7 @@ type SigninFormValues = z.infer<typeof signinSchema>;
 export default function SigninWithPassword() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const {
     register,
     handleSubmit,
@@ -34,6 +35,10 @@ export default function SigninWithPassword() {
       remember: true,
     },
   });
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const onSubmit = async (data: SigninFormValues) => {
     Notify.loading("Memverifikasi kredensial...");
@@ -74,7 +79,7 @@ export default function SigninWithPassword() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form action="/auth/sign-in" method="post" onSubmit={handleSubmit(onSubmit)}>
       <InputGroup
         type="text"
         label="Username"
@@ -122,10 +127,14 @@ export default function SigninWithPassword() {
       <div className="mb-4.5">
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark p-4 text-sm font-bold text-white transition-none hover:bg-opacity-90 disabled:bg-opacity-50 dark:bg-white dark:text-dark dark:hover:bg-opacity-90"
+          disabled={!isHydrated || isSubmitting}
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-dark p-4 text-sm font-bold text-white transition-none hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-opacity-50 dark:bg-white dark:text-dark dark:hover:bg-opacity-90"
         >
-          {isSubmitting ? "Proses Otentikasi..." : "Masuk ke Dashboard"}
+          {!isHydrated
+            ? "Memuat Form..."
+            : isSubmitting
+              ? "Proses Otentikasi..."
+              : "Masuk ke Dashboard"}
           {isSubmitting && (
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent dark:border-dark dark:border-t-transparent" />
           )}
